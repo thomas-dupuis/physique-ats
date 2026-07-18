@@ -193,13 +193,13 @@ footer{background:var(--accent-fonce);color:#BFD9D4;margin-top:2rem}
   display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
 }
 footer strong{color:#fff;font-weight:500}
-footer a.linkedin{
-  display:inline-flex;align-items:center;gap:.45rem;
-  color:#BFD9D4;text-decoration:none;font-size:.88rem;margin-top:.6rem;
-  transition:color .2s;
+footer a.contact{
+  display:flex;align-items:center;gap:.45rem;
+  color:#BFD9D4;text-decoration:none;font-size:.88rem;margin-top:.55rem;
+  transition:color .2s;width:fit-content;
 }
-footer a.linkedin:hover{color:#fff}
-footer a.linkedin svg{width:1.05rem;height:1.05rem;fill:currentColor}
+footer a.contact:hover{color:#fff}
+footer a.contact svg{flex:none;width:1.05rem;height:1.05rem;fill:currentColor}
 footer .citation{
   font-style:italic;font-size:.88rem;color:#A9CEC7;
   max-width:34rem;line-height:1.55;

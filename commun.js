@@ -41,9 +41,38 @@ function listeNommee(nom){
   return tables[nom];
 }
 
+/* Construit une rubrique à sous-chapitres (Cours, Fiches, TD, TP) :
+   une section par thème, dans l'ordre où ils sont écrits dans documents.js */
+function construireRubrique(conteneur){
+  const donnees = listeNommee(conteneur.dataset.rubrique);
+  if(!donnees) return;
+  conteneur.innerHTML = "";
+  for(const theme in donnees){
+    const section = document.createElement("section");
+    const tete = document.createElement("div");
+    tete.className = "sec-tete";
+    const h2 = document.createElement("h2");
+    h2.textContent = theme;
+    const filet = document.createElement("div");
+    filet.className = "filet";
+    tete.appendChild(h2);
+    tete.appendChild(filet);
+    const carte = document.createElement("div");
+    carte.className = "carte";
+    const ul = document.createElement("ul");
+    ul.className = "docs";
+    creerListe(ul, donnees[theme]);
+    carte.appendChild(ul);
+    section.appendChild(tete);
+    section.appendChild(carte);
+    conteneur.appendChild(section);
+  }
+}
+
 /* Remplit toutes les listes marquées data-liste, sauf celles de
    l'espace élèves (remplies seulement après saisie du code). */
 function remplirLibres(){
+  document.querySelectorAll("[data-rubrique]").forEach(construireRubrique);
   document.querySelectorAll("ul[data-liste]").forEach(function(ul){
     if(ul.closest("#contenu-eleves")) return;
     creerListe(ul, listeNommee(ul.dataset.liste));
