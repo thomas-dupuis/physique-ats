@@ -1,0 +1,213 @@
+/* ==========================================================
+   STYLE.CSS — apparence du site (palette modifiable ici)
+   Bleu-vert lagon :
+     foncé  #0A4A55  (titres, bandeaux)
+     accent #0E6E77  (liens, boutons)
+     clair  #E9F2F0  (fonds doux)
+   ========================================================== */
+:root{
+  --sable:        #F7F5EF;
+  --encre:        #17313A;
+  --encre-2:      #5C6E74;
+  --accent:       #0E6E77;
+  --accent-fonce: #0A4A55;
+  --accent-clair: #E9F2F0;
+  --ecume:        #FFFFFF;
+  --trait:        #E5E0D4;
+  --ombre: 0 1px 2px rgba(23,49,58,.05), 0 8px 24px -12px rgba(23,49,58,.14);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5rem}
+body{
+  font-family:'Outfit',system-ui,sans-serif;
+  background:var(--sable);
+  color:var(--encre);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;min-height:100vh;
+}
+main{flex:1}
+h1,h2,h3{font-family:'STIX Two Text',Georgia,serif;font-weight:500;line-height:1.2}
+
+/* ---------- Navigation ---------- */
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(247,245,239,.88);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--trait);
+}
+.nav-inner{
+  max-width:64rem;margin:0 auto;padding:.65rem 1.25rem;
+  display:flex;align-items:center;gap:1.35rem;flex-wrap:wrap;
+}
+.nav-marque{text-decoration:none;margin-right:auto;line-height:1.25}
+.nav-marque .nom{font-family:'STIX Two Text',serif;font-size:1.02rem;color:var(--accent-fonce);display:block}
+.nav-marque .statut{font-size:.72rem;color:var(--encre-2);letter-spacing:.04em;display:block}
+nav a.lien{
+  color:var(--encre-2);text-decoration:none;font-size:.92rem;font-weight:500;
+  padding:.15rem 0;border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+nav a.lien:hover{color:var(--accent);border-color:var(--accent)}
+nav a.lien.actif{color:var(--accent-fonce);border-color:var(--accent-fonce)}
+
+/* ---------- Bandeau (hero) ---------- */
+header.hero{
+  background:linear-gradient(160deg,var(--accent-fonce) 0%,var(--accent) 90%);
+  color:#F2F7F5;
+  position:relative;overflow:hidden;
+}
+.hero svg.ondes{position:absolute;inset:0;width:100%;height:100%;opacity:.13;pointer-events:none}
+.hero-inner{
+  max-width:64rem;margin:0 auto;position:relative;z-index:1;
+  padding:4.2rem 1.25rem 5.6rem;
+  display:flex;align-items:center;gap:2.2rem;
+}
+.hero-texte{flex:1;min-width:0}
+.hero .surtitre{
+  text-transform:uppercase;letter-spacing:.18em;font-size:.78rem;
+  color:#9FD3CC;font-weight:600;margin-bottom:1rem;
+}
+.hero h1{font-size:clamp(2rem,4.6vw,3rem);margin-bottom:1rem;color:#fff}
+.hero p.sous-titre{color:#D3E7E2;font-weight:300;font-size:.98rem;letter-spacing:.005em}
+.hero-photo{
+  flex:0 0 25rem;max-width:46%;
+  border-radius:1rem;overflow:hidden;
+  box-shadow:0 12px 32px -10px rgba(0,0,0,.45);
+  border:3px solid rgba(255,255,255,.25);
+  transform:rotate(1.2deg);
+}
+.hero-photo img{display:block;width:100%;height:auto}
+/* bandeau réduit des sous-pages */
+header.hero.compact .hero-inner{padding:2.6rem 1.25rem 3.8rem}
+header.hero.compact h1{font-size:clamp(1.6rem,3.6vw,2.3rem);margin-bottom:.4rem}
+
+.vague{display:block;width:100%;height:3.2rem;margin-top:-3.2rem;position:relative;z-index:2}
+.vague path{fill:var(--sable)}
+
+/* ---------- Annonce ---------- */
+.annonce{max-width:64rem;margin:1.4rem auto -.8rem;padding:0 1.25rem}
+.annonce>div{
+  background:#FDF8EC;border:1px solid #EAD9A8;border-radius:.6rem;
+  padding:.7rem 1rem;font-size:.95rem;color:#6B5720;
+}
+
+/* ---------- Contenu ---------- */
+main>.page{max-width:64rem;margin:0 auto;padding:1.2rem 1.25rem 4rem}
+section{padding-top:2.6rem}
+.sec-tete{display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.1rem}
+.sec-tete h2{font-size:1.45rem;color:var(--accent-fonce)}
+.sec-tete .filet{flex:1;height:1px;background:var(--trait)}
+.sec-note{color:var(--encre-2);font-size:.93rem;margin:-.5rem 0 1.1rem}
+
+/* ---------- Tuiles de l'accueil ---------- */
+.tuiles{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+  gap:1.1rem;margin-top:2.4rem;
+}
+a.tuile{
+  background:var(--ecume);border:1px solid var(--trait);border-radius:1rem;
+  box-shadow:var(--ombre);padding:1.35rem 1.4rem 1.2rem;
+  text-decoration:none;color:var(--encre);
+  transition:transform .22s,box-shadow .22s,border-color .22s;
+  display:flex;flex-direction:column;gap:.35rem;
+}
+a.tuile:hover{
+  transform:translateY(-4px);border-color:var(--accent);
+  box-shadow:0 4px 8px rgba(23,49,58,.06), 0 16px 34px -12px rgba(10,74,85,.28);
+}
+a.tuile h2{font-size:1.22rem;color:var(--accent-fonce)}
+a.tuile p{font-size:.9rem;color:var(--encre-2);font-weight:300}
+a.tuile .fleche{
+  margin-top:auto;padding-top:.5rem;color:var(--accent);font-weight:600;font-size:.9rem;
+  transition:padding-left .22s;
+}
+a.tuile:hover .fleche{padding-left:.4rem}
+a.tuile.protegee h2::after{content:" 🔒";font-size:.85rem}
+
+/* ---------- Listes de documents ---------- */
+.carte{
+  background:var(--ecume);border:1px solid var(--trait);border-radius:.9rem;
+  box-shadow:var(--ombre);overflow:hidden;
+}
+ul.docs{list-style:none}
+ul.docs li+li{border-top:1px solid var(--trait)}
+ul.docs a{
+  display:flex;align-items:center;gap:.85rem;
+  padding:.85rem 1.1rem;text-decoration:none;color:var(--encre);
+  font-weight:500;font-size:.98rem;
+  transition:background .2s,padding-left .25s,color .2s;
+}
+ul.docs a:hover{background:var(--accent-clair);padding-left:1.45rem;color:var(--accent-fonce)}
+ul.docs .pdf{
+  flex:none;width:2rem;height:2rem;border-radius:.5rem;
+  background:var(--accent-clair);color:var(--accent-fonce);
+  display:grid;place-items:center;font-size:.62rem;font-weight:600;letter-spacing:.05em;
+}
+.vide{padding:1rem 1.1rem;color:var(--encre-2);font-size:.95rem;font-style:italic}
+
+/* ---------- Espace élèves ---------- */
+.verrou{text-align:center;padding:2.6rem 1.25rem;margin-top:2.2rem}
+.verrou p{color:var(--encre-2);max-width:27rem;margin:0 auto 1.4rem}
+.champ-code{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.champ-code input{
+  font:inherit;padding:.65rem 1rem;border:1px solid var(--trait);border-radius:.6rem;
+  background:#fff;width:14rem;text-align:center;letter-spacing:.08em;
+  transition:border-color .2s,box-shadow .2s;
+}
+.champ-code input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,110,119,.18)}
+.champ-code button{
+  font:inherit;font-weight:600;cursor:pointer;
+  background:var(--accent);color:#fff;border:none;border-radius:.6rem;
+  padding:.65rem 1.4rem;transition:background .2s,transform .1s;
+}
+.champ-code button:hover{background:var(--accent-fonce)}
+.champ-code button:active{transform:scale(.97)}
+.erreur-code{color:#A33B2E;font-size:.9rem;margin-top:.8rem;min-height:1.4em}
+@keyframes secousse{
+  0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}
+}
+.secousse{animation:secousse .4s}
+.deconnexion{margin-top:1.6rem;text-align:right}
+.deconnexion button{
+  font:inherit;font-size:.85rem;color:var(--encre-2);background:none;border:none;
+  cursor:pointer;text-decoration:underline;
+}
+.deconnexion button:hover{color:var(--accent)}
+
+/* ---------- Apparition au défilement ---------- */
+.apparait{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.apparait.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .apparait{opacity:1;transform:none;transition:none}
+}
+
+/* ---------- Pied de page ---------- */
+footer{background:var(--accent-fonce);color:#BFD9D4;margin-top:2rem}
+.footer-inner{
+  max-width:64rem;margin:0 auto;padding:2rem 1.25rem;
+  font-size:.92rem;font-weight:300;
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+footer strong{color:#fff;font-weight:500}
+footer a.linkedin{
+  display:inline-flex;align-items:center;gap:.45rem;
+  color:#BFD9D4;text-decoration:none;font-size:.88rem;margin-top:.6rem;
+  transition:color .2s;
+}
+footer a.linkedin:hover{color:#fff}
+footer a.linkedin svg{width:1.05rem;height:1.05rem;fill:currentColor}
+footer .citation{
+  font-style:italic;font-size:.88rem;color:#A9CEC7;
+  max-width:34rem;line-height:1.55;
+}
+footer .citation .auteur{font-style:normal;font-size:.8rem;color:#8FBDB6;display:block;margin-top:.3rem}
+
+/* ---------- Écrans étroits ---------- */
+@media (max-width:720px){
+  .hero-inner{flex-direction:column;align-items:flex-start;gap:1.8rem;padding:3rem 1.25rem 4.6rem}
+  .hero-photo{flex:none;max-width:100%;width:100%;transform:none}
+  .nav-inner{gap:.85rem}
+}
