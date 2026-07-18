@@ -36,14 +36,24 @@ const COURS = {
     { titre: "O1 — Analyse dimensionnelle", fichier: "fichiers/cours/outils/O1_cours.pdf" },
   ],
   "Structure de la matière": [
+    { titre: "C1 — Structure de la matière", fichier: "fichiers/cours/structure-matiere/C1_Cours_Structure_de_la_matiýre.pdf" },
   ],
   "Électrocinétique": [
-    { titre: "EL1 — Circuits électriques dans l'ARQS", fichier: "fichiers/cours/electrocinetique/EL1_cours.pdf" },
-    { titre: "EL2 — Régime transitoire", fichier: "fichiers/cours/electrocinetique/EL2_cours.pdf" },
+    { titre: "EL1 — Circuits électriques dans l'ARQS", fichier: "fichiers/cours/electrocinetique/EL1_Cours_Circuits_électriques_ARQS.pdf" },
+    { titre: "EL2 — Régime transitoire", fichier: "fichiers/cours/electrocinetique/EL2_Cours_Régime_transitoire.pdf" },
+    { titre: "EL3 — Régime sinusoïdal", fichier: "fichiers/cours/electrocinetique/EL3_Cours_Régime_sinusoïdal.pdf" },
   ],
   "Mécanique du point": [
+    { titre: "M1 — Description du mouvement", fichier: "fichiers/cours/mecanique-point/M1_Cours_Description_du_mouvement.pdf" },
+    { titre: "M2 — Lois de Newton", fichier: "fichiers/cours/mecanique-point/M2_Cours_Lois_de_Newton.pdf" },
+    { titre: "M3 — Approche énergétique du mouvement", fichier: "fichiers/cours/mecanique-point/M3_Cours_Approche_energetique_du_mouvement.pdf" },
+    { titre: "M4 — Oscillations libres", fichier: "fichiers/cours/mecanique-point/M4_Cours_Oscillations_libres.pdf" },
   ],
   "Thermodynamique": [
+    { titre: "TH1 — Premier principe", fichier: "fichiers/cours/thermodynamique/TH1_Premier_principe.pdf" },
+    { titre: "TH2 — Bilan enthalpique", fichier: "fichiers/cours/thermodynamique/TH2_Bilan_enthalpique.pdf" },
+    { titre: "TH3 — Second principe", fichier: "fichiers/cours/thermodynamique/TH3_Second_principe.pdf" },
+    { titre: "TH4 — Machines dithermes", fichier: "fichiers/cours/thermodynamique/TH4_Cours_Machines_dithermes.pdf" },
   ],
   "Mécanique des fluides": [
   ],
@@ -62,11 +72,17 @@ const FICHES = {
   "Structure de la matière": [
   ],
   "Électrocinétique": [
-    // Exemple : { titre: "Fiche récap — EL1", fichier: "fichiers/fiches/electrocinetique/EL1_fiche.pdf" },
+    { titre: "EL1 — Circuits électriques dans l'ARQS", fichier: "fichiers/fiches/electrocinetique/EL1_Recap_Circuits_électriques_ARQS.pdf" },
+    { titre: "EL3 — Régime sinusoïdal", fichier: "fichiers/fiches/electrocinetique/EL3_Recap_Régime_sinusoïdal.pdf" },
   ],
   "Mécanique du point": [
+    { titre: "M1 — Description du mouvement", fichier: "fichiers/fiches/mecanique-point/M1_Recap_Description_du_mouvement.pdf" },
+    { titre: "M2 — Lois de Newton", fichier: "fichiers/fiches/mecanique-point/M2_Recap_Lois_de_Newton.pdf" },
+    { titre: "M3 — Approche énergétique du mouvement", fichier: "fichiers/fiches/mecanique-point/M3_Recap_Approche_énergétique_du_mouvement.pdf" },
+    { titre: "M4 — Oscillations libres", fichier: "fichiers/fiches/mecanique-point/M4_Recap_Oscillations_libres.pdf" },
   ],
   "Thermodynamique": [
+    { titre: "TH1 — Premier principe", fichier: "fichiers/fiches/thermodynamique/TH1_Recap_Premier_principe.pdf" },
   ],
   "Mécanique des fluides": [
   ],
