@@ -50,6 +50,7 @@ nav a.lien{
   transition:color .2s,border-color .2s;
 }
 nav a.lien:hover{color:var(--accent);border-color:var(--accent)}
+.nav-groupe{display:contents}
 nav a.lien.actif{color:var(--accent-fonce);border-color:var(--accent-fonce)}
 
 /* ---------- Bandeau (hero) ---------- */
@@ -209,5 +210,14 @@ footer .citation .auteur{font-style:normal;font-size:.8rem;color:#8FBDB6;display
 @media (max-width:720px){
   .hero-inner{flex-direction:column;align-items:flex-start;gap:1.8rem;padding:3rem 1.25rem 4.6rem}
   .hero-photo{flex:none;max-width:100%;width:100%;transform:none}
-  .nav-inner{gap:.85rem}
+  /* Navigation sur deux lignes : "Thomas Dupuis … Accueil" puis les rubriques */
+  .nav-inner{gap:.55rem .8rem}
+  .nav-groupe{
+    display:flex;flex-basis:100%;flex-wrap:wrap;
+    justify-content:space-between;gap:.4rem .8rem;
+  }
+  /* Surtitre de l'accueil : centré, sur deux lignes */
+  .hero .surtitre{text-align:center}
+  .hero .surtitre span{display:block}
+  .hero .surtitre .sep{display:none}
 }
