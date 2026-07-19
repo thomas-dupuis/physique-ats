@@ -141,11 +141,13 @@ ul.docs a{
   transition:background .2s,padding-left .25s,color .2s;
 }
 ul.docs a:hover{background:var(--accent-clair);padding-left:1.45rem;color:var(--accent-fonce)}
-ul.docs .pdf{
+ul.docs .pastille{
   flex:none;width:2rem;height:2rem;border-radius:.5rem;
   background:var(--accent-clair);color:var(--accent-fonce);
   display:grid;place-items:center;font-size:.62rem;font-weight:600;letter-spacing:.05em;
 }
+/* Pastille des fichiers Python (.py) — teinte bleue distincte */
+ul.docs .pastille.py{background:#e8f0fb;color:#2c5aa0}
 .vide{padding:1rem 1.1rem;color:var(--encre-2);font-size:.95rem;font-style:italic}
 
 /* ---------- Espace élèves ---------- */

@@ -16,11 +16,19 @@ function creerListe(ul, documents){
     const li = document.createElement("li");
     const a = document.createElement("a");
     a.href = doc.fichier;
-    a.target = "_blank";
-    a.rel = "noopener";
+    // Type du fichier d'après son extension (pdf, py, ...)
+    const ext = (doc.fichier.split(".").pop() || "").toLowerCase();
+    if(ext === "pdf"){
+      // Les PDF s'ouvrent dans un nouvel onglet
+      a.target = "_blank";
+      a.rel = "noopener";
+    }else{
+      // Les autres fichiers (Python, etc.) se téléchargent au clic
+      a.setAttribute("download", "");
+    }
     const ic = document.createElement("span");
-    ic.className = "pdf";
-    ic.textContent = "PDF";
+    ic.className = "pastille " + ext;   // ex. "pastille py"
+    ic.textContent = ext.toUpperCase();
     a.appendChild(ic);
     a.appendChild(document.createTextNode(doc.titre));
     li.appendChild(a);

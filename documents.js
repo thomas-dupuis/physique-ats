@@ -118,12 +118,17 @@ const TDS = {
 /* ------------------------------------------------------------
    TP (sujets)
    ------------------------------------------------------------ */
+/* Astuce : un TP peut être un PDF (sujet) OU un fichier Python (.py).
+   La pastille (PDF / PY) et le comportement (ouverture ou téléchargement)
+   s'adaptent automatiquement selon l'extension du fichier. */
 const TPS = {
   "Outils en physique": [
   ],
   "Structure de la matière": [
   ],
   "Électrocinétique": [
+    // Exemple PDF    : { titre: "TP EL1 — Sujet", fichier: "fichiers/tp/electrocinetique/TP_EL1.pdf" },
+    // Exemple Python : { titre: "TP EL1 — Script", fichier: "fichiers/tp/electrocinetique/TP_EL1.py" },
   ],
   "Mécanique du point": [
   ],
