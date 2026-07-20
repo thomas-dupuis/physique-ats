@@ -70,6 +70,7 @@ const FICHES = {
   "Outils en physique": [
   ],
   "Structure de la matière": [
+    { titre: "C1 - Structure de la matière", fichier: "fichiers/cours/structure-matiere/C1_Recap_Structure_de_la_matière.pdf" },
   ],
   "Électrocinétique": [
     { titre: "EL1 - Circuits électriques dans l'ARQS", fichier: "fichiers/fiches/electrocinetique/EL1_Recap_Circuits_électriques_ARQS.pdf" },
