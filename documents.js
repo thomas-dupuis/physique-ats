@@ -73,6 +73,7 @@ const FICHES = {
   ],
   "Électrocinétique": [
     { titre: "EL1 - Circuits électriques dans l'ARQS", fichier: "fichiers/fiches/electrocinetique/EL1_Recap_Circuits_électriques_ARQS.pdf" },
+    { titre: "EL2 - Régime transitoire", fichier: "fichiers/fiches/electrocinetique/EL2_Recap_Régime_transitoire.pdf" },
     { titre: "EL3 - Régime sinusoïdal", fichier: "fichiers/fiches/electrocinetique/EL3_Recap_Régime_sinusoïdal.pdf" },
   ],
   "Mécanique du point": [
