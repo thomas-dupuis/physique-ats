@@ -102,7 +102,8 @@ const TDS = {
      { titre: "O1 - Analyse dimensionnelle", fichier: "fichiers/td/outils/O1_TD_Analyse_Dimensionelle.pdf" },
   ],
   "Structure de la matière": [
-     { titre: "C1 - Atome et quantité d matière", fichier:"fichiers/td/structure-matiere/C1_TD1_Structure_de_la_matière.pdf"},
+     { titre: "C1 - Atome et quantité de matière", fichier:"fichiers/td/structure-matiere/C1_TD1_Structure_de_la_matière.pdf"},
+     { titre: "C1 - Le système thermodynamiquee", fichier:"fichiers/td/structure-matiere/C1_TD2_Structure_de_la_matière.pdf"},
   ],
   "Électrocinétique": [
     // Exemple : { titre: "TD EL1", fichier: "fichiers/td/electrocinetique/TD_EL1.pdf" },
