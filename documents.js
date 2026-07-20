@@ -101,6 +101,7 @@ const FICHES = {
    ------------------------------------------------------------ */
 const TDS = {
   "Outils en physique": [
+     { titre: "TD EL1", fichier: "fichiers/td/outils/O1_TD_Analyse_Dimensionelle.pdf" },
   ],
   "Structure de la matière": [
   ],
