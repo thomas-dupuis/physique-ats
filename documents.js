@@ -69,8 +69,6 @@ const COURS = {
    FICHES
    ------------------------------------------------------------ */
 const FICHES = {
-  "Outils en physique": [
-  ],
   "Structure de la matière": [
     { titre: "C1 - Structure de la matière", fichier: "fichiers/fiches/structure-matiere/C1_Recap_Structure_de_la_matière.pdf" },
   ],
