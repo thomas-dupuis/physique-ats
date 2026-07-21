@@ -103,12 +103,14 @@ const TDS = {
   ],
   "Structure de la matière": [
      { titre: "C1 - Atome et quantité de matière", fichier:"fichiers/td/structure-matiere/C1_TD1_Structure_de_la_matière.pdf"},
-     { titre: "C1 - Le système thermodynamiquee", fichier:"fichiers/td/structure-matiere/C1_TD2_Structure_de_la_matière.pdf"},
+     { titre: "C1 - Le système thermodynamique", fichier:"fichiers/td/structure-matiere/C1_TD2_Structure_de_la_matière.pdf"},
+     { titre: "C1 - Transformations et réaction chimique", fichier:"fichiers/td/structure-matiere/C1_TD3_Structure_de_la_matière.pdf"},
   ],
   "Électrocinétique": [
     // Exemple : { titre: "TD EL1", fichier: "fichiers/td/electrocinetique/TD_EL1.pdf" },
   ],
   "Mécanique du point": [
+      {titre: "M1 - Description du mouvement", fichier: "fichiers/td/mecanique-point/M1_TD_Description_du_mouvement.pdf" },
   ],
   "Thermodynamique": [
   ],
