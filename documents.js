@@ -112,6 +112,7 @@ const TDS = {
   "Mécanique du point": [
       {titre: "M1 - Description du mouvement", fichier: "fichiers/td/mecanique-point/M1_TD_Description_du_mouvement.pdf" },
       {titre: "M2 - Lois de Newton", fichier: "fichiers/td/mecanique-point/M2_TD_Lois_de_Newton.pdf" },
+      {titre: "M3 - Théorèmes énergétiques", fichier: "fichiers/td/mecanique-point/M3_TD1_Approche_énergétique_du_mouvement.pdf" },
   ],
   "Thermodynamique": [
   ],
