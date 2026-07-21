@@ -48,7 +48,7 @@ const COURS = {
   "Mécanique du point": [
     { titre: "M1 - Description du mouvement", fichier: "fichiers/cours/mecanique-point/M1_Cours_Description_du_mouvement.pdf" },
     { titre: "M2 - Lois de Newton", fichier: "fichiers/cours/mecanique-point/M2_Cours_Lois_de_Newton.pdf" },
-    { titre: "M3 - Approche énergétique du mouvement", fichier: "fichiers/cours/mecanique-point/M3_Cours_Approche_énergetique_du_mouvement.pdf" },
+    { titre: "M3 - Approche énergétique du mouvement", fichier: "fichiers/cours/mecanique-point/M3_Cours_Approche_énergétique_du_mouvement.pdf" },
     { titre: "M4 - Oscillations libres", fichier: "fichiers/cours/mecanique-point/M4_Cours_Oscillations_libres.pdf" },
   ],
   "Thermodynamique": [
