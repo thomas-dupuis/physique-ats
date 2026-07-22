@@ -114,6 +114,8 @@ const TDS = {
       {titre: "M2 - Lois de Newton", fichier: "fichiers/td/mecanique-point/M2_TD_Lois_de_Newton.pdf" },
       {titre: "M3 - Théorèmes énergétiques", fichier: "fichiers/td/mecanique-point/M3_TD1_Approche_énergétique_du_mouvement.pdf" },
       {titre: "M3 - Profils d’énergie potentielle et équilibre", fichier: "fichiers/td/mecanique-point/M3_TD2_Approche_énergétique_du_mouvement.pdf" },
+      {titre: "M4 - Oscillateurs libres", fichier: "fichiers/td/mecanique-point/M4_TD_Oscillations_libres.pdf" },
+   
   ],
   "Thermodynamique": [
   ],
@@ -184,6 +186,8 @@ const CORRECTIONS_DS = [
 ];
 
 const DM = [
+   { titre: "DM1 - M2 - Étude de quelques situations de jeu du football", fichier: "fichiers/eleves/dm/M2_DM_Football" },
+   { titre: "DM2 - M4 - Étude du mouvement d’un pendule simple", fichier: "fichiers/eleves/dm/M2_DM_Pendule" },
   // Exemple : { titre: "DM 1 - Énoncé", fichier: "fichiers/eleves/dm/DM1.pdf" },
 ];
 
