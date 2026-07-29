@@ -36,7 +36,6 @@ const COURS = {
     { titre: "O1 - Analyse dimensionnelle", fichier: "fichiers/cours/outils/O1_Cours_Analyse_dimensionnelle.pdf" },
     { titre: "O2 - Produits scalaire et vectoriel", fichier: "fichiers/cours/outils/O2_Cours_Calcul_vectoriel.pdf" },
     { titre: "O5 - Mesures et incertitudes", fichier: "fichiers/cours/outils/O5_Cours_Incertitudes.pdf" },
-     
   ],
   "Structure de la matière": [
     { titre: "C1 - Structure de la matière", fichier: "fichiers/cours/structure-matiere/C1_Cours_Structure_de_la_matiýre.pdf" },
