@@ -34,6 +34,7 @@ const CODE_ACCES = "COEFFIN2026";
 const COURS = {
   "Outils en physique": [
     { titre: "O1 - Analyse dimensionnelle", fichier: "fichiers/cours/outils/O1_Cours_Analyse_dimensionnelle.pdf" },
+    { titre: "O2 - Produits scalaire et vectoriel", fichier: "fichiers/cours/outils/O2_Cours_Calcul_vectoriel.pdf" },
     { titre: "O5 - Mesures et incertitudes", fichier: "fichiers/cours/outils/O5_Cours_Incertitudes.pdf" },
      
   ],
@@ -187,7 +188,7 @@ const CORRECTIONS_DS = [
 
 const DM = [
    { titre: "DM1 - M2 - Football", fichier: "fichiers/eleves/dm/M2_DM_Football.pdf" },
-   { titre: "DM2 - M4 - Pendule simple", fichier: "fichiers/eleves/dm/M2_DM_Pendule.pdf" },
+   { titre: "DM2 - M4 - Pendule simple", fichier: "fichiers/eleves/dm/M4_DM_Pendule.pdf" },
   // Exemple : { titre: "DM 1 - Énoncé", fichier: "fichiers/eleves/dm/DM1.pdf" },
 ];
 
