@@ -85,6 +85,7 @@ const FICHES = {
   ],
   "Thermodynamique": [
     { titre: "TH1 - Premier principe", fichier: "fichiers/fiches/thermodynamique/TH1_Recap_Premier_principe.pdf" },
+   { titre: "TH2 - Bilan enthalpique", fichier: "fichiers/fiches/thermodynamique/TH2_Recap_Bilan_enthalpique.pdf" },
   ],
   "Mécanique des fluides": [
   ],
