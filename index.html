@@ -168,6 +168,10 @@
   #suiviE .tableau,#suiviE .haut{position:relative;z-index:1} #suiviE .haut{background:var(--papier)}
   .tableau small.ec{display:block;font-size:.7rem;font-weight:400;color:#9aa5b5;margin-top:1px}
   .tableau small.ec.oui{color:var(--rouge);font-weight:700}
+  .renom{gap:8px;margin:0 0 14px}
+  .renom input{flex:1;min-width:0;padding:10px;font-size:1rem;font-family:var(--ui);border:2px solid var(--encre);border-radius:6px;background:#fff}
+  .renom .gros{width:auto;padding:10px 14px;font-size:.95rem}
+  .compte .lien{padding:2px 4px}
 </style>
 </head>
 <body>
@@ -177,7 +181,8 @@
       <h1><span class="fluo">Physique ATS</span><br>Cahier d’entraînement</h1>
       <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.</p>
     </div>
-    <div class="compte" id="compte" style="display:none"><span>Connecté : <b id="qui"></b></span><button class="lien" id="sortir">Se déconnecter</button></div>
+    <div class="compte" id="compte" style="display:none"><span>Connecté : <b id="qui"></b> <button class="lien" id="renom" type="button">modifier</button></span><button class="lien" id="sortir">Se déconnecter</button></div>
+    <form class="renom" id="renomF" style="display:none"><input id="renomI" type="text" maxlength="60" autocomplete="name" aria-label="Prénom et nom"><button class="gros" type="submit">Enregistrer</button></form>
     <button class="gros" id="suivi" style="display:none;margin-bottom:16px">Suivi des élèves</button>
     <div id="competences"></div>
     <div class="pied"><button class="lien" id="raz">Effacer ma progression</button></div>
@@ -1542,6 +1547,7 @@ function accueil(){
   });
   $('competences').innerHTML=h;
   $('compte').style.display=EN_LIGNE?'flex':'none';
+  $('renomF').style.display='none';
   if(EN_LIGNE&&session){ $('qui').textContent=session.nom||session.email; $('suivi').style.display= estProf(session.email)?'block':'none'; }
   $('raz').style.display=EN_LIGNE?'none':'inline';
   $('raz').textContent=RAZ;
@@ -1640,10 +1646,10 @@ const dit=(t,ok)=>{ $('cMsg').textContent=t; $('cMsg').className='msg '+(ok?'ok'
 $('cBascule').addEventListener('click',()=>{ modeCreer=!modeCreer; ecranConnexion(); });
 $('cForm').addEventListener('submit',async ev=>{
   ev.preventDefault();
-  const email=$('cEmail').value.trim(), mdp=$('cMdp').value, nom=$('cNom').value.trim();
+  const email=$('cEmail').value.trim(), mdp=$('cMdp').value, nom= modeCreer? $('cNom').value.trim() : '';   // le nom ne sert qu'à la création
   if(modeCreer&&nom.length<3){ dit('Indiquer prénom et nom.'); return; }
   $('cOk').disabled=true; dit('Connexion…',true);
-  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; accueil(); }
+  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; $('cNom').value=''; accueil(); }
   catch(e){ dit(e.message); }
   $('cOk').disabled=false;
 });
@@ -1651,7 +1657,10 @@ $('cOubli').addEventListener('click',async ()=>{
   const email=$('cEmail').value.trim(); if(!email){ dit('Saisir d\u2019abord l\u2019adresse e-mail.'); return; }
   try{ await motDePasseOublie(email); dit('Un e-mail de réinitialisation vient d\u2019être envoyé.',true); }catch(e){ dit(e.message); }
 });
-$('sortir').addEventListener('click',()=>{ deconnexion(); modeCreer=false; ecranConnexion(); });
+$('sortir').addEventListener('click',()=>{ deconnexion(); modeCreer=false; $('cNom').value=''; $('cMdp').value=''; ecranConnexion(); });
+$('renom').addEventListener('click',()=>{ $('renomF').style.display='flex'; $('renomI').value=session.nom||''; $('renomI').focus(); });
+$('renomF').addEventListener('submit',ev=>{ ev.preventDefault(); const n=$('renomI').value.trim(); if(n.length<3) return;
+  session.nom=n; try{ localStorage.setItem(CLE_S,JSON.stringify(session)); }catch(e){} sauve(); accueil(); });
 $('suivi').addEventListener('click',suivi);
 $('sRetour').addEventListener('click',accueil);
 $('sMaj').addEventListener('click',suivi);
