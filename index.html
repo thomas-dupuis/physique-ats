@@ -214,6 +214,12 @@
   .tableau small.ec.co.oui{color:var(--encre);font-weight:700}
   .tableau small.ec .cour{width:13px;height:10px;vertical-align:-1px;margin-right:3px}
   .tableau td{white-space:nowrap}
+
+  .eqn.chim.sit{font-size:1.1rem;line-height:1.45;white-space:normal;text-align:center;padding:14px 12px 13px;overflow-wrap:break-word}
+  .enonce:empty{display:none}
+
+  .eqn.chim.sit.joint{font-size:1.02rem;padding:12px 12px 0}
+  .eqn.chim+.eqn.chim.sit.joint{padding:0 12px 12px}
 </style>
 </head>
 <body>
@@ -1154,12 +1160,13 @@ MOLEC.forEach(f=>{
     pr:[Mf+' = '+expr(e=>c[e])+' = '+els.map(e=>(c[e]===1?'':c[e]+' × ')+MM[e]).join(' + ')],fin:Mf+' = '+M+' g·mol<sup>−1</sup>'}));
 });
 const n_=I_('n'), m_=I_('m'), M_=I_('M'), N_=I_('N'), NA=I_('N')+'<sub>A</sub>', P_=I_('P'), V_=I_('V'), R_=I_('R'), T_=I_('T'), rho=I_('ρ'), Vm=I_('V')+'<sub>m</sub>', vv=I_('v'), X_=I_('X'), Xm=I_('X')+'<sub>m</sub>', xx=I_('x');
-const iso=(rel,enonce,cible,ok,faux,pr,large)=>qcm({aff:EQ(rel),enonce,q:'<span class="q">'+cible+'</span><span>= ?</span>',ok,faux,pr,fin:cible+' = '+ok,large});
+/* la relation du cours n'est pas rappelée dans l'énoncé : elle ouvre seulement la justification */
+const iso=(rel,enonce,cible,ok,faux,pr,large)=>qcm({aff:EQ('<span style="font-style:normal">'+(rel.indexOf(I_('R'))>=0?'Gaz parfait':'Quantité de matière')+'</span>'),enonce,q:'<span class="q">'+cible+'</span><span>= ?</span>',ok,faux,pr:[rel].concat(pr),fin:cible+' = '+ok,large});
 const MOLE=[
- iso(n_+' = '+FR(m_,M_),'Isoler la masse.',m_,n_+' '+M_,[FR(n_,M_),FR(M_,n_),n_+' + '+M_],['On multiplie les deux membres par '+M_]),
- iso(n_+' = '+FR(m_,M_),'Isoler la masse molaire.',M_,FR(m_,n_),[FR(n_,m_),n_+' '+m_,m_+' − '+n_],['On multiplie par '+M_+' : '+n_+' '+M_+' = '+m_+', puis on divise par '+n_]),
- iso(n_+' = '+FR(N_,NA),'Isoler le nombre d’entités.',N_,n_+' '+NA,[FR(n_,NA),FR(NA,n_),n_+' + '+NA],['On multiplie les deux membres par '+NA]),
- iso(n_+' = '+FR(N_,NA),'Isoler la constante d’Avogadro.',NA,FR(N_,n_),[FR(n_,N_),n_+' '+N_,N_+' − '+n_],['On multiplie par '+NA+' : '+n_+' '+NA+' = '+N_+', puis on divise par '+n_]),
+ iso(n_+' = '+FR(m_,M_),'Exprimer la masse en fonction de '+n_+' et '+M_+'.',m_,n_+' '+M_,[FR(n_,M_),FR(M_,n_),n_+' + '+M_],['On multiplie les deux membres par '+M_]),
+ iso(n_+' = '+FR(m_,M_),'Exprimer la masse molaire en fonction de '+m_+' et '+n_+'.',M_,FR(m_,n_),[FR(n_,m_),n_+' '+m_,m_+' − '+n_],['On multiplie par '+M_+' : '+n_+' '+M_+' = '+m_+', puis on divise par '+n_]),
+ iso(n_+' = '+FR(N_,NA),'Exprimer le nombre d’entités en fonction de '+n_+' et '+NA+'.',N_,n_+' '+NA,[FR(n_,NA),FR(NA,n_),n_+' + '+NA],['On multiplie les deux membres par '+NA]),
+ iso(n_+' = '+FR(N_,NA),'Exprimer la constante d’Avogadro en fonction de '+N_+' et '+n_+'.',NA,FR(N_,n_),[FR(n_,N_),n_+' '+N_,N_+' − '+n_],['On multiplie par '+NA+' : '+n_+' '+NA+' = '+N_+', puis on divise par '+n_]),
  iso(n_+' = '+FR(m_,M_)+' = '+FR(N_,NA),'Exprimer le nombre d’entités en fonction de la masse.',N_,FR(m_+' '+NA,M_),[FR(m_+' '+M_,NA),FR(M_+' '+NA,m_),FR(m_,M_+' '+NA)],['On égale les deux expressions de '+n_+' : '+FR(N_,NA)+' = '+FR(m_,M_),'On multiplie par '+NA]),
  iso(n_+' = '+FR(m_,M_)+' = '+FR(N_,NA),'Exprimer la masse en fonction du nombre d’entités.',m_,FR(N_+' '+M_,NA),[FR(N_+' '+NA,M_),FR(N_,M_+' '+NA),FR(NA,N_+' '+M_)],['On égale les deux expressions de '+n_+' : '+FR(m_,M_)+' = '+FR(N_,NA),'On multiplie par '+M_]),
  iso(n_+' = '+FR(m_,M_)+' = '+FR(N_,NA),'Exprimer la masse d’une seule entité (on prend '+N_+' = 1).',m_,FR(M_,NA),[M_+' '+NA,FR(NA,M_),FR('1',M_+' '+NA)],['Avec '+N_+' = 1 : '+FR(m_,M_)+' = '+FR('1',NA),'On multiplie par '+M_]),
@@ -1172,15 +1179,15 @@ const MOLE=[
 ];
 const GP=P_+' '+V_+' = '+n_+' '+R_+' '+T_;
 const GAZ=[
- iso(GP,'Isoler la pression.',P_,FR(n_+' '+R_+' '+T_,V_),[FR(V_,n_+' '+R_+' '+T_),n_+' '+R_+' '+T_+' '+V_,FR(n_+' '+R_,T_+' '+V_)],['On divise les deux membres par '+V_]),
- iso(GP,'Isoler le volume.',V_,FR(n_+' '+R_+' '+T_,P_),[FR(P_,n_+' '+R_+' '+T_),n_+' '+R_+' '+T_+' '+P_,FR(n_+' '+R_,P_+' '+T_)],['On divise les deux membres par '+P_]),
- iso(GP,'Isoler la quantité de matière.',n_,FR(P_+' '+V_,R_+' '+T_),[FR(R_+' '+T_,P_+' '+V_),P_+' '+V_+' '+R_+' '+T_,FR(P_+' '+V_+' '+T_,R_)],['On divise les deux membres par '+R_+' '+T_]),
- iso(GP,'Isoler la température.',T_,FR(P_+' '+V_,n_+' '+R_),[FR(n_+' '+R_,P_+' '+V_),FR(P_+' '+V_+' '+n_,R_),P_+' '+V_+' − '+n_+' '+R_],['On divise les deux membres par '+n_+' '+R_]),
- iso(GP,'Exprimer le volume molaire '+Vm+' = '+V_+'/'+n_+'.',Vm,FR(R_+' '+T_,P_),[FR(P_,R_+' '+T_),FR(n_+' '+R_+' '+T_,P_),R_+' '+T_+' '+P_],['On divise par '+n_+' : '+P_+' '+FR(V_,n_)+' = '+R_+' '+T_,'On divise par '+P_]),
- iso(GP,'Exprimer la pression en fonction de la masse '+m_+' de gaz (avec '+n_+' = '+m_+'/'+M_+').',P_,FR(m_+' '+R_+' '+T_,M_+' '+V_),[FR(M_+' '+R_+' '+T_,m_+' '+V_),FR(m_+' '+M_+' '+R_+' '+T_,V_),FR(m_+' '+V_,M_+' '+R_+' '+T_)],['On remplace '+n_+' par '+FR(m_,M_)+' : '+P_+' '+V_+' = '+FR(m_,M_)+' '+R_+' '+T_,'On divise par '+V_]),
- iso(GP,'Exprimer la masse volumique '+rho+' = '+m_+'/'+V_+' du gaz (avec '+n_+' = '+m_+'/'+M_+').',rho,FR(P_+' '+M_,R_+' '+T_),[FR(R_+' '+T_,P_+' '+M_),FR(P_,M_+' '+R_+' '+T_),FR(P_+' '+R_+' '+T_,M_)],[P_+' '+V_+' = '+FR(m_,M_)+' '+R_+' '+T_,'On isole '+FR(m_,V_)+' : on multiplie par '+M_+' et on divise par '+V_+' '+R_+' '+T_]),
+ iso(GP,'Exprimer la pression du gaz.',P_,FR(n_+' '+R_+' '+T_,V_),[FR(V_,n_+' '+R_+' '+T_),n_+' '+R_+' '+T_+' '+V_,FR(n_+' '+R_,T_+' '+V_)],['On divise les deux membres par '+V_]),
+ iso(GP,'Exprimer le volume du gaz.',V_,FR(n_+' '+R_+' '+T_,P_),[FR(P_,n_+' '+R_+' '+T_),n_+' '+R_+' '+T_+' '+P_,FR(n_+' '+R_,P_+' '+T_)],['On divise les deux membres par '+P_]),
+ iso(GP,'Exprimer la quantité de matière du gaz.',n_,FR(P_+' '+V_,R_+' '+T_),[FR(R_+' '+T_,P_+' '+V_),P_+' '+V_+' '+R_+' '+T_,FR(P_+' '+V_+' '+T_,R_)],['On divise les deux membres par '+R_+' '+T_]),
+ iso(GP,'Exprimer la température du gaz.',T_,FR(P_+' '+V_,n_+' '+R_),[FR(n_+' '+R_,P_+' '+V_),FR(P_+' '+V_+' '+n_,R_),P_+' '+V_+' − '+n_+' '+R_],['On divise les deux membres par '+n_+' '+R_]),
+ iso(GP,'Exprimer le volume molaire '+Vm+' du gaz.',Vm,FR(R_+' '+T_,P_),[FR(P_,R_+' '+T_),FR(n_+' '+R_+' '+T_,P_),R_+' '+T_+' '+P_],['On divise par '+n_+' : '+P_+' '+FR(V_,n_)+' = '+R_+' '+T_,'On divise par '+P_]),
+ iso(GP,'Exprimer la pression en fonction de la masse '+m_+' de gaz et de sa masse molaire '+M_+'.',P_,FR(m_+' '+R_+' '+T_,M_+' '+V_),[FR(M_+' '+R_+' '+T_,m_+' '+V_),FR(m_+' '+M_+' '+R_+' '+T_,V_),FR(m_+' '+V_,M_+' '+R_+' '+T_)],['On remplace '+n_+' par '+FR(m_,M_)+' : '+P_+' '+V_+' = '+FR(m_,M_)+' '+R_+' '+T_,'On divise par '+V_]),
+ iso(GP,'Exprimer la masse volumique '+rho+' du gaz.',rho,FR(P_+' '+M_,R_+' '+T_),[FR(R_+' '+T_,P_+' '+M_),FR(P_,M_+' '+R_+' '+T_),FR(P_+' '+R_+' '+T_,M_)],[P_+' '+V_+' = '+FR(m_,M_)+' '+R_+' '+T_,'On isole '+FR(m_,V_)+' : on multiplie par '+M_+' et on divise par '+V_+' '+R_+' '+T_]),
  iso(GP,'Exprimer la masse molaire du gaz en fonction de sa masse '+m_+'.',M_,FR(m_+' '+R_+' '+T_,P_+' '+V_),[FR(P_+' '+V_,m_+' '+R_+' '+T_),FR(m_+' '+P_+' '+V_,R_+' '+T_),FR(R_+' '+T_,m_+' '+P_+' '+V_)],[P_+' '+V_+' = '+FR(m_,M_)+' '+R_+' '+T_,'On multiplie par '+M_+' et on divise par '+P_+' '+V_]),
- iso(GP,'Exprimer le nombre de molécules (avec '+n_+' = '+N_+'/'+NA+').',N_,FR(P_+' '+V_+' '+NA,R_+' '+T_),[FR(P_+' '+V_,R_+' '+T_+' '+NA),FR(R_+' '+T_+' '+NA,P_+' '+V_),FR(P_+' '+V_+' '+R_+' '+T_,NA)],[n_+' = '+FR(P_+' '+V_,R_+' '+T_),N_+' = '+n_+' '+NA]),
+ iso(GP,'Exprimer le nombre de molécules '+N_+' du gaz.',N_,FR(P_+' '+V_+' '+NA,R_+' '+T_),[FR(P_+' '+V_,R_+' '+T_+' '+NA),FR(R_+' '+T_+' '+NA,P_+' '+V_),FR(P_+' '+V_+' '+R_+' '+T_,NA)],[n_+' = '+FR(P_+' '+V_,R_+' '+T_),N_+' = '+n_+' '+NA]),
  iso(GP,'Dans quelle unité doit-on exprimer la température ?',T_+' en',"kelvin (K)",['degrés Celsius (°C)','joule (J)','kelvin ou degré Celsius, au choix'],['La loi des gaz parfaits utilise la température absolue : '+T_+'(K) = '+I_('θ')+'(°C) + 273'],1),
  iso(GP,'Dans quelle unité doit-on exprimer la pression ?',P_+' en',"pascal (Pa)",['bar','hectopascal (hPa)','atmosphère (atm)'],['Avec '+R_+' = 8,314 J·K<sup>−1</sup>·mol<sup>−1</sup>, toutes les grandeurs sont en unités SI : 1 bar = 10<sup>5</sup> Pa'],1),
  iso(GP,'Dans quelle unité doit-on exprimer le volume ?',V_+' en',"mètre cube (m<sup>3</sup>)",['litre (L)','centimètre cube (cm<sup>3</sup>)','millilitre (mL)'],['Avec '+R_+' = 8,314 J·K<sup>−1</sup>·mol<sup>−1</sup>, toutes les grandeurs sont en unités SI : 1 L = 10<sup>−3</sup> m<sup>3</sup>'],1)
@@ -1614,7 +1621,7 @@ const EXPR=[
  Qz(scTable(F({T:'T'},'T'),{fil:1,axes:1}),'Un objet est tiré par un fil horizontal. '+T+' est la norme de la tension.',QE(vT),'+'+T+' '+ux,['−'+T+' '+ux,'+'+T+' '+uz,'−'+T+' '+uz],['Le fil tire l’objet vers lui : vers la droite, dans le sens de '+ux+'.']),
  Qz(scTable(F({RN:'R_N'},'RN'),{axes:1}),'Un objet est posé sur une table. '+RN+' est la norme de la réaction normale.',QE(vRN),'+'+RN+' '+uz,['−'+RN+' '+uz,'+'+RN+' '+ux,'−'+RN+' '+ux],['La réaction normale est perpendiculaire au support, dirigée du support vers l’objet : vers le haut.']),
  Qz(scTable(F({RT:'R_T'},'RT'),{axes:1,v:1}),'Un objet glisse vers la droite sur une table. '+RT+' est la norme de la réaction tangentielle.',QE(vRT),'−'+RT+' '+ux,['+'+RT+' '+ux,'+'+RT+' '+uz,'−'+RT+' '+uz],['La réaction tangentielle s’oppose au glissement : elle est vers la gauche, opposée à '+ux+'.']),
- Qz(TX(vf+' = −'+al+' '+vv),'Force de frottement fluide.','Unité de '+al+' ?','kg·s<sup>−1</sup>',['kg·m·s<sup>−1</sup>','kg·s<sup>−2</sup>','Sans unité'],[al+' = '+FR(it('f'),v)+' : des newtons divisés par des m·s<sup>−1</sup>.','1 N = 1 kg·m·s<sup>−2</sup>, donc '+al+' est en kg·s<sup>−1</sup>.']),
+ Qz(TX('Frottement fluide'),'Coefficient de frottement fluide '+al+'.','Unité de '+al+' ?','kg·s<sup>−1</sup>',['kg·m·s<sup>−1</sup>','kg·s<sup>−2</sup>','Sans unité'],[vf+' = −'+al+' '+vv+', donc '+al+' = '+FR(it('f'),v)+' : des newtons divisés par des m·s<sup>−1</sup>.','1 N = 1 kg·m·s<sup>−2</sup>, donc '+al+' est en kg·s<sup>−1</sup>.']),
  Qz(scPendule(F({T:'T'},'T')),'Une masse M est accrochée en O par un fil tendu.','Direction et sens de '+vT+' ?','Le long du fil, de M vers O',['Le long du fil, de O vers M','Perpendiculaire au fil','Verticale, vers le haut'],['Un fil ne peut que tirer : la tension est portée par le fil et dirigée de l’objet vers le point d’attache.'],{large:1})
 ];
 /* ressort : sens du vecteur unitaire */
@@ -1695,12 +1702,12 @@ const AB=vc(sb('F','A→B')), BA=vc(sb('F','B→A'));
 const RECIP=[
  tq('Deux corps A et B en interaction','A exerce sur B la force '+AB+'.','Force exercée par B sur A ?',BA+' = −'+AB,[BA+' = '+AB,BA+' = '+vc('0'),'Cela dépend des masses'],['Troisième loi de Newton : les deux forces sont opposées et de même norme.'],{large:0}),
  tq('Pomme et Terre','La Terre exerce sur une pomme une force de norme '+it('P')+'.','Force exercée par la pomme sur la Terre ?','De norme '+it('P')+', vers le haut',['Nulle','Bien plus petite que '+it('P'),'De norme '+it('P')+', vers le bas'],['Troisième loi de Newton : même norme, sens opposé, quelles que soient les masses.']),
- tq('Livre posé sur une table','La table exerce sur le livre la réaction '+vRN+'.','Quelle est la force réciproque ?','La force exercée par le livre sur la table',['Le poids du livre','La force exercée par la Terre sur la table','La force exercée par le sol sur la table'],['La force réciproque de « table sur livre » est « livre sur table ».','Le poids est exercé par la Terre : ce n’est pas la force réciproque.']),
- tq('Livre posé sur une table','La Terre exerce sur le livre son poids '+vP+'.','Quelle est la force réciproque ?','La force exercée par le livre sur la Terre',['La réaction de la table sur le livre','La force exercée par le livre sur la table','La force exercée par la table sur la Terre'],['La force réciproque de « Terre sur livre » est « livre sur Terre ».','La réaction de la table compense le poids, mais elle s’applique au même objet : ce n’est pas la force réciproque.']),
+ tq('Livre posé sur une table','Un livre est posé sur une table. La table exerce sur lui la réaction '+vRN+'.','Quelle est la force réciproque ?','La force exercée par le livre sur la table',['Le poids du livre','La force exercée par la Terre sur la table','La force exercée par le sol sur la table'],['La force réciproque de « table sur livre » est « livre sur table ».','Le poids est exercé par la Terre : ce n’est pas la force réciproque.']),
+ tq('Livre posé sur une table','Un livre est posé sur une table. La Terre exerce sur lui son poids '+vP+'.','Quelle est la force réciproque ?','La force exercée par le livre sur la Terre',['La réaction de la table sur le livre','La force exercée par le livre sur la table','La force exercée par la table sur la Terre'],['La force réciproque de « Terre sur livre » est « livre sur Terre ».','La réaction de la table compense le poids, mais elle s’applique au même objet : ce n’est pas la force réciproque.']),
  tq('Choc','Un camion percute une voiture à l’arrêt.','Comparer les normes des forces pendant le choc.','Elles sont égales',['Le camion exerce la plus grande','La voiture exerce la plus grande','La voiture n’exerce aucune force'],['Troisième loi de Newton : même norme, quelles que soient les masses et les vitesses.','Les effets diffèrent car les masses diffèrent.']),
  tq('Mur','Une personne pousse un mur avec une force de 50 N.','Force exercée par le mur sur la personne ?','50 N, en sens opposé',['0 N, le mur est immobile','50 N, dans le même sens','Moins de 50 N'],['Troisième loi de Newton : même norme, sens opposé.']),
  tq('Actions réciproques','On considère les deux forces '+AB+' et '+BA+'.','Sur quoi s’appliquent-elles ?','Sur deux systèmes différents',['Sur le même système','Sur le système le plus léger','Sur le système le plus lourd'],[AB+' s’applique à B, '+BA+' s’applique à A.','Elles n’apparaissent donc jamais ensemble dans un même bilan des forces.']),
- tq('Livre immobile sur une table','Pour le livre : '+vP+' + '+vRN+' = '+vc('0')+'.','Quelle loi le justifie ?','Le principe d’inertie',['Le principe des actions réciproques','La loi de Hooke','Aucune : c’est toujours vrai'],['Les deux forces s’appliquent au livre, qui est immobile : première loi de Newton.','Ce ne sont pas deux forces réciproques.']),
+ tq('Livre immobile sur une table','Un livre est immobile sur une table : '+vP+' + '+vRN+' = '+vc('0')+'.','Quelle loi le justifie ?','Le principe d’inertie',['Le principe des actions réciproques','La loi de Hooke','Aucune : c’est toujours vrai'],['Les deux forces s’appliquent au livre, qui est immobile : première loi de Newton.','Ce ne sont pas deux forces réciproques.']),
  tq('Voiture et caravane','Une voiture tracte une caravane en accélérant.','Comparer '+sb('F','voiture→caravane')+' et '+sb('F','caravane→voiture')+'.','Elles sont égales',['La voiture exerce la plus grande','La caravane exerce la plus grande','Cela dépend de l’accélération'],['La troisième loi de Newton est vraie quel que soit le mouvement.']),
  tq('Aimant et clou','Un aimant attire un clou avec une force de 2 N.','Force exercée par le clou sur l’aimant ?','2 N, vers le clou',['0 N','Moins de 2 N','2 N, à l’opposé du clou'],['Troisième loi de Newton : même norme, sens opposé.']),
  tq('Nageur','Un nageur pousse l’eau vers l’arrière.','Que fait l’eau ?','Elle pousse le nageur vers l’avant',['Elle pousse le nageur vers l’arrière','Elle n’exerce aucune force sur lui','Elle pousse le nageur vers le haut'],['Troisième loi de Newton : l’eau exerce sur le nageur la force opposée.'])
@@ -1709,8 +1716,8 @@ const PFD=m+' '+va+' = '+SF, dvz=DER(vz), dvx=DER(vx), d2l=DER(l,2);
 const UND=[
  Qz(scChute(F({P:'P'}),{axe:-1}),'Chute libre. (O'+z+') est vertical, vers le haut.',QE(az),'−'+g,['+'+g,'−'+m+' '+g,'0'],[PFD+' = '+vP+'.','Sur '+uz+' : '+m+' '+az+' = −'+m+' '+g+'.']),
  Qz(scChute(F({P:'P'}),{axe:1}),'Chute libre. (O'+z+') est vertical, vers le bas.',QE(az),'+'+g,['−'+g,'+'+m+' '+g,'0'],[PFD+' = '+vP+'.','Sur '+uz+' : '+m+' '+az+' = +'+m+' '+g+'.']),
- Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:1}),'Chute dans un fluide, '+vf+' = −'+al+' '+vv+'. (O'+z+') est vers le bas.','Projection du PFD sur '+uz+' ?',m+' '+dvz+' = '+mg+' − '+al+' '+vz,[m+' '+dvz+' = '+mg+' + '+al+' '+vz,m+' '+dvz+' = −'+mg+' − '+al+' '+vz,m+' '+dvz+' = '+mg],[PFD+' = '+vP+' + '+vf+'.','Sur '+uz+' (vers le bas) : le poids donne +'+mg+', le frottement −'+al+' '+vz+'.'],{large:1}),
- Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:-1}),'Chute dans un fluide, '+vf+' = −'+al+' '+vv+'. (O'+z+') est vers le haut.','Projection du PFD sur '+uz+' ?',m+' '+dvz+' = −'+mg+' − '+al+' '+vz,[m+' '+dvz+' = '+mg+' − '+al+' '+vz,m+' '+dvz+' = −'+mg+' + '+al+' '+vz,m+' '+dvz+' = −'+mg],[PFD+' = '+vP+' + '+vf+'.','Sur '+uz+' (vers le haut) : le poids donne −'+mg+', le frottement −'+al+' '+vz+' (ici '+vz+' &lt; 0).'],{large:1}),
+ Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:1}),'Chute dans un fluide, de coefficient de frottement '+al+'. (O'+z+') est vers le bas.','Projection du PFD sur '+uz+' ?',m+' '+dvz+' = '+mg+' − '+al+' '+vz,[m+' '+dvz+' = '+mg+' + '+al+' '+vz,m+' '+dvz+' = −'+mg+' − '+al+' '+vz,m+' '+dvz+' = '+mg],[PFD+' = '+vP+' + '+vf+', avec '+vf+' = −'+al+' '+vv+'.','Sur '+uz+' (vers le bas) : le poids donne +'+mg+', le frottement −'+al+' '+vz+'.'],{large:1}),
+ Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:-1}),'Chute dans un fluide, de coefficient de frottement '+al+'. (O'+z+') est vers le haut.','Projection du PFD sur '+uz+' ?',m+' '+dvz+' = −'+mg+' − '+al+' '+vz,[m+' '+dvz+' = '+mg+' − '+al+' '+vz,m+' '+dvz+' = −'+mg+' + '+al+' '+vz,m+' '+dvz+' = −'+mg],[PFD+' = '+vP+' + '+vf+', avec '+vf+' = −'+al+' '+vv+'.','Sur '+uz+' (vers le haut) : le poids donne −'+mg+', le frottement −'+al+' '+vz+' (ici '+vz+' &lt; 0).'],{large:1}),
  Qz(scTable(F({P:'P',RN:'R_N',T:'T'}),{fil:1,axes:1}),'Un objet est tiré par un fil horizontal, sans frottement.',QE(ax),FR(T,m),[FR(T+' − '+mg,m),T,FR(m,T)],[PFD+' = '+vP+' + '+vRN+' + '+vT+'.','Sur '+ux+' : '+m+' '+ax+' = '+T+' ('+vP+' et '+vRN+' sont verticaux).']),
  Qz(scTable(F({P:'P',RN:'R_N',RT:'R_T',T:'T'}),{fil:1,axes:1,v:1}),'Un objet est tiré vers la droite par un fil horizontal, avec frottement.',QE(ax),FR(T+' − '+RT,m),[FR(T+' + '+RT,m),FR(T,m),FR(T+' − '+RN,m)],[PFD+' = '+vP+' + '+vRN+' + '+vRT+' + '+vT+'.','Sur '+ux+' : '+m+' '+ax+' = '+T+' − '+RT+'.']),
  Qz(scTable(F({P:'P',RN:'R_N',RT:'R_T'}),{axes:1,v:1}),'Un objet lancé glisse vers la droite, avec frottement.',QE(ax),'−'+FR(RT,m),['+'+FR(RT,m),'0','−'+FR(RN,m)],[PFD+' = '+vP+' + '+vRN+' + '+vRT+'.','Sur '+ux+' : '+m+' '+ax+' = −'+RT+' : l’objet ralentit.']),
@@ -1718,8 +1725,8 @@ const UND=[
  Qz(scSuspendu(F({P:'P',T:'T'}),{cabine:1,axe:-1}),'Une cabine d’ascenseur est tirée par un câble. (O'+z+') est vers le haut.',QE(az),FR(T,m)+' − '+g,[FR(T,m)+' + '+g,g+' − '+FR(T,m),FR(T,m)],[PFD+' = '+vP+' + '+vT+'.','Sur '+uz+' : '+m+' '+az+' = '+T+' − '+mg+'.']),
  Qz(scSuspendu(F({P:'P',T:'T'}),{cabine:1,axe:-1}),'La cabine accélère vers le haut : '+az+' &gt; 0.','Comparer '+T+' et '+mg+'.',T+' &gt; '+mg,[T+' = '+mg,T+' &lt; '+mg,T+' = 0'],['Sur '+uz+' : '+m+' '+az+' = '+T+' − '+mg+'.',az+' &gt; 0 impose '+T+' &gt; '+mg+'.']),
  Qz(scSuspendu(F({P:'P',T:'T'}),{cabine:1,axe:-1}),'La cabine a une accélération '+az+' = '+a+'. (O'+z+') est vers le haut.',QE(T),m+' ('+g+' + '+a+')',[m+' ('+g+' − '+a+')',m+' '+a,mg],['Sur '+uz+' : '+m+' '+a+' = '+T+' − '+mg+'.','On isole '+T+'.']),
- Qz(scRessort(F({P:'P',RN:'R_N',Tr:'T'}),{t:'HG',u:1}),'La masse M glisse sans frottement. '+uu+' est vers la droite : '+vT+' = −'+k+' ('+dl+') '+uu+'.','Projection du PFD sur '+uu+' ?',m+' '+d2l+' = −'+k+' ('+dl+')',[m+' '+d2l+' = +'+k+' ('+dl+')',m+' '+d2l+' = '+mg+' − '+k+' ('+dl+')',m+' '+d2l+' = −'+k+' '+l],[PFD+' = '+vP+' + '+vRN+' + '+vT+'.','La position de M sur l’axe est '+l+' : son accélération est '+d2l+'.',vP+' et '+vRN+' sont verticaux : seule la force de rappel se projette sur '+uu+'.'],{large:1}),
- Qz(scRessort(F({P:'P',Tr:'T'}),{t:'VH',u:1}),'La masse M est suspendue. '+uu+' est vers le bas : '+vT+' = −'+k+' ('+dl+') '+uu+'.','Projection du PFD sur '+uu+' ?',m+' '+d2l+' = '+mg+' − '+k+' ('+dl+')',[m+' '+d2l+' = −'+mg+' − '+k+' ('+dl+')',m+' '+d2l+' = −'+k+' ('+dl+')',m+' '+d2l+' = '+mg+' + '+k+' ('+dl+')'],[PFD+' = '+vP+' + '+vT+'.','Sur '+uu+' (vers le bas) : le poids donne +'+mg+', la force de rappel −'+k+' ('+dl+').'],{large:1})
+ Qz(scRessort(F({P:'P',RN:'R_N',Tr:'T'}),{t:'HG',u:1}),'La masse M glisse sans frottement. Le ressort a une raideur '+k+', une longueur '+l+' et une longueur à vide '+l0+'. '+uu+' est vers la droite.','Projection du PFD sur '+uu+' ?',m+' '+d2l+' = −'+k+' ('+dl+')',[m+' '+d2l+' = +'+k+' ('+dl+')',m+' '+d2l+' = '+mg+' − '+k+' ('+dl+')',m+' '+d2l+' = −'+k+' '+l],[PFD+' = '+vP+' + '+vRN+' + '+vT+', avec '+vT+' = −'+k+' ('+dl+') '+uu+'.','La position de M sur l’axe est '+l+' : son accélération est '+d2l+'.',vP+' et '+vRN+' sont verticaux : seule la force de rappel se projette sur '+uu+'.'],{large:1}),
+ Qz(scRessort(F({P:'P',Tr:'T'}),{t:'VH',u:1}),'La masse M est suspendue. Le ressort a une raideur '+k+', une longueur '+l+' et une longueur à vide '+l0+'. '+uu+' est vers le bas.','Projection du PFD sur '+uu+' ?',m+' '+d2l+' = '+mg+' − '+k+' ('+dl+')',[m+' '+d2l+' = −'+mg+' − '+k+' ('+dl+')',m+' '+d2l+' = −'+k+' ('+dl+')',m+' '+d2l+' = '+mg+' + '+k+' ('+dl+')'],[PFD+' = '+vP+' + '+vT+', avec '+vT+' = −'+k+' ('+dl+') '+uu+'.','Sur '+uu+' (vers le bas) : le poids donne +'+mg+', la force de rappel −'+k+' ('+dl+').'],{large:1})
 ];
 const Fi=(o)=>F(o), INC='Un solide est sur un plan incliné d’un angle '+al+'. ', AXH='('+x+') est parallèle au plan, vers le haut. ', AXB='('+x+') est parallèle au plan, vers le bas. ', gs=g+' '+sin(al), gc=g+' '+cos(al), mgs=mg+' '+sin(al), mgc=mg+' '+cos(al);
 const ppx=s=>'Composante du poids : '+Px+' = '+s+mgs+'.', NUL='La réaction normale n’a pas de composante sur ('+x+').';
@@ -1767,7 +1774,7 @@ const MISE=[
  Qz(scTir({ang:50}),TIRTXT,QE(d2z),'−'+g,['0','−'+g+' '+sin(al),'+'+g],[va+' = '+vg+'.','(O'+z+') est vers le haut : '+d2z+' = −'+g+'.']),
  Qz(scTir({ang:50}),TIRTXT,'Le mouvement dépend-il de la masse ?','Non',['Oui, un objet lourd tombe plus vite','Oui, un objet léger va plus loin','Seulement sur ('+z+')'],[m+' '+va+' = '+m+' '+vg+' : la masse se simplifie.',va+' = '+vg+' pour tous les projectiles.'],{large:1}),
  Qz(scTir({ang:50}),TIRTXT,'Force(s) exercée(s) pendant le vol ?','Le poids seulement',['Le poids et une force dans le sens de '+vc(v0),'Aucune force','Le poids et la réaction normale'],['Le projectile ne touche plus rien : seule la Terre agit sur lui.'],{large:1}),
- Qz(scChute(F({P:'P',f:'f'}),{fluide:1}),'Chute dans un fluide, avec '+vf+' = −'+al+' '+vv+'.','Principe fondamental de la dynamique ?',m+' '+DER(vv)+' = '+m+' '+vg+' − '+al+' '+vv,[m+' '+DER(vv)+' = '+m+' '+vg+' + '+al+' '+vv,m+' '+DER(vv)+' = '+m+' '+vg,m+' '+DER(vv)+' = −'+al+' '+vv],[PFD+' = '+vP+' + '+vf+', avec '+va+' = '+DER(vv)+'.'],{large:1}),
+ Qz(scChute(F({P:'P',f:'f'}),{fluide:1}),'Chute dans un fluide, de coefficient de frottement '+al+'.','Principe fondamental de la dynamique ?',m+' '+DER(vv)+' = '+m+' '+vg+' − '+al+' '+vv,[m+' '+DER(vv)+' = '+m+' '+vg+' + '+al+' '+vv,m+' '+DER(vv)+' = '+m+' '+vg,m+' '+DER(vv)+' = −'+al+' '+vv],[PFD+' = '+vP+' + '+vf+', avec '+vP+' = '+m+' '+vg+', '+vf+' = −'+al+' '+vv+' et '+va+' = '+DER(vv)+'.'],{large:1}),
  Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:1}),'Chute dans un fluide : '+m+' '+dv+' = '+mg+' − '+al+' '+v+', avec (O'+z+') vers le bas.','Forme canonique ?',dv+' + '+FR(al,m)+' '+v+' = '+g,[dv+' − '+FR(al,m)+' '+v+' = '+g,dv+' + '+FR(m,al)+' '+v+' = '+g,dv+' + '+FR(al,m)+' '+v+' = '+mg],['On divise par '+m+' et on regroupe les termes en '+v+' à gauche.'],{large:1}),
  Qz(scChute(F({P:'P',f:'f'}),{fluide:1,axe:-1}),'Chute dans un fluide : '+m+' '+dvz+' = −'+mg+' − '+al+' '+vz+', avec (O'+z+') vers le haut.','Forme canonique ?',dvz+' + '+FR(al,m)+' '+vz+' = −'+g,[dvz+' + '+FR(al,m)+' '+vz+' = '+g,dvz+' − '+FR(al,m)+' '+vz+' = −'+g,dvz+' + '+FR(m,al)+' '+vz+' = −'+g],['On divise par '+m+' et on regroupe les termes en '+vz+' à gauche.'],{large:1}),
  Qz(TX(m+' '+DER(vv)+' = '+m+' '+vg+' − '+al+' '+vv),'Tir dans un fluide. ('+x+') est horizontal.','Projection sur ('+x+') ?',m+' '+dvx+' = −'+al+' '+vx,[m+' '+dvx+' = '+mg+' − '+al+' '+vx,m+' '+dvx+' = 0',m+' '+dvx+' = +'+al+' '+vx],[vg+' est vertical : aucune composante sur ('+x+').','Il reste le frottement : −'+al+' '+vx+'.'],{large:1}),
@@ -1850,6 +1857,255 @@ const CHUTE=[
 return {FORCES,NEWTON,CHUTE};
 })();
 
+/* =====================================================================
+   1 septies. TH1 — PREMIER PRINCIPE (questions à choix, diagrammes de Watt)
+   ===================================================================== */
+const TH1=(()=>{
+const it=I_, sb=(a,b)=>it(a)+'<sub>'+b+'</sub>';
+const P=it('P'), V=it('V'), T=it('T'), W=it('W'), Q=it('Q'), U=it('U'), n=it('n'), R=it('R'), m=it('m'), c=it('c'), C=it('C'), g=it('γ');
+const Pext=sb('P','ext'), Text=sb('T','ext'), T0=sb('T','0'), P0=sb('P','0'), V1=sb('V','1'), V2=sb('V','2'), P1=sb('P','1'), P2=sb('P','2'), T1=sb('T','1'), T2=sb('T','2'), Tf=sb('T','f'), CVm=sb('C','<i>V</i>,m'), CV=n+' '+CVm;   /* choix de Thomas : toujours n C_V,m, jamais C_V */
+const dU='Δ'+U, dT='Δ'+T, dV='Δ'+V, cte='C<sup>te</sup>', ln=x=>'ln '+x, par=x=>'('+x+')';
+const tq=(titre,sit,q,ok,faux,pr,o)=>Qz(TX(titre),sit,q,ok,faux,pr,Object.assign({large:1},o));
+const eq=(titre,sit,cible,ok,faux,pr,o)=>Qz(TX(titre),sit,QE(cible),ok,faux,pr,Object.assign({large:[ok].concat(faux).some(h=>h.replace(/<[^>]+>/g,'').length>13)},o));
+
+/* ---------- diagramme de Watt : P (bar) en fonction de V (L) ---------- */
+function watt(o){
+  const x0=52,y0=178,L=216,H=146,VM=o.VM||4,PM=o.PM||4,X=v=>x0+v/VM*L,Y=p=>y0-p/PM*H; let s='';
+  for(let v=0;v<=VM;v++) s+='<path stroke="#d0d7e0" stroke-width="1" d="M'+X(v)+' '+y0+' L'+X(v)+' '+(y0-H)+'"/><text class="txt" font-size="13" x="'+X(v)+'" y="'+(y0+16)+'" text-anchor="middle">'+v+'</text>';
+  for(let p=0;p<=PM;p++) s+='<path stroke="#d0d7e0" stroke-width="1" d="M'+x0+' '+Y(p)+' L'+(x0+L)+' '+Y(p)+'"/><text class="txt" font-size="13" x="'+(x0-7)+'" y="'+(Y(p)+4)+'" text-anchor="end">'+p+'</text>';
+  (o.ch||[]).forEach(ch=>{ if(!ch.aire) return; const p=ch.pts; s+='<path fill="#cfe0f7" stroke="none" d="M'+X(p[0][0])+' '+y0+' '+p.map(q=>'L'+X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)).join(' ')+' L'+X(p[p.length-1][0])+' '+y0+' Z"/>'; });
+  s+=seg(x0,y0-H-10,x0,y0,'',1.6)+seg(x0,y0,x0+L+12,y0,'',1.6)+tete(x0,y0-H-16,0,-1,'',5)+tete(x0+L+18,y0,1,0,'',5);
+  s+='<text class="txt" font-size="15" x="'+(x0+L+18)+'" y="'+(y0+38)+'" text-anchor="end"><tspan font-style="italic">V</tspan> (L)</text><text class="txt" font-size="15" x="'+(x0+8)+'" y="'+(y0-H-10)+'"><tspan font-style="italic">P</tspan> (bar)</text>';
+  (o.ch||[]).forEach(ch=>{ const p=ch.pts, cls=ch.cls||'ask';
+    s+='<path class="fil '+cls+'" style="fill:none" stroke-width="2.6" d="'+p.map((q,i)=>(i?'L':'M')+X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)).join(' ')+'"/>';
+    (ch.fl||[Math.floor((p.length-1)/2)]).forEach(i=>{ const a=p[i], b=p[i+1], xa=X(a[0]),ya=Y(a[1]),xb=X(b[0]),yb=Y(b[1]), d=Math.hypot(xb-xa,yb-ya); s+=tete((xa+xb)/2+(xb-xa)/d*5,(ya+yb)/2+(yb-ya)/d*5,(xb-xa)/d,(yb-ya)/d,cls,7); });
+    if(ch.nom) s+=etiq(ch.nom,X(ch.nomP[0]),Y(ch.nomP[1])+5,'middle',cls); });
+  (o.pts||[]).forEach(([v,p,nom,dx,dy])=>{ s+='<circle cx="'+X(v)+'" cy="'+Y(p)+'" r="4" fill="#1b2a41"/><text class="txt" font-size="14" x="'+(X(v)+(dx||0))+'" y="'+(Y(p)+(dy||-9))+'" text-anchor="middle">'+nom+'</text>'; });
+  return svgM(300,226,s);
+}
+const hyp=(k,va,vb)=>Array.from({length:25},(_,i)=>{ const v=va+(vb-va)*i/24; return [v,k/v]; });
+const E12=(a,b)=>[[a[0],a[1],'(1)',a[2]||0,a[3]],[b[0],b[1],'(2)',b[2]||0,b[3]]];
+const BARL='Rappel : 1 bar × 1 L = 100 J.', AIRE='Dans le diagramme de Watt, l’aire sous la courbe vaut |'+W+'|.', SGN=d=>d>0?'Le volume augmente (détente) : '+W+' &lt; 0':'Le volume diminue (compression) : '+W+' &gt; 0';
+
+/* ================= Niveau 1 : modes et sens du transfert thermique ================= */
+const MODES={cd:'Conduction',cv:'Convection',ry:'Rayonnement',w:'Travail des forces de pression'};
+const MEX={cd:'Conduction : transfert de proche en proche, sans déplacement de matière',cv:'Convection : transfert accompagné d’un mouvement de fluide',ry:'Rayonnement : transfert par onde électromagnétique, sans support matériel'};
+const mode=(sit,k)=>tq('Mode de transfert thermique',sit,'Mode principal ?',MODES[k],['cd','cv','ry','w'].filter(x=>x!==k).map(x=>MODES[x]),[MEX[k]]);
+const N1=[
+ mode('Le manche métallique d’une casserole posée sur le feu devient chaud.','cd'),
+ mode('On chauffe une extrémité d’une barre métallique : l’autre extrémité s’échauffe.','cd'),
+ mode('Une cuillère plongée dans un thé chaud devient chaude jusqu’au bout du manche.','cd'),
+ mode('La chaleur traverse le mur d’une maison, de l’intérieur chaud vers l’extérieur froid.','cd'),
+ mode('Un radiateur met en mouvement l’air de la pièce, qui monte en s’échauffant.','cv'),
+ mode('Les courants marins transportent de l’énergie des tropiques vers les pôles.','cv'),
+ mode('Dans une casserole chauffée par le fond, l’eau chaude monte et l’eau froide descend.','cv'),
+ mode('Un sèche-cheveux souffle de l’air chaud sur les cheveux.','cv'),
+ mode('Le Soleil chauffe la Terre à travers le vide spatial.','ry'),
+ mode('On sent la chaleur des braises à distance, sans les toucher.','ry'),
+ mode('Une lampe infrarouge réchauffe un plat posé dessous.','ry'),
+ tq('Dans le vide','Deux corps de températures différentes sont séparés par du vide.','Quel mode de transfert reste possible ?','Le rayonnement',['La conduction','La convection','Aucun'],['Conduction et convection ont besoin de matière.','Le rayonnement se propage par onde électromagnétique, sans support matériel']),
+ tq('Définition','Transfert thermique de proche en proche, sans déplacement de matière.','De quel mode s’agit-il ?',MODES.cd,[MODES.cv,MODES.ry,MODES.w],[MEX.cd]),
+ tq('Définition','Transfert thermique accompagné d’un mouvement de fluide.','De quel mode s’agit-il ?',MODES.cv,[MODES.cd,MODES.ry,MODES.w],[MEX.cv]),
+ tq('Définition','Transfert thermique par onde électromagnétique, sans support matériel.','De quel mode s’agit-il ?',MODES.ry,[MODES.cd,MODES.cv,MODES.w],[MEX.ry]),
+ tq('Sens du transfert thermique','Deux corps de températures différentes sont mis en contact.','Dans quel sens se fait le transfert thermique ?','Du corps chaud vers le corps froid',['Du corps froid vers le corps chaud','Du plus lourd vers le plus léger','Dans les deux sens, à égalité'],['Le transfert thermique s’effectue spontanément du corps chaud vers le corps froid']),
+ tq('Glaçon dans un verre d’eau','Un glaçon est plongé dans de l’eau à 20 °C.','Dans quel sens se fait le transfert thermique ?','De l’eau vers le glaçon',['Du glaçon vers l’eau','Il n’y a pas de transfert','Le glaçon donne du froid à l’eau'],['Le transfert thermique va du corps chaud (l’eau) vers le corps froid (le glaçon).','Le « froid » ne se transfère pas']),
+ tq('Main sur une vitre froide','On pose la main sur une vitre froide.','Dans quel sens se fait le transfert thermique ?','De la main vers la vitre',['De la vitre vers la main','Il n’y a pas de transfert','Dans les deux sens, à égalité'],['Le transfert thermique va du corps chaud (la main) vers le corps froid (la vitre).','La sensation de froid vient de l’énergie cédée par la main']),
+ tq('Système : une tasse de café chaud','Le café refroidit dans une pièce à 20 °C.','Signe de '+Q+' pour le café ?',Q+' &lt; 0',[Q+' &gt; 0',Q+' = 0','On ne peut pas savoir'],['Le café, plus chaud que la pièce, cède de l’énergie.',Q+' est compté algébriquement reçu par le système : il est négatif'],{large:0}),
+ tq('Système : un glaçon','Le glaçon est plongé dans de l’eau à 20 °C.','Signe de '+Q+' pour le glaçon ?',Q+' &gt; 0',[Q+' &lt; 0',Q+' = 0','On ne peut pas savoir'],['Le glaçon, plus froid que l’eau, reçoit de l’énergie.',Q+' est compté algébriquement reçu par le système : il est positif'],{large:0}),
+ tq(Q+' &gt; 0','Convention de signe du transfert thermique.','Que signifie '+Q+' &gt; 0 ?','Le système reçoit de l’énergie',['Le système cède de l’énergie','La température du système est positive','Le système est isolé'],[Q+' est algébriquement reçu par le système : positif s’il reçoit, négatif s’il cède']),
+ tq(Q+' &lt; 0','Convention de signe du transfert thermique.','Que signifie '+Q+' &lt; 0 ?','Le système cède de l’énergie à l’extérieur',['Le système reçoit de l’énergie','La température du système diminue forcément','Le système est isolé'],[Q+' est algébriquement reçu par le système : positif s’il reçoit, négatif s’il cède']),
+ tq('Même température','Deux corps à la même température sont mis en contact.','Que vaut le transfert thermique ?','Il est nul',['Il va du plus gros vers le plus petit','Il va du plus dense vers le moins dense','Il dépend des matériaux'],['Le transfert thermique n’existe qu’entre deux corps de températures différentes']),
+ tq('Paroi calorifugée','Un système est entouré de parois adiabatiques (calorifugées).','Que peut-on affirmer ?',Q+' = 0',[W+' = 0',dT+' = 0',dU+' = 0'],['Une paroi adiabatique interdit tout transfert thermique : le système est isolé thermiquement'],{large:0}),
+ tq('Transfert thermique '+Q,'Le transfert thermique est une énergie échangée.','Unité de '+Q+' ?','Le joule (J)',['Le watt (W)','Le kelvin (K)','Le joule par kelvin (J·K<sup>−1</sup>)'],[Q+' est une énergie : elle s’exprime en joules.','Le watt est l’unité de la puissance thermique '+sb('P','th')+' = '+FR('δ'+Q,'d'+it('t'))])
+];
+
+/* ================= Niveau 2 : identifier une transformation ================= */
+const TR=[['Isochore',V+' = '+cte,'le volume '+V+' du système reste constant'],['Isobare',P+' = '+cte,'la pression '+P+' du système reste constante'],['Isotherme',T+' = '+cte,'la température '+T+' du système reste constante'],
+  ['Monobare',Pext+' = '+cte,'la pression extérieure '+Pext+' reste constante'],['Monotherme',Text+' = '+cte,'la température extérieure '+Text+' reste constante'],['Adiabatique',Q+' = 0','le système n’échange aucun transfert thermique'],
+  ['Mécaniquement réversible',P+' = '+Pext+' à tout instant','le système est à chaque instant en équilibre mécanique avec l’extérieur']];
+const voisins=[[1,2,3],[3,0,2],[4,5,1],[1,4,0],[2,5,3],[2,4,0],[1,3,5]];
+const N2=[];
+TR.forEach(([nom,rel,def],i)=>{
+  N2.push(tq('Transformation '+nom.toLowerCase(),'On considère une transformation '+nom.toLowerCase()+'.','Que peut-on écrire ?',rel,voisins[i].map(j=>TR[j][1]),['Transformation '+nom.toLowerCase()+' : '+def],{large:i===6}));
+  N2.push(tq(rel,'Au cours d’une transformation, '+def+'.','Comment appelle-t-on cette transformation ?',nom,voisins[i].map(j=>TR[j][0]),[nom+' : '+def]));
+});
+const sit=(titre,txt,k,faux,pr)=>tq(titre,txt,'Quelle est la nature de la transformation ?',TR[k][0],faux.map(j=>TR[j][0]),pr);
+N2.push(
+ sit('Enceinte rigide','On chauffe un gaz enfermé dans une enceinte indéformable (cocotte-minute fermée).',0,[1,2,5],['L’enceinte est indéformable : le volume du gaz ne peut pas varier']),
+ sit('Vase Dewar','On comprime un gaz dans un cylindre aux parois calorifugées.',5,[2,0,1],['Les parois calorifugées interdisent tout transfert thermique : '+Q+' = 0']),
+ sit('Compression très rapide','On comprime un gaz si vite que le transfert thermique n’a pas le temps de s’effectuer.',5,[2,0,1],['Aucun transfert thermique n’a le temps de s’effectuer : '+Q+' = 0']),
+ sit('Local thermostaté','On comprime très lentement un gaz dans un cylindre aux parois conductrices, placé dans un local thermostaté.',2,[5,0,1],['La transformation est assez lente pour que le gaz reste à la température du local : '+T+' = '+cte]),
+ sit('Piston libre','On chauffe lentement un gaz sous un piston libre de coulisser, à la pression atmosphérique.',1,[0,2,5],['Le piston libre maintient à chaque instant la pression du gaz égale à la pression extérieure, constante']),
+ tq('Piston déplacé très lentement','Le piston est déplacé assez lentement pour que '+P+' = '+Pext+' à chaque instant.','Quelle propriété a la transformation ?','Mécaniquement réversible',['Adiabatique','Isochore','Monotherme'],['Le système reste en équilibre mécanique avec l’extérieur : la pression '+P+' du système est définie tout au long de la transformation']),
+ tq('Monobare ou isobare ?','On comprime brutalement un gaz sous la pression atmosphérique '+Pext+' = '+P0+'.','La transformation est-elle isobare ?','Non : elle est seulement monobare',['Oui, car '+Pext+' = '+P0,'Oui : monobare et isobare sont synonymes','Non : elle est isochore'],['« Monobare » porte sur l’extérieur, « isobare » sur le système.','Pendant une compression brutale, la pression '+P+' du gaz n’est même pas définie']),
+ tq('Monobare et mécaniquement réversible','Une transformation est à la fois monobare ('+Pext+' = '+cte+') et mécaniquement réversible ('+P+' = '+Pext+').','Que peut-on en déduire ?','Elle est isobare',['Elle est isochore','Elle est isotherme','Elle est adiabatique'],[P+' = '+Pext+' à chaque instant et '+Pext+' = '+cte+' : la pression du système est constante']),
+ tq('Adiabatique ou isotherme ?','On comprime un gaz de façon adiabatique.','Comment évolue sa température ?','Elle augmente',['Elle reste constante','Elle diminue','Elle est nulle'],['Adiabatique ('+Q+' = 0) ne veut pas dire isotherme.','Le travail reçu augmente l’énergie interne du gaz : il s’échauffe']),
+ tq('Adiabatique ou isotherme ?','Un gaz subit une compression isotherme.','Que peut-on dire de '+Q+' ?','En général '+Q+' n’est pas nul',[Q+' = 0, car '+T+' est constante',Q+' = 0, car la transformation est lente','Le gaz reçoit forcément '+Q+' &gt; 0'],['C’est justement le transfert thermique qui maintient la température constante.','Isotherme ne veut pas dire adiabatique'])
+);
+
+/* ================= Niveau 3 : travail des forces de pression ================= */
+const lnV=FR(V2,V1), Wiso='−'+n+' '+R+' '+T0+' '+ln(lnV), ISO=[[1,3],[3,3]], pasJ=(x)=>(x<0?'−':'+')+Math.abs(x)+' J';
+const lire=(d,sit,ok,faux,pr)=>Qz(d,sit+' '+BARL,QE(W),pasJ(ok),faux.map(pasJ),[AIRE].concat(pr));
+const N3=[
+ eq('Travail des forces de pression','Travail des forces de pression : expression générale du travail élémentaire.','δ'+W,'−'+Pext+' d'+V,['−'+P+' d'+V,'+'+Pext+' d'+V,'−'+V+' d'+Pext],['Le travail des forces de pression fait intervenir la pression extérieure : δ'+W+' = −'+Pext+' d'+V]),
+ tq('δ'+W+' = −'+P+' d'+V,'On veut remplacer '+Pext+' par la pression '+P+' du système.','À quelle condition est-ce permis ?','Si la transformation est mécaniquement réversible',['Toujours','Si la transformation est adiabatique','Si la transformation est monobare'],['Mécaniquement réversible : '+P+' = '+Pext+' à tout instant.','Pour une transformation brutale, '+P+' n’est même pas définie']),
+ eq('Transformation isochore','Transformation isochore : le volume du système reste constant.',W,'0',['−'+Pext+' '+dV,'−'+n+' '+R+' '+T0,dU],['d'+V+' = 0 : les forces de pression ne travaillent pas']),
+ eq('Transformation monobare','Transformation monobare : la pression extérieure '+Pext+' est constante ; le volume passe de '+V1+' à '+V2+'.',W,'−'+Pext+' ('+V2+' − '+V1+')',['−'+Pext+' ('+V1+' − '+V2+')','−'+Pext+' '+V2,'0'],[Pext+' est constante : elle sort de la somme des −'+Pext+' d'+V+'.',W+' = −'+Pext+' '+dV]),
+ eq('Transformation isobare','Transformation isobare : la pression du système vaut '+P0+' ; le volume passe de '+V1+' à '+V2+'.',W,'−'+P0+' ('+V2+' − '+V1+')',['+'+P0+' ('+V2+' − '+V1+')','−'+V1+' ('+P2+' − '+P1+')','0'],['Isobare : '+P+' = '+Pext+' = '+P0+', constante.',W+' = −'+P0+' '+dV]),
+ tq('Isotherme réversible d’un gaz parfait','Isotherme réversible d’un gaz parfait : pour calculer '+W+', il faut exprimer la pression '+P+' en fonction de '+V+'.','Par quoi remplace-t-on '+P+' ?',FR(n+' '+R+' '+T0,V),[FR(n+' '+R+' '+T0,V1),P1,FR(V,n+' '+R+' '+T0)],['Équation d’état du gaz parfait : '+P+' '+V+' = '+n+' '+R+' '+T0+'.',P+' varie avec '+V+' : on ne peut pas la sortir de la somme'],{large:0}),
+ eq('Isotherme réversible d’un gaz parfait','Isotherme réversible d’un gaz parfait à la température '+T0+' ; le volume passe de '+V1+' à '+V2+'.',W,Wiso,['+'+n+' '+R+' '+T0+' '+ln(lnV),'−'+n+' '+R+' '+T0+' ('+V2+' − '+V1+')','−'+n+' '+R+' '+T0+' '+ln(FR(V1,V2))],['δ'+W+' = −'+P+' d'+V+' avec '+P+' = '+FR(n+' '+R+' '+T0,V)+'.','Une primitive de '+FR('1',V)+' est ln '+V+'.',W+' = −'+n+' '+R+' '+T0+' (ln '+V2+' − ln '+V1+')'],{large:1}),
+ eq('Isotherme réversible d’un gaz parfait','Isotherme réversible d’un gaz parfait à la température '+T0+' ; la pression passe de '+P1+' à '+P2+'.',W,'+'+n+' '+R+' '+T0+' '+ln(FR(P2,P1)),['−'+n+' '+R+' '+T0+' '+ln(FR(P2,P1)),'+'+n+' '+R+' '+T0+' '+ln(FR(P1,P2)),'+'+n+' '+R+' '+T0+' ('+P2+' − '+P1+')'],[W+' = '+Wiso+'.',P1+' '+V1+' = '+P2+' '+V2+' donne '+lnV+' = '+FR(P1,P2)+'.','−ln '+FR(P1,P2)+' = +ln '+FR(P2,P1)],{large:1}),
+ tq('Adiabatique réversible d’un gaz parfait','Adiabatique réversible d’un gaz parfait : pour calculer '+W+', il faut relier '+P+' à '+V+'.','Quelle loi utilise-t-on ?','La loi de Laplace : '+P+' '+V+'<sup>'+g+'</sup> = '+cte,[P+' '+V+' = '+cte,P+' = '+cte,V+' = '+cte],['Gaz parfait, transformation adiabatique et mécaniquement réversible : loi de Laplace.',P+' '+V+' = '+cte+' correspond à l’isotherme']),
+ eq('Adiabatique réversible d’un gaz parfait','Adiabatique réversible d’un gaz parfait : exprimer le travail en fonction des états (1) et (2).',W,FR(P2+' '+V2+' − '+P1+' '+V1,g+' − 1'),[FR(P1+' '+V1+' − '+P2+' '+V2,g+' − 1'),FR(P2+' '+V2+' − '+P1+' '+V1,g),'−'+P1+' ('+V2+' − '+V1+')'],[P+' = '+FR(P1+' '+V1+'<sup>'+g+'</sup>',V+'<sup>'+g+'</sup>')+' dans δ'+W+' = −'+P+' d'+V+'.','Après calcul : '+W+' = '+FR(P2+' '+V2+' − '+P1+' '+V1,g+' − 1')],{large:1}),
+ tq('Compression','On comprime un gaz : son volume diminue.','Signe du travail reçu par le gaz ?',W+' &gt; 0',[W+' &lt; 0',W+' = 0','Cela dépend du gaz'],['δ'+W+' = −'+Pext+' d'+V+' avec d'+V+' &lt; 0.','Le gaz reçoit du travail'],{large:0}),
+ tq('Détente','Un gaz se détend : son volume augmente.','Signe du travail reçu par le gaz ?',W+' &lt; 0',[W+' &gt; 0',W+' = 0','Cela dépend du gaz'],['δ'+W+' = −'+Pext+' d'+V+' avec d'+V+' &gt; 0.','Le gaz fournit du travail à l’extérieur'],{large:0}),
+ eq('Transformation monobare','Transformation monobare : '+Pext+' = 10<sup>5</sup> Pa ; le volume augmente de '+dV+' = 2 L = 2 × 10<sup>−3</sup> m<sup>3</sup>.',W,'−200 J',['+200 J','−2 × 10<sup>5</sup> J','−50 J'],[W+' = −'+Pext+' '+dV+' = −10<sup>5</sup> × 2 × 10<sup>−3</sup>']),
+ eq('Transformation monobare','Transformation monobare : '+Pext+' = 10<sup>5</sup> Pa ; le volume diminue : '+dV+' = −1 L = −10<sup>−3</sup> m<sup>3</sup>.',W,'+100 J',['−100 J','+10<sup>5</sup> J','+10 J'],[W+' = −'+Pext+' '+dV+' = −10<sup>5</sup> × (−10<sup>−3</sup>)']),
+ tq('Diagramme de Watt','Pour une transformation mécaniquement réversible, on trace '+P+' en fonction de '+V+'.','Que représente l’aire sous la courbe ?','La valeur absolue du travail, |'+W+'|',['Le transfert thermique '+Q,'La variation d’énergie interne '+dU,'La température finale'],[W+' = −(somme des '+P+' d'+V+') : l’aire sous la courbe '+P+'('+V+') vaut |'+W+'|.','Le signe dépend du sens de parcours'],{aff:watt({ch:[{pts:hyp(3,1,3),aire:1}],pts:E12([1,3],[3,1,8])})}),
+ lire(watt({ch:[{pts:[[1,2],[3,2]],aire:1}],pts:E12([1,2],[3,2])}),'Détente isobare de (1) vers (2).',-400,[400,-200,-600],['Rectangle : 2 bar × (3 − 1) L = 4 bar·L = 400 J.',SGN(1)]),
+ lire(watt({ch:[{pts:[[3,1],[1,1]],aire:1}],pts:E12([3,1],[1,1])}),'Compression isobare de (1) vers (2).',200,[-200,300,100],['Rectangle : 1 bar × (3 − 1) L = 2 bar·L = 200 J.',SGN(-1)]),
+ lire(watt({ch:[{pts:[[1,3],[3,3]],aire:1}],pts:E12([1,3],[3,3])}),'Détente isobare de (1) vers (2).',-600,[600,-300,-900],['Rectangle : 3 bar × (3 − 1) L = 6 bar·L = 600 J.',SGN(1)]),
+ Qz(watt({ch:[{pts:[[2,1],[2,3]]}],pts:E12([2,1,12,4],[2,3,12,4])}),'Transformation de (1) vers (2).',QE(W),'0',['+400 J','−400 J','+200 J'],['Le volume ne varie pas : transformation isochore.','L’aire sous la courbe est nulle']),
+ lire(watt({ch:[{pts:[[1,3],[3,1]],aire:1}],pts:E12([1,3],[3,1,8])}),'Détente de (1) vers (2), le long d’un segment.',-400,[400,-600,-200],['Trapèze : '+FR('3 + 1','2')+' bar × 2 L = 4 bar·L = 400 J.',SGN(1)]),
+ lire(watt({ch:[{pts:[[3,1],[1,2]],aire:1}],pts:E12([3,1,8],[1,2])}),'Compression de (1) vers (2), le long d’un segment.',300,[-300,400,200],['Trapèze : '+FR('1 + 2','2')+' bar × 2 L = 3 bar·L = 300 J.',SGN(-1)]),
+ Qz(watt({ch:[{pts:hyp(3,1,3),aire:1}],pts:E12([1,3],[3,1,8])}),'Détente isotherme d’un gaz parfait, de (1) vers (2).','Signe de '+W+' ?',W+' &lt; 0',[W+' &gt; 0',W+' = 0','On ne peut pas savoir'],[SGN(1),'Le gaz fournit du travail à l’extérieur']),
+ Qz(watt({ch:[{pts:hyp(3,3,1),aire:1}],pts:E12([3,1,8],[1,3])}),'Compression isotherme d’un gaz parfait, de (1) vers (2).','Signe de '+W+' ?',W+' &gt; 0',[W+' &lt; 0',W+' = 0','On ne peut pas savoir'],[SGN(-1),'Le gaz reçoit du travail']),
+ Qz(watt({ch:[{pts:[[1,3],[3,3],[3,1]],cls:'ask',nom:'A',nomP:[2,3.35],fl:[0,1]},{pts:[[1,3],[1,1],[3,1]],cls:'aux',nom:'B',nomP:[2,0.5],fl:[0,1]}],pts:E12([1,3,-12,4],[3,1,12,4])}),'Deux chemins, A et B, mènent de l’état (1) à l’état (2).','Pour quel chemin |'+W+'| est-il le plus grand ?','Le chemin A',['Le chemin B','Il est le même pour les deux','On ne peut pas savoir'],[AIRE,'L’aire sous le chemin A (palier à 3 bar) est plus grande que sous le chemin B (palier à 1 bar).','Le travail dépend du chemin suivi'],{large:1}),
+ Qz(watt({ch:[{pts:[[1,3],[3,3],[3,1]],cls:'ask',nom:'A',nomP:[2,3.35],fl:[0,1],aire:1}],pts:E12([1,3,-12,4],[3,1,12,4])}),'Chemin A : détente isobare puis refroidissement isochore. '+BARL,QE(W),'−600 J',['−400 J','+600 J','−200 J'],[AIRE,'Palier isobare : 3 bar × 2 L = 600 J, avec '+W+' &lt; 0 (détente).','Partie isochore : travail nul'])
+];
+
+/* ================= Niveau 4 : premier principe ================= */
+const J=x=>(x<0?'−':x>0?'+':'')+Math.abs(x)+' J';
+const num=(titre,sit,cible,ok,faux,pr)=>eq(titre,sit,cible,J(ok),faux.map(J),pr);
+const PP=dU+' = '+W+' + '+Q;
+const N4=[
+ tq('Premier principe','Système fermé, macroscopiquement au repos.','Quel est l’énoncé du premier principe ?',PP,[dU+' = '+W+' − '+Q,dU+' = '+Q+' − '+W,dU+' = Δ'+W+' + Δ'+Q],[W+' et '+Q+' sont algébriquement reçus par le système : ils s’ajoutent.','On n’écrit jamais Δ'+W+' ni Δ'+Q+' : ce ne sont pas des grandeurs d’état'],{large:0}),
+ eq('Premier principe','Premier principe : on connaît '+dU+' et '+W+'.',Q,dU+' − '+W,[dU+' + '+W,W+' − '+dU,FR(dU,W)],['On isole '+Q+' dans '+PP+'.','C’est le seul moyen de calculer un transfert thermique']),
+ eq('Premier principe','Premier principe : on connaît '+dU+' et '+Q+'.',W,dU+' − '+Q,[dU+' + '+Q,Q+' − '+dU,FR(dU,Q)],['On isole '+W+' dans '+PP]),
+ eq('Transformation isochore','Transformation isochore : le volume reste constant.',dU,Q,[W,'0',W+' − '+Q],['Isochore : '+W+' = 0.',PP+' devient '+dU+' = '+Q]),
+ eq('Transformation adiabatique','Transformation adiabatique : le système n’échange aucun transfert thermique.',dU,W,[Q,'0','−'+W],['Adiabatique : '+Q+' = 0.',PP+' devient '+dU+' = '+W]),
+ eq('Isotherme d’un gaz parfait','Un gaz parfait subit une transformation isotherme.',Q,'−'+W,['+'+W,'0',dU],['Pour un gaz parfait, '+U+' ne dépend que de '+T+' : '+dU+' = 0.','0 = '+W+' + '+Q+'.','Le gaz cède par transfert thermique ce qu’il reçoit en travail']),
+ eq('Cycle','Après une suite de transformations, le système revient à son état initial.',dU,'0',[W,Q,W+' − '+Q],[U+' est une fonction d’état : sa variation ne dépend que des états initial et final.','Ici ils sont identiques']),
+ tq('Fonction d’état','Deux transformations différentes relient les mêmes états (1) et (2).','Quelle grandeur est la même pour les deux ?',dU,[W,Q,W+' et '+Q],[U+' est une fonction d’état : '+dU+' = '+sb('U','2')+' − '+sb('U','1')+' ne dépend pas du chemin suivi.',W+' et '+Q+' dépendent de la transformation'],{large:0}),
+ tq('Grandeurs d’échange','On compare '+U+', '+W+' et '+Q+'.','Lesquelles dépendent du chemin suivi ?',W+' et '+Q,[U+' seulement',U+' et '+W,'Aucune'],[W+' et '+Q+' sont des énergies échangées au cours de la transformation.',U+' est une grandeur d’état du système'],{large:0}),
+ tq('Écriture','On écrit le premier principe pour une transformation.','Quelle écriture est correcte ?',dU+' = '+W+' + '+Q,['Δ'+U+' = Δ'+W+' + Δ'+Q,U+' = '+W+' + '+Q,dU+' = Δ'+W+' + '+Q],['Δ ne s’applique qu’à une grandeur d’état : '+dU+' = '+sb('U','2')+' − '+sb('U','1')+'.','« Variation de travail » n’a aucun sens'],{large:0}),
+ tq(W+' &gt; 0','Convention de signe du travail.','Que signifie '+W+' &gt; 0 ?','Le système reçoit du travail',['Le système fournit du travail','Le volume du système augmente','Le système est au repos'],[W+' est algébriquement reçu par le système.','Pour les forces de pression, '+W+' &gt; 0 correspond à une compression']),
+ tq('Forme usuelle','Dans ce chapitre, le premier principe ne fait intervenir que l’énergie interne.','Quand peut-on ignorer Δ'+sb('E','c')+' et Δ'+sb('E','p')+' ?','Système au repos, d’énergie potentielle extérieure constante',['Seulement pour un gaz parfait','Seulement si la transformation est lente','Seulement si '+Q+' = 0'],['Si le système est macroscopiquement au repos et que son énergie potentielle extérieure ne varie pas : Δ'+sb('E','c')+' = 0 et Δ'+sb('E','p')+' = 0']),
+ tq('Conservation','Le premier principe est un principe de conservation.','Que traduit-il ?','L’énergie ne peut être ni créée ni détruite',['L’énergie interne est toujours constante','Le travail est toujours égal au transfert thermique','La température ne peut pas diminuer'],['L’énergie d’un système ne varie que par échange avec l’extérieur : travail ou transfert thermique']),
+ tq('Extensivité','Un système Σ est la réunion de deux sous-systèmes disjoints.','Que vaut son énergie interne ?',sb('U','Σ')+' = '+sb('U','1')+' + '+sb('U','2'),[sb('U','Σ')+' = '+sb('U','1')+' − '+sb('U','2'),sb('U','Σ')+' = '+sb('U','1')+' = '+sb('U','2'),sb('U','Σ')+' = '+FR(sb('U','1')+' + '+sb('U','2'),'2')],['L’énergie interne est extensive : elle s’additionne'],{large:0}),
+ tq('Compression adiabatique d’un gaz','On comprime un gaz de façon adiabatique.','Signe de '+dU+' ?',dU+' &gt; 0',[dU+' &lt; 0',dU+' = 0','On ne peut pas savoir'],['Compression : '+W+' &gt; 0. Adiabatique : '+Q+' = 0.',dU+' = '+W+' + '+Q+' = '+W+' &gt; 0 : le gaz s’échauffe'],{large:0}),
+ num('Bilan d’énergie',W+' = +300 J et '+Q+' = −100 J.',dU,200,[400,-200,-400],[PP+' = 300 + (−100)']),
+ num('Bilan d’énergie',dU+' = +500 J et '+W+' = +200 J.',Q,300,[700,-300,-700],[Q+' = '+dU+' − '+W+' = 500 − 200']),
+ num('Bilan d’énergie',dU+' = −100 J et '+Q+' = +50 J.',W,-150,[150,-50,50],[W+' = '+dU+' − '+Q+' = −100 − 50']),
+ num('Transformation adiabatique','Détente adiabatique : le gaz fournit 150 J de travail, soit '+W+' = −150 J.',dU,-150,[150,0,-300],[Q+' = 0, donc '+dU+' = '+W]),
+ num('Transformation isochore','Transformation isochore : le gaz reçoit '+Q+' = +400 J.',dU,400,[-400,0,800],[W+' = 0, donc '+dU+' = '+Q]),
+ num('Isotherme d’un gaz parfait','Compression isotherme d’un gaz parfait : '+W+' = +250 J.',Q,-250,[250,0,-500],[dU+' = 0, donc '+Q+' = −'+W+'.','Le gaz cède de l’énergie par transfert thermique']),
+ num('Deux chemins entre les mêmes états','Chemin A : '+W+' = 100 J et '+Q+' = 200 J. Chemin B : '+W+' = 250 J.',Q+' (chemin B)',50,[200,350,-50],[dU+' est le même pour les deux chemins : 100 + 200 = 300 J.','Chemin B : '+Q+' = 300 − 250'])
+];
+
+/* ================= Niveau 5 : variation d'énergie interne et bilans ================= */
+const D21=par(T2+' − '+T1), GP='Gaz parfait ('+n+' moles, capacité thermique molaire '+CVm+'), ';
+const N5=[
+ eq('Gaz parfait',n+' moles de gaz parfait, de capacité thermique molaire à volume constant '+CVm+', chauffées de '+T1+' à '+T2+'.',dU,CV+' '+D21,[CV+' ('+T1+' − '+T2+')',CVm+' '+D21,CV+' ('+T1+' + '+T2+')'],['L’énergie interne d’un gaz parfait ne dépend que de sa température : '+dU+' = '+CV+' '+dT+'.',dT+' = '+T2+' − '+T1+' (état final moins état initial)']),
+ eq('Gaz parfait',n+' moles de gaz parfait, de capacité thermique molaire à volume constant '+CVm+'.',dU,n+' '+CVm+' '+dT,[CVm+' '+dT,FR(CVm,n)+' '+dT,n+' '+R+' '+dT],[CVm+' est une capacité thermique molaire, en J·K<sup>−1</sup>·mol<sup>−1</sup> : il faut la multiplier par '+n+'.',dU+' = '+CV+' '+dT]),
+ tq('Gaz parfait','On calcule '+dU+' à partir de '+n+', de la capacité thermique molaire '+CVm+' et de '+dT+'.','Pour quelles transformations est-ce valable ?','Pour toute transformation',['Seulement isochore','Seulement mécaniquement réversible','Seulement adiabatique'],[dU+' = '+CV+' '+dT+'.',U+' ne dépend que de '+T+' : seule compte la variation de température, quel que soit le chemin']),
+ tq('Gaz parfait','On s’intéresse à l’énergie interne '+U+' d’un gaz parfait.','De quoi dépend-elle ?','De la température seulement',['De la pression seulement','Du volume seulement','De la pression et du volume'],['Pour un gaz parfait, '+U+' = '+U+'('+T+')']),
+ eq('Isotherme d’un gaz parfait','La température d’un gaz parfait reste constante.',dU,'0',[W,Q,CV+' '+T0],[dU+' = '+CV+' '+dT+' avec '+dT+' = 0']),
+ eq('Phase condensée','Solide ou liquide de masse '+m+' et de capacité thermique massique '+c+'.',dU,m+' '+c+' '+dT,[FR(m,c)+' '+dT,c+' '+dT,m+' '+c+' '+T],['Phase condensée incompressible et indilatable : '+dU+' = '+C+' '+dT+' avec '+C+' = '+m+' '+c]),
+ tq('Capacité thermique molaire '+CVm,'Capacité thermique molaire à volume constant d’un gaz.','Unité de '+CVm+' ?','J·K<sup>−1</sup>·mol<sup>−1</sup>',['J·K<sup>−1</sup>','J·K<sup>−1</sup>·kg<sup>−1</sup>','J·mol<sup>−1</sup>'],[CVm+' = '+FR(dU,n+' '+dT)+' : des joules divisés par des moles et des kelvins'],{large:0}),
+ tq('Capacité thermique massique '+c,'Capacité thermique massique d’une phase condensée.','Unité de '+c+' ?','J·K<sup>−1</sup>·kg<sup>−1</sup>',['J·K<sup>−1</sup>','J·kg<sup>−1</sup>','J·K·kg'],[c+' = '+FR(dU,m+' '+dT)+' : des joules divisés par des kelvins et des kilogrammes'],{large:0}),
+ tq('Eau liquide','Eau liquide : ordre de grandeur à connaître.','Capacité thermique massique de l’eau ?','4,18 × 10<sup>3</sup> J·K<sup>−1</sup>·kg<sup>−1</sup>',['4,18 J·K<sup>−1</sup>·kg<sup>−1</sup>','4,18 × 10<sup>6</sup> J·K<sup>−1</sup>·kg<sup>−1</sup>','8,31 J·K<sup>−1</sup>·kg<sup>−1</sup>'],['Il faut environ 4,18 kJ pour élever de 1 K la température de 1 kg d’eau']),
+ eq('Chauffage isochore',GP+'chauffé de '+T1+' à '+T2+' dans une enceinte indéformable.',Q,CV+' '+D21,['0','−'+CV+' '+D21,CV+' '+D21+' + '+Pext+' '+dV],['Isochore : '+W+' = 0.',dU+' = '+CV+' '+D21+'.',Q+' = '+dU+' − '+W]),
+ eq('Chauffage isochore',GP+'chauffé de '+T1+' à '+T2+' dans une enceinte indéformable.',W,'0',[CV+' '+D21,'−'+Pext+' '+dV,'−'+CV+' '+D21],['Le volume ne varie pas : les forces de pression ne travaillent pas']),
+ eq('Transformation monobare',GP+'de '+T1+' à '+T2+' sous la pression extérieure '+Pext+' ; son volume varie de '+dV+'.',Q,CV+' '+D21+' + '+Pext+' '+dV,[CV+' '+D21+' − '+Pext+' '+dV,CV+' '+D21,'−'+Pext+' '+dV],[W+' = −'+Pext+' '+dV+'.',dU+' = '+CV+' '+D21+'.',Q+' = '+dU+' − '+W],{large:1}),
+ eq('Isotherme réversible','Isotherme réversible de '+n+' moles de gaz parfait à la température '+T0+' ; le volume passe de '+V1+' à '+V2+'.',Q,'+'+n+' '+R+' '+T0+' '+ln(lnV),[Wiso,'0',n+' '+R+' '+T0],[W+' = '+Wiso+'.',dU+' = 0 (gaz parfait, '+T+' constante).',Q+' = −'+W],{large:1}),
+ tq('Détente isotherme d’un gaz parfait','Un gaz parfait se détend à température constante.','Que fait le gaz ?','Il reçoit un transfert thermique : '+Q+' &gt; 0',['Il cède un transfert thermique : '+Q+' &lt; 0','Il n’échange aucun transfert thermique','Il s’échauffe'],['Détente : '+W+' &lt; 0. Gaz parfait isotherme : '+dU+' = 0.',Q+' = −'+W+' &gt; 0 : le transfert thermique reçu compense le travail fourni']),
+ eq('Compression adiabatique',GP+'comprimé de façon adiabatique : sa température passe de '+T1+' à '+T2+'.',W,CV+' '+D21,['0','−'+CV+' '+D21,Wiso],['Adiabatique : '+Q+' = 0, donc '+W+' = '+dU+'.',dU+' = '+CV+' '+D21]),
+ tq('Compression adiabatique d’un gaz parfait','Un gaz parfait est comprimé de façon adiabatique, de la température '+T1+' à la température '+T2+'.','Comparer '+T2+' et '+T1+'.',T2+' &gt; '+T1,[T2+' &lt; '+T1,T2+' = '+T1,'On ne peut pas savoir'],['Adiabatique : '+dU+' = '+W+', avec '+W+' &gt; 0 (compression).',dU+' = '+CV+' '+D21+' &gt; 0 : le gaz s’échauffe'],{large:0}),
+ eq('Chauffage d’un solide','Solide de masse '+m+' et de capacité thermique massique '+c+', chauffé de '+T1+' à '+T2+'. Son volume ne varie pas.',Q,m+' '+c+' '+D21,[m+' '+c+' ('+T1+' − '+T2+')',c+' '+D21,'0'],['Volume constant : '+W+' = 0.',dU+' = '+m+' '+c+' '+D21+'.',Q+' = '+dU+' − '+W]),
+ eq('Chauffage de l’eau','On chauffe 1 kg d’eau de 20 °C à 30 °C. On prend '+c+' ≈ 4,2 kJ·K<sup>−1</sup>·kg<sup>−1</sup>.',Q,'42 kJ',['4,2 kJ','126 kJ','420 kJ'],[Q+' = '+m+' '+c+' '+dT+' = 1 × 4,2 × 10']),
+ tq('Calorimètre','Deux solides (1) et (2) sont mis en contact dans une enceinte calorifugée et indéformable.','Que vaut '+dU+' pour l’ensemble ?',sb('Δ'+'U','1')+' + '+sb('Δ'+'U','2')+' = 0',[sb('Δ'+'U','1')+' = '+sb('Δ'+'U','2'),sb('Δ'+'U','1')+' + '+sb('Δ'+'U','2')+' = '+Q,sb('Δ'+'U','1')+' − '+sb('Δ'+'U','2')+' = 0'],['Pour l’ensemble : '+W+' = 0 et '+Q+' = 0, donc '+dU+' = 0.','L’énergie interne est extensive : '+dU+' = '+sb('Δ'+'U','1')+' + '+sb('Δ'+'U','2')],{large:0}),
+ tq('Calorimètre','Deux solides ('+sb('m','1')+', '+sb('c','1')+', '+T1+') et ('+sb('m','2')+', '+sb('c','2')+', '+T2+') atteignent la température finale '+Tf+' dans une enceinte calorifugée.','Quelle équation donne '+Tf+' ?',sb('m','1')+' '+sb('c','1')+' ('+Tf+' − '+T1+') + '+sb('m','2')+' '+sb('c','2')+' ('+Tf+' − '+T2+') = 0',[sb('m','1')+' '+sb('c','1')+' ('+Tf+' − '+T1+') = '+sb('m','2')+' '+sb('c','2')+' ('+Tf+' − '+T2+')',sb('m','1')+' '+sb('c','1')+' '+T1+' = '+sb('m','2')+' '+sb('c','2')+' '+T2,Tf+' = '+FR(T1+' + '+T2,'2')],[sb('Δ'+'U','1')+' + '+sb('Δ'+'U','2')+' = 0.','Pour chaque solide : '+dU+' = '+m+' '+c+' ('+Tf+' − '+sb('T','initiale')+')']),
+ tq('Méthode','On veut calculer le transfert thermique '+Q+' reçu au cours d’une transformation.','Comment procéder ?','Calculer '+W+' et '+dU+', puis '+Q+' = '+dU+' − '+W,['Utiliser '+Q+' = −'+Pext+' '+dV,'Utiliser '+Q+' = '+CV+' '+dT+' dans tous les cas','Mesurer l’aire sous la courbe dans le diagramme de Watt'],['Le premier principe est le seul moyen de calculer un transfert thermique.','L’aire du diagramme de Watt donne |'+W+'|, pas '+Q])
+];
+/* ================= Lire un énoncé ================= */
+const lu=(phrase,ok,faux,pr,o)=>tq('','Un énoncé indique : «\u00a0'+phrase+'\u00a0»','Que peut-on en déduire ?',ok,faux,pr,o);
+const Q0=Q+' = 0', W0=W+' = 0', MR=P+' = '+Pext+' à tout instant', PE=Pext+' = '+P0, TC=T+' = '+cte, TE=Text+' = '+T0, U0=dU+' = 0';
+const NL=[
+ lu('Les parois sont calorifugées',Q0,[W0,TC,U0],['Des parois calorifugées (adiabatiques) interdisent tout transfert thermique']),
+ lu('Les parois sont athermanes',Q0,[W0,TC,PE],['Athermane, adiabatique, calorifugé : trois mots pour une paroi qui interdit tout transfert thermique']),
+ lu('La transformation est si rapide que les échanges thermiques n’ont pas le temps de se faire',Q0,[W0,TC,MR],['Aucun transfert thermique n’a le temps de s’effectuer : la transformation est adiabatique']),
+ lu('Le système est isolé thermiquement',Q0,[W0,TC,U0],['Isolé thermiquement : le système n’échange aucun transfert thermique']),
+ lu('L’enceinte est indéformable',W0,[Q0,TC,U0],['Le volume ne peut pas varier : transformation isochore.','Les forces de pression ne travaillent pas']),
+ lu('Le piston est bloqué',W0,[Q0,TC,PE],['Le volume ne peut pas varier : transformation isochore.','Les forces de pression ne travaillent pas']),
+ lu('Le piston est déplacé très lentement',MR,[Q0,W0,TC],['Assez lentement, le système reste en équilibre mécanique avec l’extérieur : transformation mécaniquement réversible']),
+ lu('La transformation est quasistatique',MR,[Q0,W0,U0],['Le système passe par une suite continue d’états d’équilibre : sa pression est définie et égale à '+Pext+' à chaque instant']),
+ lu('Le récipient est ouvert à l’air libre',PE+' (pression atmosphérique)',[Q0,W0,TC],['L’extérieur est l’atmosphère : la pression extérieure est constante.','La transformation est monobare'],{large:1}),
+ lu('Le système est au contact d’un thermostat à la température '+T0,TE,[TC,Q0,W0],['Le thermostat impose la température extérieure : transformation monotherme.','La température du système, elle, peut varier pendant la transformation']),
+ lu('On comprime très lentement le gaz, au contact d’un thermostat à la température '+T0,T+' = '+T0+' à tout instant',[Q0,W0,P+' = '+cte],['Très lentement, le gaz a le temps de rester à la température du thermostat : transformation isotherme'],{large:1}),
+ lu('Les parois conduisent bien la chaleur','Un transfert thermique est possible',[Q0,W0,TC],['Des parois conductrices laissent passer un transfert thermique : en général '+Q+' n’est pas nul']),
+ lu('Le système est fermé','Il n’échange pas de matière : '+n+' = '+cte,[Q0,W0,U0],['Un système fermé n’échange pas de matière avec l’extérieur.','Il peut échanger de l’énergie : travail et transfert thermique']),
+ lu('À l’état final, le piston mobile est à l’équilibre',P2+' = '+Pext,[T2+' = '+Text,V2+' = '+V1,Q0],['Équilibre mécanique du piston : la pression du gaz est égale à la pression extérieure'],{large:0}),
+ lu('À l’état final, le système est à l’équilibre thermique avec l’extérieur',T2+' = '+Text,[P2+' = '+Pext,V2+' = '+V1,Q0],['Équilibre thermique : la température du système est égale à la température extérieure'],{large:0}),
+ lu('Le système revient à son état initial',U0,[Q0,W0,W+' = '+Q],[U+' est une fonction d’état : sa variation est nulle si les états initial et final sont identiques']),
+ lu('Le solide est incompressible et indilatable',W0,[Q0,TC,U0],['Le volume d’une phase condensée incompressible et indilatable ne varie pas : les forces de pression ne travaillent pas'])
+];
+
+/* ================= Allure des courbes dans le diagramme de Watt ================= */
+const adia=(va,vb)=>Array.from({length:25},(_,i)=>{ const v=va+(vb-va)*i/24; return [v,3/Math.pow(v,1.4)]; });
+const NAT=['Isobare','Isochore','Isotherme (gaz parfait)','Adiabatique réversible (gaz parfait)'];
+const nat=(d,k,pr)=>Qz(d,'Transformation mécaniquement réversible de (1) vers (2).','Quelle est sa nature ?',NAT[k],NAT.filter((_,j)=>j!==k),pr,{large:1});
+const deux={ch:[{pts:hyp(3,1,3),cls:'ask',nom:'A',nomP:[2.55,1.6]},{pts:adia(1,3),cls:'aux',nom:'B',nomP:[1.75,0.85]}],pts:[[1,3,'(1)',0]]};
+const NW=[
+ nat(watt({ch:[{pts:[[1,2],[3,2]]}],pts:E12([1,2],[3,2])}),0,['La pression reste constante : segment horizontal']),
+ nat(watt({ch:[{pts:[[3,3],[1,3]]}],pts:E12([3,3],[1,3])}),0,['La pression reste constante : segment horizontal']),
+ nat(watt({ch:[{pts:[[2,1],[2,3]]}],pts:E12([2,1,12,4],[2,3,12,4])}),1,['Le volume reste constant : segment vertical']),
+ nat(watt({ch:[{pts:[[3,3],[3,1]]}],pts:E12([3,3,12,4],[3,1,12,4])}),1,['Le volume reste constant : segment vertical']),
+ Qz(watt({ch:[{pts:hyp(4,1,4)}],pts:[[1,4,'(1)',14,4],[2,2,'',0],[4,1,'(2)',0]]}),'Transformation mécaniquement réversible d’un gaz parfait, de (1) vers (2).','Quelle peut être sa nature ?','Isotherme',['Isobare','Isochore','Aucune de ces trois'],['On teste le produit '+P+' '+V+' : 4 × 1 = 2 × 2 = 1 × 4.',P+' '+V+' = '+cte+' : la température est constante (gaz parfait)'],{large:1}),
+ Qz(watt({ch:[{pts:[[1,3],[3,1]]}],pts:[[1,3,'(1)',0],[2,2,'',0],[3,1,'(2)',8]]}),'Transformation mécaniquement réversible d’un gaz parfait, de (1) vers (2).','Est-ce une isotherme ?','Non : le produit '+P+' '+V+' varie',['Oui : la pression diminue quand le volume augmente','Oui : c’est un segment','Non : c’est une isobare'],['On teste le produit '+P+' '+V+' : 3 × 1 = 3 au départ, 2 × 2 = 4 au milieu.','Pour une isotherme d’un gaz parfait, '+P+' '+V+' reste constant : la courbe est une hyperbole'],{large:1}),
+ Qz(watt(deux),'Un gaz parfait se détend à partir de l’état (1), soit de façon isotherme, soit de façon adiabatique réversible.','Quelle courbe est l’adiabatique ?','La courbe B',['La courbe A','Les deux','Aucune des deux'],['Isotherme : '+P+' '+V+' = '+cte+'. Adiabatique réversible : '+P+' '+V+'<sup>'+g+'</sup> = '+cte+', avec '+g+' &gt; 1.','La pression chute plus vite sur l’adiabatique : sa courbe est plus pentue'],{large:1}),
+ Qz(watt(deux),'Un gaz parfait se détend à partir de l’état (1), soit de façon isotherme, soit de façon adiabatique réversible.','Quelle courbe est l’isotherme ?','La courbe A',['La courbe B','Les deux','Aucune des deux'],['Isotherme : '+P+' '+V+' = '+cte+'. Adiabatique réversible : '+P+' '+V+'<sup>'+g+'</sup> = '+cte+', avec '+g+' &gt; 1.','L’isotherme descend moins vite que l’adiabatique'],{large:1}),
+ tq('Diagramme de Watt','Dans un diagramme de Watt, on compare, à partir d’un même état, une isotherme et une adiabatique réversible d’un gaz parfait.','Laquelle est la plus pentue ?','L’adiabatique',['L’isotherme','Elles ont la même pente','Cela dépend du sens de parcours'],[P+' '+V+'<sup>'+g+'</sup> = '+cte+' avec '+g+' &gt; 1 : la pression varie plus vite avec le volume que pour '+P+' '+V+' = '+cte]),
+ tq('Diagramme de Watt','On trace la transformation d’un système dans un diagramme de Watt.','Que porte-t-on sur les axes ?',P+' en ordonnée, '+V+' en abscisse',[V+' en ordonnée, '+P+' en abscisse',P+' en ordonnée, '+T+' en abscisse',T+' en ordonnée, '+V+' en abscisse'],['Le diagramme de Watt représente la pression du système en fonction de son volume']),
+ tq('Diagramme de Watt','On veut tracer la courbe '+P+'('+V+') suivie pendant une transformation.','À quelle condition est-ce possible ?','Si elle est mécaniquement réversible',['Toujours','Si elle est adiabatique','Si elle est monobare'],['Il faut que la pression '+P+' du système soit définie à chaque instant.','Pour une transformation brutale, seuls les états initial et final peuvent être placés']),
+ tq('Allure d’une isobare','Diagramme de Watt.','Quelle est l’allure d’une isobare ?','Un segment horizontal',['Un segment vertical','Une branche d’hyperbole','Une droite passant par l’origine'],[P+' = '+cte+' : tous les points ont la même ordonnée']),
+ tq('Allure d’une isochore','Diagramme de Watt.','Quelle est l’allure d’une isochore ?','Un segment vertical',['Un segment horizontal','Une branche d’hyperbole','Une droite passant par l’origine'],[V+' = '+cte+' : tous les points ont la même abscisse']),
+ tq('Allure d’une isotherme','Diagramme de Watt, gaz parfait.','Quelle est l’allure d’une isotherme ?','Une branche d’hyperbole',['Un segment horizontal','Un segment vertical','Une droite décroissante'],[P+' = '+FR(n+' '+R+' '+T0,V)+' : la pression est inversement proportionnelle au volume']),
+ Qz(watt({ch:[{pts:[[1,3],[3,3],[3,1]],fl:[0,1]}],pts:E12([1,3,-12,4],[3,1,12,4])}),'Un gaz passe de (1) à (2) en deux étapes.','Quelles sont ces étapes ?','Isobare, puis isochore',['Isochore, puis isobare','Isotherme, puis isochore','Isobare, puis isotherme'],['Premier segment horizontal : pression constante.','Second segment vertical : volume constant'],{large:1}),
+ Qz(watt({ch:[{pts:[[1,3],[1,1],[3,1]],fl:[0,1]}],pts:E12([1,3,-12,4],[3,1,12,4])}),'Un gaz passe de (1) à (2) en deux étapes.','Quelles sont ces étapes ?','Isochore, puis isobare',['Isobare, puis isochore','Isochore, puis isotherme','Isotherme, puis isobare'],['Premier segment vertical : volume constant.','Second segment horizontal : pression constante'],{large:1}),
+ Qz(watt({ch:[{pts:[[2,1],[2,3]]}],pts:E12([2,1,12,4],[2,3,12,4])}),'Un gaz parfait subit cette transformation isochore, de (1) vers (2).','Comment évolue sa température ?','Elle augmente',['Elle diminue','Elle reste constante','On ne peut pas savoir'],['Gaz parfait : '+T+' = '+FR(P+' '+V,n+' '+R)+'.','À volume constant, la pression augmente : la température aussi']),
+ Qz(watt({ch:[{pts:[[1,2],[3,2]]}],pts:E12([1,2],[3,2])}),'Un gaz parfait subit cette transformation isobare, de (1) vers (2).','Comment évolue sa température ?','Elle augmente',['Elle diminue','Elle reste constante','On ne peut pas savoir'],['Gaz parfait : '+T+' = '+FR(P+' '+V,n+' '+R)+'.','À pression constante, le volume augmente : la température aussi'])
+];
+
+/* ================= État final par l'équation d'état ================= */
+const GPf='Un gaz parfait (système fermé) passe de l’état (1) à l’état (2) ', et=(titre,sit,cible,ok,faux,pr,o)=>eq(titre,GPf+sit,cible,ok,faux,pr,o);
+const EE=P+' '+V+' = '+n+' '+R+' '+T+', avec '+n+' constant';
+const NE=[
+ et('Transformation isotherme','à température constante.',P2,FR(P1+' '+V1,V2),[FR(P1+' '+V2,V1),P1,FR(V2,P1+' '+V1)],[EE+'.','À '+T+' constante : '+P1+' '+V1+' = '+P2+' '+V2]),
+ et('Transformation isotherme','à température constante.',V2,FR(P1+' '+V1,P2),[FR(P2+' '+V1,P1),V1,FR(P2,P1+' '+V1)],[EE+'.','À '+T+' constante : '+P1+' '+V1+' = '+P2+' '+V2]),
+ et('Transformation isochore','à volume constant.',P2,P1+' '+FR(T2,T1),[P1+' '+FR(T1,T2),P1,P1+' ('+T2+' − '+T1+')'],[EE+'.','À '+V+' constant : '+FR(P1,T1)+' = '+FR(P2,T2)]),
+ et('Transformation isochore','à volume constant.',T2,T1+' '+FR(P2,P1),[T1+' '+FR(P1,P2),T1,T1+' + '+P2+' − '+P1],[EE+'.','À '+V+' constant : '+FR(P1,T1)+' = '+FR(P2,T2)]),
+ et('Transformation isobare','à pression constante.',V2,V1+' '+FR(T2,T1),[V1+' '+FR(T1,T2),V1,V1+' ('+T2+' − '+T1+')'],[EE+'.','À '+P+' constante : '+FR(V1,T1)+' = '+FR(V2,T2)]),
+ et('Transformation isobare','à pression constante.',T2,T1+' '+FR(V2,V1),[T1+' '+FR(V1,V2),T1,T1+' + '+V2+' − '+V1],[EE+'.','À '+P+' constante : '+FR(V1,T1)+' = '+FR(V2,T2)]),
+ et('Transformation quelconque','; '+P+', '+V+' et '+T+' varient tous les trois.',T2,T1+' '+FR(P2+' '+V2,P1+' '+V1),[T1+' '+FR(P1+' '+V1,P2+' '+V2),T1+' '+FR(P2,P1),T1+' '+FR(V2,V1)],[EE+'.',FR(P1+' '+V1,T1)+' = '+FR(P2+' '+V2,T2)+' = '+n+' '+R],{large:1}),
+ et('Adiabatique réversible','de façon adiabatique et mécaniquement réversible.',P2,P1+' '+par(FR(V1,V2))+'<sup>'+g+'</sup>',[P1+' '+par(FR(V2,V1))+'<sup>'+g+'</sup>',P1+' '+FR(V1,V2),P1+' '+g+' '+FR(V1,V2)],['Loi de Laplace : '+P+' '+V+'<sup>'+g+'</sup> = '+cte+'.',P1+' '+V1+'<sup>'+g+'</sup> = '+P2+' '+V2+'<sup>'+g+'</sup>'],{large:1}),
+ tq('Compression isotherme',GPf+'à température constante. Son volume est divisé par 2.','Que devient sa pression ?','Elle est multipliée par 2',['Elle est divisée par 2','Elle ne change pas','Elle est multipliée par 4'],[EE+'.','À '+T+' constante, '+P+' '+V+' est constant : si '+V+' est divisé par 2, '+P+' est multipliée par 2']),
+ tq('Chauffage isochore',GPf+'à volume constant. Sa température passe de 300 K à 600 K.','Que devient sa pression ?','Elle est multipliée par 2',['Elle est divisée par 2','Elle ne change pas','Elle augmente de 300 Pa'],[EE+'.','À '+V+' constant, '+P+' est proportionnelle à '+T+' (en kelvins)']),
+ tq('Chauffage isobare',GPf+'à pression constante. Sa température passe de 300 K à 600 K.','Que devient son volume ?','Il est multiplié par 2',['Il est divisé par 2','Il ne change pas','Il augmente de 300 L'],[EE+'.','À '+P+' constante, '+V+' est proportionnel à '+T+' (en kelvins)']),
+ tq('Chauffage isochore',GPf+'à volume constant. Sa température passe de 20 °C à 40 °C.','Sa pression double-t-elle ?','Non : la température doit être en kelvins',['Oui : la température a doublé','Oui : '+P+' est proportionnelle à '+T,'Non : la pression ne change pas'],['En kelvins, la température passe de 293 K à 313 K : elle ne double pas.','La pression augmente d’environ 7 %']),
+ eq('Compression isotherme',GPf+'à température constante : '+P1+' = 1 bar, '+V1+' = 4 L, '+V2+' = 1 L.',P2,'4 bar',['0,25 bar','1 bar','3 bar'],[EE+'.',P2+' = '+FR(P1+' '+V1,V2)+' = '+FR('1 × 4','1')]),
+ eq('Chauffage isochore',GPf+'à volume constant : '+P1+' = 1 bar, '+T1+' = 300 K, '+T2+' = 450 K.',P2,'1,5 bar',['0,67 bar','150 bar','2,5 bar'],[EE+'.',P2+' = '+P1+' '+FR(T2,T1)+' = 1 × '+FR('450','300')]),
+ eq('Chauffage isobare',GPf+'à pression constante : '+V1+' = 2 L, '+T1+' = 300 K, '+T2+' = 600 K.',V2,'4 L',['1 L','2 L','302 L'],[EE+'.',V2+' = '+V1+' '+FR(T2,T1)+' = 2 × '+FR('600','300')]),
+ tq('Détente isotherme',GPf+'à température constante. Sa pression est divisée par 3.','Que devient son volume ?','Il est multiplié par 3',['Il est divisé par 3','Il ne change pas','Il est multiplié par 9'],[EE+'.','À '+T+' constante, '+P+' '+V+' est constant'])
+];
+const ACT={
+ A:[{nom:'Identifier une transformation', c:N2},{nom:'Lire un énoncé', c:NL},{nom:'Travail des forces de pression', c:N3},{nom:'Allure des courbes dans le diagramme de Watt', c:NW}],
+ B:[{nom:'Modes et sens du transfert thermique', c:N1},{nom:'Premier principe', c:N4},{nom:'Énergie interne et bilans d’énergie', c:N5},{nom:'État final par l’équation d’état', c:NE}]
+};
+[ACT.A,ACT.B].forEach(A=>A.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.map(e=>e.replace(/\.$/,'')); })));
+return ACT;
+})();
+
 const COMPETENCES=[
  {id:'C1', code:'C1', titre:'Structure de la matière',
   exos:[
@@ -1867,6 +2123,11 @@ const COMPETENCES=[
    {id:'newton', titre:'Lois de Newton', desc:'Principe d’inertie, actions réciproques, principe fondamental de la dynamique, équilibre.', niveaux:M2.NEWTON},
    {id:'chute', titre:'Chute et tir', desc:'Mise en équation, conditions initiales, intégration, exploitation et lecture de courbes.', niveaux:M2.CHUTE}
   ]},
+ {id:'TH1', code:'TH1', titre:'Premier principe',
+  exos:[
+   {id:'transfo', titre:'Transformations et travail', desc:'Nature des transformations, lecture d’un énoncé, travail des forces de pression, diagramme de Watt.', niveaux:TH1.A},
+   {id:'bilan', titre:'Transfert thermique et premier principe', desc:'Transfert thermique, premier principe, énergie interne, bilans d’énergie, état final.', niveaux:TH1.B}
+  ]},
  {id:'EL1', code:'EL1', titre:'Circuits électriques dans l’ARQS',
   exos:[
    {id:'cours', titre:'Cours', desc:'Ordres de grandeur, ARQS, bobine, condensateur, conventions.', niveaux:COURS_EL1},
@@ -1881,6 +2142,66 @@ const COMPETENCES=[
    {id:'ed', titre:'Équations différentielles', desc:'Solution d’une équation différentielle avec ses conditions initiales.', niveaux:EDIFF}
   ]}
 ];
+
+/* =====================================================================
+   « Un seul bloc » (choix de Thomas) : une question sans schéma ni équation donnée
+   n'a plus de titre encadré suivi d'une phrase ; le cadre contient l'énoncé complet.
+   Le cadre reste réservé à ce qu'il faut lire avant de répondre : schéma, équation, situation.
+   ===================================================================== */
+(()=>{
+  const BX=t=>'<div class="eqn chim sit">'+t+'</div>';
+  const strip=h=>String(h||'').replace(/<sub>/g,'_').replace(/<sup>/g,'^').replace(/<[^>]+>/g,'').replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/\s+/g,' ').trim();
+  const corps=h=>String(h).replace(/^<div class="eqn chim"[^>]*>/,'').replace(/<\/div>$/,'');
+  const SUJET={'C1.transfo.1':1,'C1.transfo.3':1,'EL1.cours.1':1,'EL1.cours.3':1,'EL1.cours.4':1,'EL1.puis.2':1};   // le cadre garde le sujet, la phrase redondante disparaît
+  const REDIT={'C1.transfo.2':1,'C1.transfo.4':1,'C1.transfo.5':1};
+  const REDITE=[/^On donne l’équation et la condition initiale\.$/,/^Calculer la puissance dissipée par effet Joule\.$/,/^Calculer la durée d’utilisation\.$/,/^Calculer l’énergie stockée\.$/,/^Que faut-il en conclure \?$/,/^À quel système correspond cet ordre de grandeur/,/^Au cours d’une transformation, /];
+  const DEF={'Masse volumique':'de la masse volumique','Volume molaire':'du volume molaire','Volume massique':'du volume massique'};
+  const X='<i>X</i>', e='<i>e</i>', r='<i>r</i>', Qm='<i>Q</i><sub>max</sub>';
+  const SUR={                                                // réécritures : « titre | phrase » → énoncé complet
+   'Grandeur molaire | Pour une grandeur extensive X.':'Grandeur molaire associée à une grandeur extensive '+X+'.',
+   'Grandeur massique | Pour une grandeur extensive X.':'Grandeur massique associée à une grandeur extensive '+X+'.',
+   'Volume massique | L’exprimer en fonction de la masse volumique.':'Exprimer le volume massique en fonction de la masse volumique.',
+   'Volume molaire | L’exprimer en fonction de la masse molaire et de la masse volumique.':'Exprimer le volume molaire en fonction de la masse molaire et de la masse volumique.',
+   'Volume molaire d’un gaz parfait | L’exprimer à partir de P V = n R T.':'Exprimer le volume molaire d’un gaz parfait.',
+   'Volume molaire | Quelle est son unité SI ?':'Unité SI du volume molaire.',
+   'Volume massique | Quelle est son unité SI ?':'Unité SI du volume massique.',
+   'Pile de capacité Q_max débitant un courant I | Exprimer sa durée d’utilisation.':'Durée d’utilisation d’une pile de capacité '+Qm+' débitant un courant <i>I</i>.',
+   'Pile de tension U et de capacité Q_max | Exprimer l’énergie stockée.':'Énergie stockée dans une pile de tension <i>U</i> et de capacité '+Qm+'.',
+   'Capacité électrique d’une pile | À quelle grandeur correspond-elle ?':'Capacité électrique d’une pile.',
+   'Capacité en A·h multipliée par une tension en V | Dans quelle unité obtient-on l’énergie ?':'On multiplie une capacité en A·h par une tension en V pour obtenir une énergie.',
+   'Source réelle (e, r), convention générateur | Donner sa caractéristique.':'Caractéristique d’une source réelle ('+e+', '+r+'), en convention générateur.',
+   'Source réelle (e, r) à vide | Que vaut la tension à ses bornes quand i = 0 ?':'Source réelle ('+e+', '+r+') à vide : <i>i</i> = 0.',
+   'Source réelle (e, r) en court-circuit | Que vaut l’intensité de court-circuit (u = 0) ?':'Source réelle ('+e+', '+r+') en court-circuit : <i>u</i> = 0.',
+   'Point de fonctionnement | Comment l’obtient-on graphiquement ?':'On cherche graphiquement le point de fonctionnement d’un circuit.',
+   'Source réelle (e, r) branchée sur une résistance R | Exprimer l’intensité au point de fonctionnement.':'Source réelle ('+e+', '+r+') branchée sur une résistance <i>R</i> : intensité au point de fonctionnement.',
+   'Source réelle (e, r) branchée sur une résistance R | Exprimer la tension au point de fonctionnement.':'Source réelle ('+e+', '+r+') branchée sur une résistance <i>R</i> : tension au point de fonctionnement.'
+  };
+  COMPETENCES.forEach(c=>c.exos.forEach(ex=>ex.niveaux.forEach((nv,k)=>{ if(!nv.c) return; const cle=c.code+'.'+ex.id+'.'+(k+1);
+    nv.c.forEach(q=>{ if(!q.sp||q.t!=='qcm'||!q.o) return; const o=q.o, a=String(o.aff||'');
+      if(/<svg|<table|tabav/.test(a)) return;                               // schéma, graphe, tableau : inchangé
+      const T=strip(a), E=strip(o.enonce);
+      if(cle==='C1.form.1'){ o.aff=BX(/^Exprimer/.test(E)?'Exprimer la masse molaire en fonction des masses molaires atomiques.':o.enonce); o.enonce=''; return; }
+      if(REDIT[cle]){ o.enonce=''; return; }                                 // la phrase répétait la question      // masse molaire : le cadre donne les masses molaires atomiques
+      if(SUJET[cle]&&!/\d\s*(mA|A|V|kV|MV|kA)\b/.test(T)){ o.enonce=''; return; }
+      if(!E){ if(!T) return; return; }
+      if(/[=→<>]|\d/.test(T)){                                              // équation ou donnée chiffrée : un seul cadre aussi
+        if(REDITE.some(x=>x.test(E))){ o.enonce=''; return; }               // la phrase répétait le cadre ou la question
+        if(/^Convention de signe/.test(E)||/^Σ/.test(T)){ o.aff=BX(o.enonce); o.enonce=''; return; }   // le cadre répétait la phrase ou la question
+        const ph='<div class="eqn chim sit joint">'+o.enonce.replace(' On donne l’équation et la condition initiale.','')+'</div>';
+        o.aff= /^(Rappel|Calculer|Convertir|Quelle|Elle|La source)/.test(E)? a+ph : ph+a; o.enonce=''; return;         // phrase et donnée dans le même cadre
+      }
+      const s=SUR[T+' | '+E];
+      if(s){ o.aff=BX(s); o.enonce=''; return; }
+      if(E==='Donner sa définition.'&&DEF[T]){ o.aff=BX('Définition '+DEF[T]+'.'); o.enonce=''; return; }
+      let h=o.enonce;
+      if(T==='Gaz parfait'&&c.code==='C1'){
+        if(/Dans quelle unité/.test(E)) h='Loi des gaz parfaits : '+h.charAt(0).toLowerCase()+h.slice(1);
+        else if(/du gaz\./.test(h)) h=h.replace(/du gaz\./,'d’un gaz parfait.');
+        else h=h.replace(/\.$/,'')+' (gaz parfait).';
+      }
+      o.aff=BX(h); o.enonce='';
+    }); })));
+})();
 /* =====================================================================
    6 bis. COMPTES ÉLÈVES (Firebase) — inactif tant que FIREBASE.apiKey est vide
    Authentification e-mail / mot de passe et sauvegarde de la progression,
@@ -2002,7 +2323,7 @@ function serie5(exo,niv,cle,k){                               // 5 questions : d
   return {items:t.sort((a,b)=>ordre.indexOf(a.ic)-ordre.indexOf(b.ic)), total:Q.length};
 }
 
-const THEMES=[['Chimie','C'],['Mécanique','M'],['Thermodynamique','TH'],['Électricité','EL']];
+const THEMES=[['Chimie','C'],['Mécanique','M'],['Thermodynamique','TH'],['Électricité','EL'],['Mécanique des fluides','F'],['Électromagnétisme','E'],['Ondes','ON']];
 const themeDe=comp=>THEMES.findIndex(t=>t[1]===comp.code.replace(/\d+$/,''));
 let theme=-1;
 function accueil(){
