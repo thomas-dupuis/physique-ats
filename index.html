@@ -249,6 +249,9 @@
   .bandeau .bd span{display:inline-block;padding-left:100%;animation:defile 14s linear infinite}
   @keyframes defile{to{transform:translateX(-100%)}}
   #bandM:empty{display:none}
+  .rangs .masq{flex:none;padding:4px 2px 4px 6px;font-size:.8rem}
+  .rangs .rg.hors{opacity:.55}
+  .rangs .sep{font-size:.8rem;font-weight:800;color:var(--gris);margin:14px 2px 2px;border-top:2px solid var(--encre);padding-top:10px}
 </style>
 </head>
 <body>
@@ -3021,6 +3024,25 @@ async function litClassement(t){
     page=d.nextPageToken||''; }while(page);
   return out;
 }
+/* noms retirés du classement par le professeur : un document « infos/m_<uid> » (texte « 1 ») par élève retiré */
+async function litMasques(t){
+  const m=new Set(); let page='';
+  do{ const d=await appel(BASE()+'infos?pageSize=300'+(page?'&pageToken='+page:''),null,{method:'GET',headers:{Authorization:'Bearer '+t}});
+    (d.documents||[]).forEach(x=>{ const id=x.name.split('/').pop(); if(id.startsWith('m_')&&x.fields&&x.fields.texte&&x.fields.texte.stringValue==='1') m.add(id.slice(2)); });
+    page=d.nextPageToken||''; }while(page);
+  return m;
+}
+let rangsL=[], rangsM=new Set();
+function dessineClassement(){
+  const prof=estProf(session.email), vus=rangsL.filter(e=>!rangsM.has(e.id)), caches=prof? rangsL.filter(e=>rangsM.has(e.id)) : [];
+  let h='', rang=0;
+  vus.forEach((e,i)=>{ if(!i||e.pts!==vus[i-1].pts) rang=i+1;
+    h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span>'
+      +(prof?'<button class="lien masq" data-id="'+e.id+'" data-m="1">Retirer</button>':'')+'</div>'; });
+  if(caches.length) h+='<p class="sep">Retirés du classement (visibles par vous seulement)</p>'
+    +caches.map(e=>'<div class="rg hors"><span class="rn">–</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span><button class="lien masq" data-id="'+e.id+'" data-m="">Remettre</button></div>').join('');
+  $('kListe').innerHTML= h || '<p>Aucun élève dans le classement pour l\u2019instant.</p>';
+}
 async function classement(){
   montre('classE'); $('kListe').innerHTML='<p>Chargement…</p>';
   try{
@@ -3030,13 +3052,18 @@ async function classement(){
       l=(await listeEleves()).filter(e=>e.id!==session.uid).map(e=>({id:e.id,nom:e.nom,pts:points(e.prog,e.echecs)}));
       for(const e of l){ const a=anciens[e.id]; if(!a||a.pts!==e.pts||a.nom!==e.nom.slice(0,60)) await appel(BASE()+'classement/'+e.id,champsC(e.nom,e.pts),{method:'PATCH',headers:enTete(t)}); }
     }else{ await majClassement(t); l=await litClassement(t); }
-    l.sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
-    let h='', rang=0;
-    l.forEach((e,i)=>{ if(!i||e.pts!==l[i-1].pts) rang=i+1;
-      h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span></div>'; });
-    $('kListe').innerHTML= l.length? h : '<p>Aucun élève dans le classement pour l\u2019instant.</p>';
+    rangsM=await litMasques(t);
+    rangsL=l.sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
+    dessineClassement();
   }catch(e){ $('kListe').innerHTML='<p>'+(e.code===403?'Le classement n\u2019est pas encore activé.':'Impossible de lire le classement : '+e.message)+'</p>'; }
 }
+$('kListe').addEventListener('click',async ev=>{
+  const b=ev.target.closest('.masq'); if(!b||b.disabled) return; b.disabled=true;
+  try{ const t=await monJeton(), id=b.dataset.id, m=b.dataset.m;
+    await appel(BASE()+'infos/m_'+id,{fields:{texte:{stringValue:m},maj:{timestampValue:new Date().toISOString()}}},{method:'PATCH',headers:enTete(t)});
+    if(m) rangsM.add(id); else rangsM.delete(id); dessineClassement();
+  }catch(e){ b.disabled=false; b.textContent='Erreur'; }
+});
 $('classB').addEventListener('click',classement);
 $('kMaj').addEventListener('click',classement);
 $('kRetour').addEventListener('click',accueil);
