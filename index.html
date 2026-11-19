@@ -271,6 +271,17 @@
   .rangs .nm small .cour{width:13px;height:10px;vertical-align:-1px;margin-right:2px}
   .tableau .suppr{display:block;padding:3px 0 0;font-size:.74rem}
   .tableau .suppr.arme{color:var(--rouge);font-weight:800}
+  .podium{display:block;width:100%;text-align:left;padding:8px 12px;margin:0 0 14px;font-size:.95rem}
+  .podium .pt_{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gris);margin-bottom:4px}
+  .podium .pr{display:flex;align-items:center;gap:9px;padding:3px 0}
+  .podium .rn{flex:none;width:24px;height:24px;border:2px solid var(--encre);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;background:var(--jaune)}
+  .podium .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .podium .pr.moi .nm{font-weight:800}
+  .podium .pp{flex:none;font-weight:800}
+  .podium .pp small{font-weight:400;color:var(--gris)}
+  .bandeau{background:var(--jaune);border-width:3px;box-shadow:4px 4px 0 var(--encre);font-size:1.08rem;font-weight:800;margin-bottom:16px}
+  .bandeau .bl{background:var(--encre);color:#fff;border-right:none;font-size:.82rem;padding:10px 11px}
+  .bandeau .bd{padding:10px 0}
 </style>
 </head>
 <body>
@@ -281,6 +292,7 @@
       <button class="aide" id="aideB" type="button" aria-label="Règles du jeu" aria-expanded="false">?</button>
       <h1><span class="fluo">Physique ATS</span><br>Cahier d’entraînement</h1>
     </div>
+    <button class="bloc podium" id="podium" type="button" style="display:none" aria-label="Les trois premiers du classement, ouvrir le classement"></button>
     <div class="bloc regles" id="regles" style="display:none">
       <h2>Règles</h2>
       <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.</p>
@@ -2792,7 +2804,7 @@ async function connexion(creer,email,mdp,nom){
   ouvre(j,nom); chargeLocal(); await recupere(); sauve();
 }
 const motDePasseOublie=email=>appel(ID+'sendOobCode?key='+FIREBASE.apiKey,{requestType:'PASSWORD_RESET',email});
-function deconnexion(){ session=null; jeton=null; try{ localStorage.removeItem(CLE_S); }catch(e){} prog={}; essais={}; echecs={}; }
+function deconnexion(){ if(typeof podium!=='undefined') podium=null; session=null; jeton=null; try{ localStorage.removeItem(CLE_S); }catch(e){} prog={}; essais={}; echecs={}; }
 async function listeEleves(){
   const t=await monJeton(); let out=[], page='';
   do{ const d=await appel(DOCS()+'?pageSize=300'+(page?'&pageToken='+page:''),null,{method:'GET',headers:{Authorization:'Bearer '+t}});
@@ -2885,7 +2897,7 @@ function accueil(){
   const mp=points(prog,echecs); $('mesPts').textContent=mp; $('mesPtsL').textContent='point'+(mp>1?'s':'');
   $('classB').style.display=EN_LIGNE&&session?'block':'none';
   $('outilsProf').style.display=EN_LIGNE&&session&&estProf(session.email)?'block':'none'; $('bandF').style.display='none'; $('bandM').textContent='';
-  montreBandeau();
+  montreBandeau(); montrePodium();
   $('compte').style.display=EN_LIGNE?'flex':'none';
   $('renomF').style.display='none';
   if(EN_LIGNE&&session){ $('qui').textContent=session.nom||session.email; }
@@ -2961,7 +2973,7 @@ $('suite').addEventListener('click',()=>{
   gagne();
 });
 $('menu').addEventListener('click',accueil);
-$('finMenu').addEventListener('click',accueil);
+$('finMenu').addEventListener('click',()=>{ accueil(); litPodium(); });
 
 function gagne(){
   const p=partie, cleP=p.comp.id+'.'+p.exo.id, total=p.exo.niveaux.length, ptsAvant=points(prog,echecs);
@@ -3006,7 +3018,7 @@ $('cForm').addEventListener('submit',async ev=>{
   const email=$('cEmail').value.trim(), mdp=$('cMdp').value, nom= modeCreer? $('cNom').value.trim() : '';   // le nom ne sert qu'à la création
   if(modeCreer&&nom.length<3){ dit('Indiquer prénom et nom.'); return; }
   $('cOk').disabled=true; dit('Connexion…',true);
-  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; $('cNom').value=''; accueil(); litBandeau(); }
+  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; $('cNom').value=''; accueil(); litBandeau(); litPodium(); }
   catch(e){ dit(e.message); }
   $('cOk').disabled=false;
 });
@@ -3082,6 +3094,22 @@ async function litMasques(t){
   return m;
 }
 let rangsL=[], rangsM=new Set();
+/* les trois premiers, sous le titre de l'accueil des thématiques */
+let podium=null;
+const triC=l=>l.slice().sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
+function majPodium(l,m){ podium=triC(l.filter(e=>!m.has(e.id))).slice(0,3); montrePodium(); }
+function montrePodium(){
+  const vu=EN_LIGNE&&session&&theme<0&&podium&&podium.length>0;
+  $('podium').style.display=vu?'block':'none'; if(!vu) return;
+  let rang=0;
+  $('podium').innerHTML='<span class="pt_">Classement · les 3 premiers</span>'+podium.map((e,i)=>{ if(!i||e.pts!==podium[i-1].pts) rang=i+1;
+    return '<span class="pr'+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pp">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span></span>'; }).join('');
+}
+async function litPodium(){
+  if(!EN_LIGNE||!session) return;
+  try{ const t=await monJeton(); await majClassement(t); const l=await litClassement(t), m=await litMasques(t); majPodium(l,m); }catch(e){}
+}
+$('podium').addEventListener('click',()=>classement());
 const pl=(n,mot)=>n+' '+mot+(n>1?(mot==='niveau'?'x':'s'):'');
 const I_NIV='<svg class="ico iniv" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M4 7.4 L6.2 9.6 L10.2 4.6"/></svg>';
 const I_ECH='<svg class="ico iech" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M4.5 4.5 L9.5 9.5 M9.5 4.5 L4.5 9.5"/></svg>';
@@ -3106,7 +3134,7 @@ async function classement(){
       for(const e of l){ const a=anciens[e.id]; if(!a||a.pts!==e.pts||a.nom!==e.nom.slice(0,60)||a.niv!==e.niv||a.cour!==e.cour||a.ech!==e.ech) await ecritC(t,e.id,e.nom,e.pts,e); }
     }else{ await majClassement(t); l=await litClassement(t); }
     rangsM=await litMasques(t);
-    rangsL=l.sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
+    rangsL=triC(l); majPodium(rangsL,rangsM);
     dessineClassement();
   }catch(e){ $('kListe').innerHTML='<p>'+(e.code===403?'Le classement n\u2019est pas encore activé.':'Impossible de lire le classement : '+e.message)+'</p>'; }
 }
@@ -3114,7 +3142,7 @@ $('kListe').addEventListener('click',async ev=>{
   const b=ev.target.closest('.masq'); if(!b||b.disabled) return; b.disabled=true;
   try{ const t=await monJeton(), id=b.dataset.id, m=b.dataset.m;
     await appel(BASE()+'infos/m_'+id,{fields:{texte:{stringValue:m},maj:{timestampValue:new Date().toISOString()}}},{method:'PATCH',headers:enTete(t)});
-    if(m) rangsM.add(id); else rangsM.delete(id); dessineClassement();
+    if(m) rangsM.add(id); else rangsM.delete(id); majPodium(rangsL,rangsM); dessineClassement();
   }catch(e){ b.disabled=false; b.textContent='Erreur'; }
 });
 $('aideB').addEventListener('click',()=>{ const o=$('regles').style.display==='none'; $('regles').style.display=o?'block':'none'; $('aideB').classList.toggle('ouvert',o); $('aideB').setAttribute('aria-expanded',o); });
@@ -3146,7 +3174,7 @@ $('bandF').addEventListener('submit',async ev=>{ ev.preventDefault(); const txt=
 });
 
 if(EN_LIGNE&&!session) ecranConnexion();
-else{ accueil(); if(EN_LIGNE) recupere().then(ok=>{ if(ok===false){ deconnexion(); ecranConnexion(); } else { sauve(); accueil(); litBandeau(); } }); }
+else{ accueil(); if(EN_LIGNE) recupere().then(ok=>{ if(ok===false){ deconnexion(); ecranConnexion(); } else { sauve(); accueil(); litBandeau(); litPodium(); } }); }
 </script>
 </body>
 </html>
