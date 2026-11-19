@@ -291,9 +291,34 @@
   .niv.fait.roi{background:var(--vert);border-color:#1e6b3f;box-shadow:3px 3px 0 #1e6b3f;color:#fff}
   .niv.fait.roi .num{background:#fff;border-color:#fff;color:#1e6b3f}
   .niv.fait.roi .marque{color:#fff}
+  /* ---------- badges ---------- */
+  .points .liensP{display:flex;gap:2px}
+  .points .liensP .leger{padding:8px 9px}
+  .bf{margin:16px 0 8px;font-size:1rem;font-weight:800;display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--encre);padding-bottom:4px}
+  .bf small{font-size:.8rem;font-weight:700;color:var(--gris)}
+  .bgrille{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .bdg{background:#fff;border:2px solid #b9c3d1;border-radius:6px;padding:9px 8px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;color:#8d98a8}
+  .bdg .bi{width:38px;height:38px;fill:none;stroke:#b9c3d1;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .bdg .bi circle{fill:#f1f3f6}
+  .bdg .bn{font-weight:800;font-size:.86rem;line-height:1.15}
+  .bdg .bc{font-size:.72rem;line-height:1.2}
+  .bdg.ok{border-color:var(--encre);box-shadow:3px 3px 0 var(--encre);color:var(--encre)}
+  .bdg.ok .bi{stroke:var(--encre)}
+  .bdg.ok .bi circle{fill:var(--jaune)}
+  .bdg.ok .bc{color:var(--gris)}
+  .finBadges{margin:-6px 0 22px;text-align:left}
+  .finBadges:empty{display:none}
+  .finBadges .fbt{margin:0 0 8px !important;font-weight:800;color:var(--encre) !important;text-align:center;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px}
+  .finBadges .bgrille{justify-content:center}
+  .finBadges .bdg:only-child{grid-column:1 / -1;max-width:230px;margin:0 auto;width:100%}
+  .toastB{position:fixed;left:50%;top:10px;transform:translate(-50%,-140%);z-index:50;width:min(460px,calc(100% - 28px));background:var(--jaune);border:3px solid var(--encre);border-radius:6px;box-shadow:4px 4px 0 var(--encre);padding:9px 12px;pointer-events:none;transition:transform .25s;display:flex;flex-direction:column;gap:1px}
+  .toastB.vu{transform:translate(-50%,0)}
+  .toastB b{font-size:.78rem;text-transform:uppercase;letter-spacing:.5px}
+  .toastB span{font-weight:800;font-size:1rem}
 </style>
 </head>
 <body>
+<div class="toastB" id="toastB" role="status" aria-live="polite"></div>
 <div class="page">
   <section class="ecran actif" id="accueil">
     <div class="bandeau" id="bandeau" style="display:none"><span class="bl">Nouveau</span><div class="bd"><span id="bandeauT"></span></div></div>
@@ -311,7 +336,7 @@
     </div>
     <div class="compte" id="compte" style="display:none"><span>Connecté : <b id="qui"></b> <button class="lien" id="renom" type="button">modifier</button></span><button class="lien" id="sortir">Se déconnecter</button></div>
     <form class="renom" id="renomF" style="display:none"><input id="renomI" type="text" maxlength="60" autocomplete="name" aria-label="Prénom et nom"><button class="gros" type="submit">Enregistrer</button></form>
-    <div class="points"><span class="pts"><b id="mesPts">0</b> <span id="mesPtsL">points</span></span><button class="leger" id="classB" type="button" style="display:none">Classement</button></div>
+    <div class="points"><span class="pts"><b id="mesPts">0</b> <span id="mesPtsL">points</span></span><span class="liensP"><button class="leger" id="badgesB" type="button">Badges</button><button class="leger" id="classB" type="button" style="display:none">Classement</button></span></div>
     <div id="outilsProf" style="display:none">
       <button class="gros" id="suivi" style="margin-bottom:10px">Suivi des élèves</button>
       <button class="gros second" id="bandB" type="button" style="margin:0 0 12px">Modifier le bandeau</button>
@@ -340,6 +365,11 @@
   <section class="ecran" id="suiviE">
     <div class="haut"><button class="ferme" id="sRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Suivi des élèves</h2><button class="lien" id="sMaj">Actualiser</button></div>
     <div class="bloc tableau" id="sTable"></div>
+  </section>
+
+  <section class="ecran" id="badgesE">
+    <div class="haut"><button class="ferme" id="bRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Badges</h2><b id="bCompte"></b></div>
+    <div id="bListe"></div>
   </section>
 
   <section class="ecran" id="classE">
@@ -372,6 +402,7 @@
       <h2 id="finTitre"></h2>
       <p id="finTexte"></p>
       <p class="gain" id="finGain"></p>
+      <div class="finBadges" id="finBadges"></div>
       <button class="gros" id="finSuivant"></button>
       <button class="gros second" id="finEncore">Série suivante pour la couronne</button>
       <button class="leger" id="finMenu">Retour au menu</button>
@@ -2945,7 +2976,7 @@ async function recupere(){                                // fusionne la progres
   try{
     const t=await monJeton(), d=await appel(DOCS()+'/'+session.uid,null,{method:'GET',headers:{Authorization:'Bearer '+t}});
     const p=deCarte(d.fields&&d.fields.prog), e=deCarte(d.fields&&d.fields.essais), x=deCarte(d.fields&&d.fields.echecs);
-    for(const k in p) prog[k]= /_c$|_v$|_q\d+$/.test(k)? (prog[k]||0)|p[k] : Math.max(prog[k]||0,p[k]);
+    for(const k in p) prog[k]= /_c$|_v$|_q\d+$|^bdg\d$/.test(k)? (prog[k]||0)|p[k] : Math.max(prog[k]||0,p[k]);
     for(const k in e) essais[k]=Math.max(essais[k]||0,e[k]);
     for(const k in x) echecs[k]=Math.max(echecs[k]||0,x[k]);
     if(!session.nom&&d.fields&&d.fields.nom){ session.nom=d.fields.nom.stringValue||''; try{ localStorage.setItem(CLE_S,JSON.stringify(session)); }catch(x){} }
@@ -3020,7 +3051,77 @@ function bilan(P,E){                                             // niveaux vali
 }
 const ptsTxt=n=>n+' point'+(n>1?'s':'');
 
+/* ---------- badges (honorifiques, privés : ni points, ni classement, ni suivi) ----------
+   Acquis = bits de prog.bdg0 (badges 0 à 29) et prog.bdg1 (30 à 59), fusion par OU. Les numéros ne doivent jamais changer.
+   Compteurs associés dans prog : <exercice>_e<niveau> (échecs sur ce niveau), str / strM (séries réussies d'affilée, record),
+   jr / jn / jM (dernier jour joué, jours d'affilée, record). */
+const FAM={prog:'Progression',cour:'Couronnes',sf:'Sans faute',pers:'Persévérance',pts:'Points',q:'Questions',reg:'Régularité'};
+const I_B={
+ prog:'<path d="M9 16.5 L14 21.5 L23 10.5"/>',
+ cour:'<path d="M6 22 L5 11 L11 16 L16 8 L21 16 L27 11 L26 22 Z"/>',
+ sf:'<path d="M16 6 L19 13 L26.5 13.6 L20.8 18.4 L22.6 25.8 L16 21.8 L9.4 25.8 L11.2 18.4 L5.5 13.6 L13 13 Z"/>',
+ pers:'<path d="M8 20 Q8 11 16 11 Q24 11 24 20 M5 20 H27 M16 11 V7"/>',
+ pts:'<path d="M16 6 V26 M6 16 H26"/>',
+ q:'<path d="M11.5 12.5 Q11.5 8 16 8 Q20.5 8 20.5 12 Q20.5 15 16 16.5 V19.5 M16 23.5 V24.5"/>',
+ reg:'<path d="M7 10 H25 V25 H7 Z M7 14.5 H25 M11.5 7 V11 M20.5 7 V11"/>'};
+const BADGES=(()=>{
+  const L=[
+   [0,'prog','Premier pas','Valider 1 niveau',e=>e.niv>=1],[1,'prog','Lancé','Valider 10 niveaux',e=>e.niv>=10],[2,'prog','En route','Valider 25 niveaux',e=>e.niv>=25],[3,'prog','Marathonien','Valider 50 niveaux',e=>e.niv>=50],
+   [4,'prog','Activité bouclée','Valider tous les niveaux d’une activité',e=>e.exoV],[5,'prog','Chapitre bouclé','Valider toutes les activités d’un chapitre',e=>e.compV]];
+  THEMES_.forEach(([nom],i)=>{ if(i<7) L.push([7+i,'prog','Thématique : '+nom,'Valider tous les niveaux de la thématique',e=>e.themes[i]]); });
+  return L.concat([
+   [6,'prog','Cahier complet','Valider tous les niveaux du jeu',e=>e.niv>=e.tot],
+   [14,'cour','Première couronne','Obtenir 1 couronne',e=>e.cour>=1],[15,'cour','Tête couronnée','Obtenir 5 couronnes',e=>e.cour>=5],[16,'cour','Royal','Obtenir 15 couronnes',e=>e.cour>=15],[17,'cour','Empereur','Obtenir 30 couronnes',e=>e.cour>=30],
+   [18,'cour','Activité couronnée','Couronner tous les niveaux d’une activité',e=>e.exoC],
+   [19,'sf','Du premier coup','Valider un niveau sans aucun échec sur ce niveau',null],[20,'sf','Couronne parfaite','Obtenir une couronne sans aucun échec sur ce niveau',null],
+   [21,'sf','Série de 5','Réussir 5 séries d’affilée',e=>e.strM>=5],[22,'sf','Série de 10','Réussir 10 séries d’affilée',e=>e.strM>=10],[23,'sf','Série de 20','Réussir 20 séries d’affilée',e=>e.strM>=20],
+   [24,'pers','On apprend de ses erreurs','Atteindre 10 échecs',e=>e.ech>=10],[25,'pers','Têtu','Atteindre 100 échecs',e=>e.ech>=100],[26,'pers','Increvable','Atteindre 500 échecs',e=>e.ech>=500],[27,'pers','Indestructible','Atteindre 1000 échecs',e=>e.ech>=1000],
+   [28,'pers','Tenace','Valider un niveau après 5 échecs sur ce niveau',null],
+   [30,'pts','100 points','Atteindre 100 points',e=>e.pts>=100],[31,'pts','500 points','Atteindre 500 points',e=>e.pts>=500],[32,'pts','1000 points','Atteindre 1000 points',e=>e.pts>=1000],[33,'pts','2000 points','Atteindre 2000 points',e=>e.pts>=2000],
+   [34,'q','100 questions','Réussir 100 questions différentes',e=>e.q>=100],[35,'q','500 questions','Réussir 500 questions différentes',e=>e.q>=500],[36,'q','1000 questions','Réussir 1000 questions différentes',e=>e.q>=1000],
+   [37,'reg','3 jours de suite','Jouer 3 jours d’affilée',e=>e.jM>=3],[38,'reg','7 jours de suite','Jouer 7 jours d’affilée',e=>e.jM>=7]
+  ]).map(([i,f,n,d,t])=>({i,f,n,d,t}));
+});
+const aBadge=i=>!!((prog['bdg'+(i<30?0:1)]||0)>>(i<30?i:i-30)&1);
+const donneBadge=i=>{ const k='bdg'+(i<30?0:1); prog[k]=(prog[k]||0)|(1<<(i<30?i:i-30)); };
+function etatBadges(){                                          // tout ce qui se déduit de la progression enregistrée
+  const e={niv:0,tot:0,cour:0,q:0,exoV:false,exoC:false,compV:false,themes:[],ech:Object.values(echecs).reduce((a,b)=>a+(+b||0),0),pts:points(prog,echecs),strM:prog.strM||0,jM:prog.jM||0};
+  const th=THEMES.map(()=>({n:0,v:0}));
+  COMPETENCES.forEach(c=>{ let tout=true; c.exos.forEach(x=>{ const cle=c.id+'.'+x.id, n=x.niveaux.length, mv=masqueV(prog,cle,n), v=bits(mv), co=bits((prog[cle+'_c']||0)&mv);
+      e.niv+=v; e.tot+=n; e.cour+=co; if(v===n) e.exoV=true; else tout=false; if(co===n) e.exoC=true;
+      const t=th[themeDe(c)]; if(t){ t.n+=n; t.v+=v; }
+      for(let k=0;k<n;k++) e.q+=Math.min(bits(prog[cle+'_q'+k]||0),nbQ(c,x,k)); });
+    if(tout) e.compV=true; });
+  e.themes=th.map(t=>t.n>0&&t.v===t.n);
+  return e;
+}
+let LISTE_B=null;
+const listeBadges=()=>LISTE_B||(LISTE_B=BADGES().filter(b=>b.f!=='prog'||b.i<7||b.i>13||COMPETENCES.some(c=>themeDe(c)===b.i-7)));
+function badgesNouveaux(){                                      // attribue les badges mérités et renvoie ceux qui viennent d'être obtenus
+  const e=etatBadges(), out=[];
+  listeBadges().forEach(b=>{ if(b.t&&!aBadge(b.i)&&b.t(e)){ donneBadge(b.i); out.push(b); } });
+  return out;
+}
+function jourJoue(){                                            // jours d'affilée (jour local)
+  const j=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5); if(prog.jr===j) return;
+  prog.jn= prog.jr===j-1? (prog.jn||0)+1 : 1; prog.jr=j; prog.jM=Math.max(prog.jM||0,prog.jn);
+}
+const badgeH=(b,ok)=>'<div class="bdg'+(ok?' ok':'')+'"><svg class="bi" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5"/>'+I_B[b.f]+'</svg><span class="bn">'+b.n+'</span><span class="bc">'+b.d+'</span></div>';
+let minutB=null;
+function annonceBadges(l){                                      // bandeau en haut de l'écran, quelques secondes, sans gêner les boutons
+  if(!l||!l.length) return;
+  $('toastB').innerHTML='<b>'+(l.length>1? l.length+' nouveaux badges' : 'Nouveau badge')+'</b><span>'+(l.length>3? l.slice(0,3).map(b=>b.n).join(' · ')+' …' : l.map(b=>b.n).join(' · '))+'</span>';
+  $('toastB').classList.add('vu'); clearTimeout(minutB); minutB=setTimeout(()=>$('toastB').classList.remove('vu'),4500);
+}
+function ecranBadges(){
+  const L=listeBadges(), n=L.filter(b=>aBadge(b.i)).length; let h='';
+  Object.keys(FAM).forEach(f=>{ const G=L.filter(b=>b.f===f); if(!G.length) return;
+    h+='<h3 class="bf">'+FAM[f]+'<small>'+G.filter(b=>aBadge(b.i)).length+' / '+G.length+'</small></h3><div class="bgrille">'+G.map(b=>badgeH(b,aBadge(b.i))).join('')+'</div>'; });
+  $('bCompte').textContent=n+' / '+L.length; $('bListe').innerHTML=h; montre('badgesE');
+}
+
 const THEMES=[['Chimie','C'],['Mécanique','M'],['Thermodynamique','TH'],['Électricité','EL'],['Mécanique des fluides','F'],['Électromagnétisme','E'],['Ondes','ON']];
+const THEMES_=THEMES;
 const themeDe=comp=>THEMES.findIndex(t=>t[1]===comp.code.replace(/\d+$/,''));
 let theme=-1;
 function accueil(){
@@ -3118,7 +3219,7 @@ $('reponses').addEventListener('click',ev=>{
     $('expli').innerHTML= j? j.h+(sup.length?'<span class="legende">Les grandeurs utilisées sont fléchées en <b>bleu</b> sur le schéma.</span>':'') : explication(it.c,it.q,it.inst,p.exo.id);
     if(sup.length) $('schema').innerHTML=dessiner(it.c,[it.q].concat(it.don||[],sup));
   }
-  if(!juste){ const ce=p.comp.id+'.'+p.exo.id, av=points(prog,echecs); echecs[ce]=(echecs[ce]||0)+1; sauve(); if(points(prog,echecs)<av) $('verdict').textContent+=' (−1 point)'; }
+  if(!juste){ const ce=p.comp.id+'.'+p.exo.id, av=points(prog,echecs); echecs[ce]=(echecs[ce]||0)+1; prog[ce+'_e'+p.k]=(prog[ce+'_e'+p.k]||0)+1; prog.str=0; jourJoue(); const nvB=badgesNouveaux(); sauve(); if(points(prog,echecs)<av) $('verdict').textContent+=' (−1 point)'; annonceBadges(nvB); }
   $('suite').textContent= !juste?'Recommencer le niveau': (p.n===p.items.length-1?'Terminer le niveau':'Question suivante');
   if(juste){ if(p.items.length>5) $('pas').querySelector('i').style.width=(100*(p.n+1)/p.items.length)+'%'; else $('pas').children[p.n].className='ok'; }
   setTimeout(()=>$('suite').scrollIntoView({block:'nearest',behavior:'smooth'}),60);
@@ -3138,6 +3239,13 @@ function gagne(){
   const avant=couronne(cleP,p.k); if(avant) prog[cleP+'_r'+p.k]=(prog[cleP+'_r'+p.k]||0)+1;
   let m=cochees(cleP,p.k); p.items.forEach(x=>{ m|=1<<x.jq; }); prog[cleP+'_q'+p.k]=m;
   const nb=bits(m), roi=nb>=p.total; if(roi) prog[cleP+'_c']=(prog[cleP+'_c']||0)|(1<<p.k);
+  const ek=prog[cleP+'_e'+p.k]||0, evB=[];                       // badges liés à l'événement
+  const ev=i=>{ if(!aBadge(i)){ donneBadge(i); evB.push(listeBadges().find(b=>b.i===i)); } };
+  if(!p.deja){ if(ek===0) ev(19); if(ek>=5) ev(28); }
+  if(roi&&!avant&&ek===0) ev(20);
+  prog.str=(prog.str||0)+1; prog.strM=Math.max(prog.strM||0,prog.str); jourJoue();
+  const nvB=evB.concat(badgesNouveaux());
+  $('finBadges').innerHTML= nvB.length? '<p class="fbt">'+(nvB.length>1?'Nouveaux badges':'Nouveau badge')+'</p><div class="bgrille">'+nvB.map(b=>badgeH(b,true)).join('')+'</div>' : '';
   sauve();
   const dernier=p.k===total-1, tous=bits(masqueV(prog,cleP,total))===total, gagneeIci=roi&&!avant, reste=p.total-nb;
   $('finCour').innerHTML=gagneeIci?COURONNE:''; $('finCour').style.display=gagneeIci?'block':'none';
@@ -3175,7 +3283,7 @@ $('cForm').addEventListener('submit',async ev=>{
   const email=$('cEmail').value.trim(), mdp=$('cMdp').value, nom= modeCreer? $('cNom').value.trim() : '';   // le nom ne sert qu'à la création
   if(modeCreer&&nom.length<3){ dit('Indiquer prénom et nom.'); return; }
   $('cOk').disabled=true; dit('Connexion…',true);
-  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; $('cNom').value=''; podiumGarde(); accueil(); litBandeau(); litPodium(); }
+  try{ await connexion(modeCreer,email,mdp,nom); $('cMdp').value=''; $('cNom').value=''; podiumGarde(); { const nvB=badgesNouveaux(); if(nvB.length) sauve(); accueil(); annonceBadges(nvB); } litBandeau(); litPodium(); }
   catch(e){ dit(e.message); }
   $('cOk').disabled=false;
 });
@@ -3310,6 +3418,8 @@ $('kListe').addEventListener('click',async ev=>{
   }catch(e){ b.disabled=false; b.textContent='Erreur'; }
 });
 $('aideB').addEventListener('click',()=>{ const o=$('regles').style.display==='none'; $('regles').style.display=o?'block':'none'; $('aideB').classList.toggle('ouvert',o); $('aideB').setAttribute('aria-expanded',o); });
+$('badgesB').addEventListener('click',ecranBadges);
+$('bRetour').addEventListener('click',accueil);
 $('classB').addEventListener('click',classement);
 $('kMaj').addEventListener('click',classement);
 $('kRetour').addEventListener('click',accueil);
@@ -3338,7 +3448,7 @@ $('bandF').addEventListener('submit',async ev=>{ ev.preventDefault(); const txt=
 });
 
 if(EN_LIGNE&&!session) ecranConnexion();
-else{ if(EN_LIGNE) podiumGarde(); accueil(); if(EN_LIGNE) litPodium(); if(EN_LIGNE) recupere().then(ok=>{ if(ok===false){ deconnexion(); ecranConnexion(); } else { sauve(); accueil(); litBandeau(); litPodium(); } }); }
+else{ if(EN_LIGNE) podiumGarde(); accueil(); if(EN_LIGNE) litPodium(); if(EN_LIGNE) recupere().then(ok=>{ if(ok===false){ deconnexion(); ecranConnexion(); } else { const nvB=badgesNouveaux(); sauve(); accueil(); litBandeau(); litPodium(); annonceBadges(nvB); } }); if(!EN_LIGNE){ const nvB=badgesNouveaux(); if(nvB.length){ sauve(); annonceBadges(nvB); } } }
 </script>
 </body>
 </html>
