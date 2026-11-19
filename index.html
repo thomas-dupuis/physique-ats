@@ -318,12 +318,17 @@
   .bdg .be{width:46px;height:46px;border-radius:50%;border:2px solid #b9c3d1;background:#f1f3f6;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;filter:grayscale(1);opacity:.5;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
   .bdg.ok .be{border-color:var(--encre);background:#fff;filter:none;opacity:1;box-shadow:2px 2px 0 var(--encre)}
   .bdg.ok{background:#fff6cf}
+  .bandeau.message{background:#fff}
+  .bandeau.message .bl{background:var(--marge)}
+  .toastB{transform:translate(-50%,-220%);visibility:hidden;opacity:0;transition:transform .25s,opacity .25s,visibility 0s .25s}
+  .toastB.vu{visibility:visible;opacity:1;transition:transform .25s,opacity .25s}
 </style>
 </head>
 <body>
 <div class="toastB" id="toastB" role="status" aria-live="polite"></div>
 <div class="page">
   <section class="ecran actif" id="accueil">
+    <div class="bandeau message" id="bandeau2" style="display:none"><span class="bl">Message</span><div class="bd"><span id="bandeau2T"></span></div></div>
     <div class="bandeau" id="bandeau" style="display:none"><span class="bl">Nouveau</span><div class="bd"><span id="bandeauT"></span></div></div>
     <div class="tete">
       <button class="aide" id="aideB" type="button" aria-label="Règles du jeu" aria-expanded="false">?</button>
@@ -342,8 +347,10 @@
     <div class="points"><span class="pts"><b id="mesPts">0</b> <span id="mesPtsL">points</span></span><span class="liensP"><button class="leger" id="badgesB" type="button">Badges</button><button class="leger" id="classB" type="button" style="display:none">Classement</button></span></div>
     <div id="outilsProf" style="display:none">
       <button class="gros" id="suivi" style="margin-bottom:10px">Suivi des élèves</button>
-      <button class="gros second" id="bandB" type="button" style="margin:0 0 12px">Modifier le bandeau</button>
+      <button class="gros second" id="bandB" type="button" style="margin:0 0 12px">Modifier le bandeau « Nouveau »</button>
       <form class="renom" id="bandF" style="display:none"><input id="bandI" type="text" maxlength="200" placeholder="Texte du bandeau (vide = pas de bandeau)" aria-label="Texte du bandeau"><button class="gros" type="submit">Publier</button></form>
+      <button class="gros second" id="msgB" type="button" style="margin:0 0 12px">Modifier le message aux élèves</button>
+      <form class="renom" id="msgF" style="display:none"><input id="msgI" type="text" maxlength="200" placeholder="Message aux élèves (vide = pas de message)" aria-label="Message aux élèves"><button class="gros" type="submit">Publier</button></form>
       <p class="msg" id="bandM"></p>
     </div>
     <div id="competences"></div>
@@ -3421,7 +3428,7 @@ function accueil(){
   $('competences').innerHTML=h;
   const mp=points(prog,echecs); $('mesPts').textContent=mp; $('mesPtsL').textContent='point'+(mp>1?'s':'');
   $('classB').style.display=EN_LIGNE&&session?'block':'none';
-  $('outilsProf').style.display=EN_LIGNE&&session&&estProf(session.email)?'block':'none'; $('bandF').style.display='none'; $('bandM').textContent='';
+  $('outilsProf').style.display=EN_LIGNE&&session&&estProf(session.email)?'block':'none'; $('bandF').style.display='none'; $('msgF').style.display='none'; $('bandM').textContent='';
   montreBandeau(); montrePodium();
   $('compte').style.display=EN_LIGNE?'flex':'none';
   $('renomF').style.display='none';
@@ -3691,27 +3698,32 @@ $('classB').addEventListener('click',classement);
 $('kMaj').addEventListener('click',classement);
 $('kRetour').addEventListener('click',accueil);
 
-/* ---------- bandeau des nouveautés ---------- (document « infos/bandeau », écrit par le professeur depuis le jeu) */
-const CLE_B=CLE+'_bandeau';
-let bandeau=''; try{ bandeau=localStorage.getItem(CLE_B)||''; }catch(e){}
+/* ---------- bandeaux déroulants ---------- deux textes écrits par le professeur depuis le jeu :
+   « infos/bandeau » (nouveautés, étiquette « Nouveau ») et « infos/message » (message aux élèves, étiquette « Message »). */
+const BANDEAUX=[{doc:'bandeau',el:'bandeau',b:'bandB',f:'bandF',i:'bandI',nom:'Bandeau'},{doc:'message',el:'bandeau2',b:'msgB',f:'msgF',i:'msgI',nom:'Message'}];
+BANDEAUX.forEach(B=>{ B.cle=CLE+'_'+B.doc; B.txt=''; try{ B.txt=localStorage.getItem(B.cle)||''; }catch(e){} });
 function montreBandeau(){
-  const vu=EN_LIGNE&&session&&theme<0&&!!bandeau;
-  $('bandeau').style.display=vu?'flex':'none';
-  if(vu&&$('bandeauT').textContent!==bandeau){ $('bandeauT').textContent=bandeau; $('bandeauT').style.animationDuration=Math.round(9+bandeau.length*0.16)+'s'; }
+  BANDEAUX.forEach(B=>{ const vu=EN_LIGNE&&session&&theme<0&&!!B.txt, T=$(B.el+'T');
+    $(B.el).style.display=vu?'flex':'none';
+    if(vu&&T.textContent!==B.txt){ T.textContent=B.txt; T.style.animationDuration=Math.round(9+B.txt.length*0.16)+'s'; } });
 }
 async function litBandeau(){
   if(!EN_LIGNE||!session) return;
-  try{ const t=await monJeton(), d=await appel(BASE()+'infos/bandeau',null,{method:'GET',headers:{Authorization:'Bearer '+t}});
-    bandeau=((d.fields&&d.fields.texte&&d.fields.texte.stringValue)||'').trim(); try{ localStorage.setItem(CLE_B,bandeau); }catch(e){}
-    montreBandeau(); }catch(e){}
+  let t; try{ t=await monJeton(); }catch(e){ return; }
+  await Promise.all(BANDEAUX.map(async B=>{
+    try{ const d=await appel(BASE()+'infos/'+B.doc,null,{method:'GET',headers:{Authorization:'Bearer '+t}});
+      B.txt=((d.fields&&d.fields.texte&&d.fields.texte.stringValue)||'').trim(); try{ localStorage.setItem(B.cle,B.txt); }catch(e){} }catch(e){} }));
+  montreBandeau();
 }
-$('bandB').addEventListener('click',()=>{ $('bandF').style.display='flex'; $('bandI').value=bandeau; $('bandI').focus(); });
-$('bandF').addEventListener('submit',async ev=>{ ev.preventDefault(); const txt=$('bandI').value.trim();
-  $('bandM').className='msg'; $('bandM').textContent='Envoi…';
-  try{ const t=await monJeton();
-    await appel(BASE()+'infos/bandeau',{fields:{texte:{stringValue:txt},maj:{timestampValue:new Date().toISOString()}}},{method:'PATCH',headers:enTete(t)});
-    bandeau=txt; try{ localStorage.setItem(CLE_B,bandeau); }catch(e){} $('bandF').style.display='none'; $('bandM').className='msg ok'; $('bandM').textContent= txt?'Bandeau publié.':'Bandeau retiré.'; montreBandeau();
-  }catch(e){ $('bandM').className='msg ko'; $('bandM').textContent= e.code===403?'Refusé : les nouvelles règles Firebase ne sont pas encore publiées.':e.message; }
+BANDEAUX.forEach(B=>{
+  $(B.b).addEventListener('click',()=>{ BANDEAUX.forEach(X=>{ $(X.f).style.display= X===B?'flex':'none'; }); $(B.i).value=B.txt; $(B.i).focus(); });
+  $(B.f).addEventListener('submit',async ev=>{ ev.preventDefault(); const txt=$(B.i).value.trim();
+    $('bandM').className='msg'; $('bandM').textContent='Envoi…';
+    try{ const t=await monJeton();
+      await appel(BASE()+'infos/'+B.doc,{fields:{texte:{stringValue:txt},maj:{timestampValue:new Date().toISOString()}}},{method:'PATCH',headers:enTete(t)});
+      B.txt=txt; try{ localStorage.setItem(B.cle,txt); }catch(e){} $(B.f).style.display='none'; $('bandM').className='msg ok'; $('bandM').textContent= B.nom+(txt?' publié.':' retiré.'); montreBandeau();
+    }catch(e){ $('bandM').className='msg ko'; $('bandM').textContent= e.code===403?'Refusé : les nouvelles règles Firebase ne sont pas encore publiées.':e.message; }
+  });
 });
 
 if(EN_LIGNE&&!session) ecranConnexion();
