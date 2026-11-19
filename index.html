@@ -252,6 +252,25 @@
   .rangs .masq{flex:none;padding:4px 2px 4px 6px;font-size:.8rem}
   .rangs .rg.hors{opacity:.55}
   .rangs .sep{font-size:.8rem;font-weight:800;color:var(--gris);margin:14px 2px 2px;border-top:2px solid var(--encre);padding-top:10px}
+  .tete{position:relative}
+  .aide{position:absolute;right:0;top:2px;width:36px;height:36px;background:#fff;border:2px solid var(--encre);border-radius:6px;box-shadow:2px 2px 0 var(--encre);font-size:1.1rem;font-weight:800;padding:0}
+  .aide.ouvert{background:var(--jaune)}
+  .tete h1{padding-right:44px}
+  .regles{padding:12px 14px;margin:0 0 16px;font-size:.93rem}
+  .regles h2{margin:0 0 6px;font-size:1rem;font-weight:800}
+  .regles h2:not(:first-child){margin-top:12px}
+  .regles p{margin:0 0 6px}
+  .regles ul{margin:0 0 6px;padding-left:18px}
+  .regles li{margin:2px 0}
+  .rangs .nm{white-space:normal}
+  .rangs .nm small{display:flex;flex-wrap:wrap;gap:1px 10px;font-size:.74rem;font-weight:400;color:var(--gris);margin-top:2px}
+  .rangs .nm small span{white-space:nowrap}
+  .rangs .ico{width:12px;height:12px;vertical-align:-2px;margin-right:3px;fill:#fff;stroke:var(--encre);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .rangs .ico.iniv{fill:var(--vert-c)} .rangs .ico.iniv path{stroke:var(--vert);fill:none}
+  .rangs .ico.iech{fill:var(--rouge-c)} .rangs .ico.iech path{stroke:var(--rouge);fill:none}
+  .rangs .nm small .cour{width:13px;height:10px;vertical-align:-1px;margin-right:2px}
+  .tableau .suppr{display:block;padding:3px 0 0;font-size:.74rem}
+  .tableau .suppr.arme{color:var(--rouge);font-weight:800}
 </style>
 </head>
 <body>
@@ -259,8 +278,15 @@
   <section class="ecran actif" id="accueil">
     <div class="bandeau" id="bandeau" style="display:none"><span class="bl">Nouveau</span><div class="bd"><span id="bandeauT"></span></div></div>
     <div class="tete">
+      <button class="aide" id="aideB" type="button" aria-label="Règles du jeu" aria-expanded="false">?</button>
       <h1><span class="fluo">Physique ATS</span><br>Cahier d’entraînement</h1>
-      <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.<br>Refaire un niveau validé coche 5 nouvelles questions : la <b>couronne</b> s’obtient quand toutes sont réussies.</p>
+    </div>
+    <div class="bloc regles" id="regles" style="display:none">
+      <h2>Règles</h2>
+      <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.</p>
+      <p>Refaire un niveau validé coche 5 nouvelles questions : la <b>couronne</b> s’obtient quand toutes sont réussies.</p>
+      <h2>Points</h2>
+      <ul><li>Niveau validé : <b>10 points</b>.</li><li>Ensuite, chaque nouvelle question réussie pour la couronne : <b>1 point</b> (5 par série).</li><li>Couronne : <b>20 points</b> de plus.</li><li>Niveau déjà couronné : chaque série réussie rapporte encore <b>2 points</b>.</li><li>Série perdue sur une erreur : <b>−1 point</b>.</li></ul>
     </div>
     <div class="compte" id="compte" style="display:none"><span>Connecté : <b id="qui"></b> <button class="lien" id="renom" type="button">modifier</button></span><button class="lien" id="sortir">Se déconnecter</button></div>
     <form class="renom" id="renomF" style="display:none"><input id="renomI" type="text" maxlength="60" autocomplete="name" aria-label="Prénom et nom"><button class="gros" type="submit">Enregistrer</button></form>
@@ -298,7 +324,7 @@
   <section class="ecran" id="classE">
     <div class="haut"><button class="ferme" id="kRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Classement</h2><button class="lien" id="kMaj">Actualiser</button></div>
     <div class="bloc rangs" id="kListe"></div>
-    <p class="note">Niveau validé : 10 points. Ensuite, chaque nouvelle question réussie pour la couronne : 1 point (5 par série). Couronne : 20 points de plus. Série perdue sur une erreur : −1 point.</p>
+    <p class="note">Niveau validé : 10 points. Ensuite, chaque nouvelle question réussie pour la couronne : 1 point (5 par série). Couronne : 20 points de plus. Niveau déjà couronné : 2 points par série réussie. Série perdue sur une erreur : −1 point.</p>
   </section>
 
   <section class="ecran" id="jeu">
@@ -2808,14 +2834,20 @@ function serie5(exo,niv,cle,k){                               // 5 questions : d
 
 /* ---------- points ----------
    niveau validé : 10 ; ensuite 1 point par nouvelle question cochée (5 par série, la série de validation en coche déjà 5) ;
-   couronne : +20 ; série perdue : −1 ; jamais sous 0. Calculé à partir de la progression enregistrée : rien de plus à stocker. */
+   couronne : +20 ; niveau déjà couronné : +2 par série réussie (compteur prog[cle+'_r'+k]) ; série perdue : −1 ; jamais sous 0. Calculé à partir de la progression enregistrée : rien de plus à stocker. */
 const NBQ={};
 const nbQ=(c,e,k)=>NBQ[c.id+'.'+e.id+k]||(NBQ[c.id+'.'+e.id+k]=questions(e,e.niveaux[k]).length);
 function points(P,E){
   let s=0;
   COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, f=Math.min(P[cle]||0,e.niveaux.length);
-    for(let k=0;k<f;k++) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1?20:0); }));
+    for(let k=0;k<f;k++) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+2*(P[cle+'_r'+k]||0) : 0); }));
   return Math.max(0,s-Object.values(E||{}).reduce((a,b)=>a+(+b||0),0));
+}
+function bilan(P,E){                                             // niveaux validés, couronnes, échecs (affichés dans le classement)
+  let niv=0, cour=0;
+  COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, f=Math.min(P[cle]||0,e.niveaux.length); niv+=f;
+    for(let k=0;k<f;k++) cour+=(P[cle+'_c']||0)>>k&1; }));
+  return {niv,cour,ech:Object.values(E||{}).reduce((a,b)=>a+(+b||0),0)};
 }
 const ptsTxt=n=>n+' point'+(n>1?'s':'');
 
@@ -2934,7 +2966,8 @@ $('finMenu').addEventListener('click',accueil);
 function gagne(){
   const p=partie, cleP=p.comp.id+'.'+p.exo.id, total=p.exo.niveaux.length, ptsAvant=points(prog,echecs);
   if((prog[cleP]||0)<p.k+1){ prog[cleP]=p.k+1; sauve(); }
-  const avant=couronne(cleP,p.k); let m=cochees(cleP,p.k); p.items.forEach(x=>{ m|=1<<x.jq; }); prog[cleP+'_q'+p.k]=m;
+  const avant=couronne(cleP,p.k); if(avant) prog[cleP+'_r'+p.k]=(prog[cleP+'_r'+p.k]||0)+1;
+  let m=cochees(cleP,p.k); p.items.forEach(x=>{ m|=1<<x.jq; }); prog[cleP+'_q'+p.k]=m;
   const nb=bits(m), roi=nb>=p.total; if(roi) prog[cleP+'_c']=(prog[cleP+'_c']||0)|(1<<p.k);
   sauve();
   const dernier=p.k===total-1, gagneeIci=roi&&!avant, reste=p.total-nb;
@@ -2986,6 +3019,16 @@ $('renom').addEventListener('click',()=>{ $('renomF').style.display='flex'; $('r
 $('renomF').addEventListener('submit',ev=>{ ev.preventDefault(); const n=$('renomI').value.trim(); if(n.length<3) return;
   session.nom=n; try{ localStorage.setItem(CLE_S,JSON.stringify(session)); }catch(e){} sauve(); accueil(); });
 $('suivi').addEventListener('click',suivi);
+/* suppression des données d'un élève par le professeur (progression, ligne du classement, marque « retiré ») ; deux appuis pour confirmer */
+$('sTable').addEventListener('click',async ev=>{
+  const b=ev.target.closest('.suppr'); if(!b||b.disabled) return;
+  if(!b.dataset.arme){ b.dataset.arme='1'; b.textContent='Confirmer la suppression ?'; b.classList.add('arme'); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.arme; b.textContent='Supprimer'; b.classList.remove('arme'); } },4000); return; }
+  b.disabled=true; b.textContent='…';
+  try{ const t=await monJeton(), id=b.dataset.id;
+    for(const chemin of ['eleves/'+id,'classement/'+id,'infos/m_'+id]) await appel(BASE()+chemin,null,{method:'DELETE',headers:{Authorization:'Bearer '+t}});
+    suivi();
+  }catch(e){ b.disabled=false; b.classList.remove('arme'); delete b.dataset.arme; b.textContent= e.code===403?'Refusé (règles)':'Erreur'; }
+});
 $('sRetour').addEventListener('click',accueil);
 $('sMaj').addEventListener('click',suivi);
 async function suivi(){
@@ -2994,14 +3037,14 @@ async function suivi(){
   try{
     const l=(await listeEleves()).filter(e=>e.id!==session.uid).sort((a,b)=>a.nom.localeCompare(b.nom));
     let h='<table><tr><th>Élève</th>'+exos.map(e=>'<th>'+e.nom+'</th>').join('')+'<th>Essais</th><th>Dernière activité</th></tr>';
-    for(const e of l) h+='<tr><td class="g"><b>'+(e.nom||'—').replace(/</g,'&lt;')+'</b></td>'
+    for(const e of l) h+='<tr><td class="g"><b>'+(e.nom||'—').replace(/</g,'&lt;')+'</b><button class="lien suppr" data-id="'+e.id+'">Supprimer</button></td>'
       +exos.map(x=>{ const v=Math.min(e.prog[x.cle]||0,x.n), ec=e.echecs[x.cle]||0, es=e.essais[x.cle]||0;
           const qr=x.nq.reduce((s,N,k)=>s+Math.min(bits(e.prog[x.cle+'_q'+k]||0),N),0), qt=x.nq.reduce((s,N)=>s+N,0), co=Math.min(bits(e.prog[x.cle+'_c']||0),x.n);
           return '<td class="'+(v===x.n?'tout':v?'part':'')+'">'+v+'/'+x.n
             +'<small class="ec">'+es+' essai'+(es>1?'s':'')+'</small><small class="ec'+(ec?' oui':'')+'">'+ec+' échec'+(ec>1?'s':'')+'</small>'
             +'<small class="ec qr">'+qr+'/'+qt+' questions</small><small class="ec co'+(co?' oui':'')+'">'+(co?COURONNE:'')+co+'/'+x.n+' couronne'+(co>1?'s':'')+'</small></td>'; }).join('')
       +'<td>'+Object.values(e.essais).reduce((a,b)=>a+b,0)+'</td><td>'+(e.maj? new Date(e.maj).toLocaleDateString('fr-FR') : '')+'</td></tr>';
-    $('sTable').innerHTML= l.length? h+'</table><p class="note">'+l.length+' élève'+(l.length>1?'s':'')+'. Dans chaque case : niveaux validés, puis essais (séries lancées), échecs (séries perdues sur une erreur), questions réussies (questions différentes cochées, sur le total de l’exercice) et couronnes (niveaux dont toutes les questions sont réussies). Dernière colonne « Essais » : total sur tout le jeu.</p>' : '<p>Aucun élève inscrit pour l\u2019instant.</p>';
+    $('sTable').innerHTML= l.length? h+'</table><p class="note">'+l.length+' élève'+(l.length>1?'s':'')+'. Dans chaque case : niveaux validés, puis essais (séries lancées), échecs (séries perdues sur une erreur), questions réussies (questions différentes cochées, sur le total de l’exercice) et couronnes (niveaux dont toutes les questions sont réussies). Colonne « Essais » : total sur tout le jeu. « Supprimer » efface la progression de l’élève et sa ligne du classement ; son identifiant de connexion se supprime dans la console Firebase.</p>' : '<p>Aucun élève inscrit pour l\u2019instant.</p>';
   }catch(e){ $('sTable').innerHTML='<p>Impossible de lire les données : '+e.message+'</p>'; }
 }
 
@@ -3009,18 +3052,24 @@ async function suivi(){
    collection « classement » : un document par élève (nom, pts), lisible par tous les élèves connectés.
    Le compte du professeur n'y figure pas ; quand le professeur ouvre le classement, les points de tous les élèves
    sont recalculés à partir de leur progression (ce qui a été fait avant l'arrivée des points est donc compté). */
-const champsC=(nom,pts)=>({fields:{nom:{stringValue:(nom||'').slice(0,60)},pts:{integerValue:String(pts)},maj:{timestampValue:new Date().toISOString()}}});
+const champsC=(nom,pts,b)=>({fields:Object.assign({nom:{stringValue:(nom||'').slice(0,60)},pts:{integerValue:String(pts)},maj:{timestampValue:new Date().toISOString()}},
+  b?{niv:{integerValue:String(b.niv)},cour:{integerValue:String(b.cour)},ech:{integerValue:String(b.ech)}}:{})});
+async function ecritC(t,id,nom,pts,b){                            // avec le détail ; si les règles publiées ne l'acceptent pas encore, sans le détail
+  try{ await appel(BASE()+'classement/'+id,champsC(nom,pts,b),{method:'PATCH',headers:enTete(t)}); }
+  catch(e){ if(e.code!==403) throw e; await appel(BASE()+'classement/'+id,champsC(nom,pts),{method:'PATCH',headers:enTete(t)}); }
+}
 const enTete=t=>({'Content-Type':'application/json',Authorization:'Bearer '+t});
 let dernierC='';
 async function majClassement(t){
   if(!EN_LIGNE||!session||estProf(session.email)) return;
-  const pts=points(prog,echecs), sig=session.uid+'|'+session.nom+'|'+pts; if(sig===dernierC) return;
-  try{ await appel(BASE()+'classement/'+session.uid,champsC(session.nom,pts),{method:'PATCH',headers:enTete(t)}); dernierC=sig; }catch(e){}
+  const pts=points(prog,echecs), b=bilan(prog,echecs), sig=[session.uid,session.nom,pts,b.niv,b.cour,b.ech].join('|'); if(sig===dernierC) return;
+  try{ await ecritC(t,session.uid,session.nom,pts,b); dernierC=sig; }catch(e){}
 }
 async function litClassement(t){
   let out=[], page='';
   do{ const d=await appel(BASE()+'classement?pageSize=300'+(page?'&pageToken='+page:''),null,{method:'GET',headers:{Authorization:'Bearer '+t}});
-    (d.documents||[]).forEach(x=>out.push({id:x.name.split('/').pop(),nom:(x.fields&&x.fields.nom&&x.fields.nom.stringValue)||'',pts:+((x.fields&&x.fields.pts&&x.fields.pts.integerValue)||0)}));
+    (d.documents||[]).forEach(x=>{ const f=x.fields||{}, n=k=>f[k]? +f[k].integerValue||0 : undefined;
+      out.push({id:x.name.split('/').pop(),nom:(f.nom&&f.nom.stringValue)||'',pts:n('pts')||0,niv:n('niv'),cour:n('cour'),ech:n('ech')}); });
     page=d.nextPageToken||''; }while(page);
   return out;
 }
@@ -3033,14 +3082,18 @@ async function litMasques(t){
   return m;
 }
 let rangsL=[], rangsM=new Set();
+const pl=(n,mot)=>n+' '+mot+(n>1?(mot==='niveau'?'x':'s'):'');
+const I_NIV='<svg class="ico iniv" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M4 7.4 L6.2 9.6 L10.2 4.6"/></svg>';
+const I_ECH='<svg class="ico iech" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M4.5 4.5 L9.5 9.5 M9.5 4.5 L4.5 9.5"/></svg>';
+const ligneC=e=>'<span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+(e.niv===undefined?'':'<small><span>'+I_NIV+pl(e.niv,'niveau')+'</span><span>'+COURONNE+pl(e.cour,'couronne')+'</span><span>'+I_ECH+pl(e.ech,'échec')+'</span></small>')+'</span>';
 function dessineClassement(){
   const prof=estProf(session.email), vus=rangsL.filter(e=>!rangsM.has(e.id)), caches=prof? rangsL.filter(e=>rangsM.has(e.id)) : [];
   let h='', rang=0;
   vus.forEach((e,i)=>{ if(!i||e.pts!==vus[i-1].pts) rang=i+1;
-    h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span>'
+    h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span>'+ligneC(e)+'<span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span>'
       +(prof?'<button class="lien masq" data-id="'+e.id+'" data-m="1">Retirer</button>':'')+'</div>'; });
   if(caches.length) h+='<p class="sep">Retirés du classement (visibles par vous seulement)</p>'
-    +caches.map(e=>'<div class="rg hors"><span class="rn">–</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span><button class="lien masq" data-id="'+e.id+'" data-m="">Remettre</button></div>').join('');
+    +caches.map(e=>'<div class="rg hors"><span class="rn">–</span>'+ligneC(e)+'<span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span><button class="lien masq" data-id="'+e.id+'" data-m="">Remettre</button></div>').join('');
   $('kListe').innerHTML= h || '<p>Aucun élève dans le classement pour l\u2019instant.</p>';
 }
 async function classement(){
@@ -3049,8 +3102,8 @@ async function classement(){
     const t=await monJeton(), prof=estProf(session.email); let l;
     if(prof){
       const anciens=Object.fromEntries((await litClassement(t)).map(x=>[x.id,x]));
-      l=(await listeEleves()).filter(e=>e.id!==session.uid).map(e=>({id:e.id,nom:e.nom,pts:points(e.prog,e.echecs)}));
-      for(const e of l){ const a=anciens[e.id]; if(!a||a.pts!==e.pts||a.nom!==e.nom.slice(0,60)) await appel(BASE()+'classement/'+e.id,champsC(e.nom,e.pts),{method:'PATCH',headers:enTete(t)}); }
+      l=(await listeEleves()).filter(e=>e.id!==session.uid).map(e=>Object.assign({id:e.id,nom:e.nom,pts:points(e.prog,e.echecs)},bilan(e.prog,e.echecs)));
+      for(const e of l){ const a=anciens[e.id]; if(!a||a.pts!==e.pts||a.nom!==e.nom.slice(0,60)||a.niv!==e.niv||a.cour!==e.cour||a.ech!==e.ech) await ecritC(t,e.id,e.nom,e.pts,e); }
     }else{ await majClassement(t); l=await litClassement(t); }
     rangsM=await litMasques(t);
     rangsL=l.sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
@@ -3064,6 +3117,7 @@ $('kListe').addEventListener('click',async ev=>{
     if(m) rangsM.add(id); else rangsM.delete(id); dessineClassement();
   }catch(e){ b.disabled=false; b.textContent='Erreur'; }
 });
+$('aideB').addEventListener('click',()=>{ const o=$('regles').style.display==='none'; $('regles').style.display=o?'block':'none'; $('aideB').classList.toggle('ouvert',o); $('aideB').setAttribute('aria-expanded',o); });
 $('classB').addEventListener('click',classement);
 $('kMaj').addEventListener('click',classement);
 $('kRetour').addEventListener('click',accueil);
