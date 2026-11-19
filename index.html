@@ -2797,6 +2797,273 @@ ACT.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.map(e=>e.replace(/\.$/,'')); }))
 return ACT;
 })();
 
+/* =====================================================================
+   1 undecies. TH2 (suite) — CHANGEMENTS D'ÉTAT, BILANS AVEC CHANGEMENT D'ÉTAT, COMBUSTION
+   Liste validée par Thomas le 19/11 (« go je testerai »). Mêmes règles que l'activité 1 de TH2 :
+   rien hors programme, 20 à 30 questions par niveau, pas de grandeur à isoler : on demande quel bilan écrire.
+   ===================================================================== */
+const TH2B=(()=>{
+const it=I_, sb=(a,b)=>it(a)+'<sub>'+b+'</sub>';
+const P=it('P'), T=it('T'), Q=it('Q'), H=it('H'), m=it('m'), c=it('c'), v=it('v'), V=it('V'), n=it('n'), E=it('E'), tau=it('τ'), Pu=it('P');
+const Psat=sb('P','sat'), Tc=sb('T','c'), Pc=sb('P','c'), T1=sb('T','1'), T2=sb('T','2'), TF=sb('T','F'), Tfus=sb('T','fus'), Tvap=sb('T','vap'), Ts=sb('T','s');
+const xv=sb('x','v'), xl=sb('x','ℓ'), vl=sb('v','ℓ'), vv=sb('v','v'), mv=sb('m','v'), ml=sb('m','ℓ'), ms=sb('m','s'), mf=sb('m','f'), mc=sb('m','calo'), mcomb=sb('m','comb'), ncomb=sb('n','comb'), Mcomb=sb('M','comb');
+const cg=sb('c','g'), cl=sb('c','ℓ'), Lf=sb('L','fus'), Lv=sb('L','vap'), Ll=sb('L','liq'), Ls=sb('L','sol'), L12=sb('L','1→2');
+const dH='Δ'+H, dHS='Δ'+sb('H','Σ'), par=x=>'('+x+')', CO2='CO<sub>2</sub>', H2O='H<sub>2</sub>O', O2='O<sub>2</sub>';
+const tq=(sit,q,ok,faux,pr,o)=>Qz(TX(''),sit,q,ok,faux,pr,Object.assign({large:1},o));
+const eq=(sit,cible,ok,faux,pr,o)=>Qz(TX(''),sit,QE(cible),ok,faux,pr,Object.assign({large:[ok].concat(faux).some(h=>h.replace(/<[^>]+>/g,'').length>13)},o));
+const sq=(d,sit,q,ok,faux,pr,o)=>Qz(d,sit,q,ok,faux,pr,Object.assign({large:1},o));
+const tx=(s,x,y,a,cls,sz,gras)=>'<text class="txt '+(cls||'')+'" style="font-size:'+(sz||15)+'px;font-weight:'+(gras?700:400)+'" x="'+x+'" y="'+y+'" text-anchor="'+(a||'middle')+'">'+s+'</text>';
+const ital=s=>'<tspan font-style="italic">'+s+'</tspan>';
+const svs=(a,b)=>ital(a)+'<tspan style="font-size:10px" dy="3">'+b+'</tspan><tspan dy="-3" style="font-size:1px"> </tspan>';
+const chemin=(pts,cls,ep,extra)=>'<path class="fil '+(cls||'')+'" style="fill:none" stroke-width="'+(ep||2.4)+'" '+(extra||'')+' d="'+pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+'"/>';
+const pastille=(x,y,cls,r)=>'<circle cx="'+x+'" cy="'+y+'" r="'+(r||4.5)+'" class="'+(cls||'')+'" '+(cls?'':'fill="#1b2a41"')+'/>';
+const axes=(nx,ny)=>seg(46,14,46,190,'',1.6)+seg(46,190,288,190,'',1.6)+tete(46,8,0,-1,'',5)+tete(294,190,1,0,'',5)+tx(nx,290,208,'end','',15)+tx(ny,38,16,'end','',15);
+
+/* ---------- diagramme (P, T) ---------- */
+const PT_T=[122,138], PT_C=[238,54];
+const cSub=Array.from({length:13},(_,i)=>{ const u=i/12; return [52+(PT_T[0]-52)*u, 184-(184-PT_T[1])*u*u]; });
+const cFus=Array.from({length:13},(_,i)=>{ const u=i/12; return [PT_T[0]+12*u, PT_T[1]-(PT_T[1]-22)*u]; });
+const cVap=Array.from({length:13},(_,i)=>{ const u=i/12; return [PT_T[0]+(PT_C[0]-PT_T[0])*u, PT_T[1]-(PT_T[1]-PT_C[1])*Math.pow(u,1.7)]; });
+const yVap=x=>PT_T[1]-(PT_T[1]-PT_C[1])*Math.pow((x-PT_T[0])/(PT_C[0]-PT_T[0]),1.7);   // ordonnée de la courbe de vaporisation
+function diagPT(o){ o=o||{};
+  let s=axes(ital('T'),ital('P'));
+  s+=chemin(cSub,o.hl==='sub'?'ask':'',o.hl==='sub'?3.4:2.4)+chemin(cFus,o.hl==='fus'?'ask':'',o.hl==='fus'?3.4:2.4)+chemin(cVap,o.hl==='vap'?'ask':'',o.hl==='vap'?3.4:2.4);
+  if(o.zones==='num') s+=tx('1',84,84,'middle','',19,1)+tx('2',180,56,'middle','',19,1)+tx('3',196,150,'middle','',19,1);
+  if(o.zones==='noms') s+=tx('solide',84,84,'middle','',14)+tx('liquide',180,56,'middle','',14)+tx('gaz',196,150,'middle','',14);
+  s+=pastille(PT_T[0],PT_T[1],o.pt==='T'?'ask':'',o.pt==='T'?6:4)+pastille(PT_C[0],PT_C[1],o.pt==='C'?'ask':'',o.pt==='C'?6:4);
+  if(o.noms!==false){ if(o.pt!=='T') s+=tx('T',PT_T[0]+10,PT_T[1]+16,'start','',14); if(o.pt!=='C') s+=tx('C',PT_C[0]+9,PT_C[1]+4,'start','',14); }
+  (o.pts||[]).forEach(([x,y,nom,cls])=>{ s+=pastille(x,y,cls||'aux',5)+(nom?tx(nom,x-9,y-7,'end',cls||'aux',15,1):''); });
+  if(o.fl){ const [x1,y1,x2,y2]=o.fl, d=Math.hypot(x2-x1,y2-y1); s+=seg(x1,y1,x2,y2,'ask',2.8)+tete(x2+(x2-x1)/d*5,y2+(y2-y1)/d*5,(x2-x1)/d,(y2-y1)/d,'ask',7)+tx('A',x1-(x2-x1)/d*14,y1-(y2-y1)/d*14+5,'middle','ask',15,1)+tx('B',x2+(x2-x1)/d*27,y2+(y2-y1)/d*27+5,'middle','ask',15,1); }
+  return svgM(300,214,s);
+}
+/* ---------- pression de vapeur saturante de l'eau (lecture) ---------- */
+function psat(o){ o=o||{};
+  const X=t=>52+t*1.9, Y=p=>180-p*72; let s='';
+  for(let t=0;t<=120;t+=20) s+='<path stroke="#d0d7e0" stroke-width="1" d="M'+X(t)+' 180 L'+X(t)+' 28"/>'+tx(String(t),X(t),196,'middle','',12);
+  for(let p=0;p<=2;p+=0.5) s+='<path stroke="#d0d7e0" stroke-width="1" d="M52 '+Y(p)+' L'+X(120)+' '+Y(p)+'"/>'+tx(String(p).replace('.',','),45,Y(p)+4,'end','',12);
+  s+=seg(52,22,52,180,'',1.6)+seg(52,180,X(120)+10,180,'',1.6)+tete(52,16,0,-1,'',5)+tete(X(120)+16,180,1,0,'',5)+tx(ital('θ')+' (°C)',X(120)+16,212,'end','',14)+tx(ital('P')+'<tspan style="font-size:10px" dy="3">sat</tspan><tspan dy="-3"> (bar)</tspan>',60,18,'start','',14);
+  const D=[[0,0.006],[20,0.023],[40,0.074],[60,0.2],[70,0.31],[80,0.5],[90,0.72],[100,1.0],[110,1.43],[120,2.0]];
+  s+=chemin(D.map(([t,p])=>[X(t),Y(p)]),'ask',2.8);
+  return svgM(300,216,s);
+}
+/* ---------- diagramme de Clapeyron (P, v) ---------- */
+const CX=u=>46+u*38, CY=p=>190-p*30, vL=p=>2-Math.sqrt(Math.max(0,5-p)/3), vV=p=>2+3*Math.pow(Math.max(0,5-p)/3,0.7);
+const cloche=(a,b,f)=>Array.from({length:25},(_,i)=>{ const p=a+(b-a)*i/24; return [CX(f(p)),CY(p)]; });
+function isoP(p,cls,ep){ const l=vL(p), r=vV(p);
+  const vap=Array.from({length:13},(_,i)=>{ const u=r+(6.35-r)*i/12; return [CX(u),CY(p*Math.pow(r/u,1.25))]; });
+  return chemin([[CX(l-0.1),CY(5.75)],[CX(l),CY(p)],[CX(r),CY(p)]].concat(vap.slice(1)),cls,ep||2.4); }
+function clap(o){ o=o||{};
+  let s='';
+  if(o.grad){ for(let u=1;u<=6;u++) s+='<path stroke="#d0d7e0" stroke-width="1" d="M'+CX(u)+' 190 L'+CX(u)+' 22"/>'+tx(String(u),CX(u),205,'middle','',12);
+    for(let p=1;p<=5;p++) s+='<path stroke="#d0d7e0" stroke-width="1" d="M46 '+CY(p)+' L288 '+CY(p)+'"/>'+tx(String(p),39,CY(p)+4,'end','',12); }
+  s+=seg(46,14,46,190,'',1.6)+seg(46,190,288,190,'',1.6)+tete(46,8,0,-1,'',5)+tete(294,190,1,0,'',5);
+  s+=tx(o.grad? ital('v')+' (L·kg<tspan style="font-size:9px" dy="-5">−1</tspan><tspan dy="5">)</tspan>' : ital('v'),290,o.grad?219:208,'end','',o.grad?13:15)+tx(o.grad? ital('P')+' (bar)' : ital('P'),o.grad?54:38,16,o.grad?'start':'end','',o.grad?13:15);
+  s+=chemin(cloche(0.35,5,vL),o.hl==='eb'?'ask':'',o.hl==='eb'?3.6:2.2,o.hl==='eb'?'':'stroke-dasharray="6 4"')+chemin(cloche(5,0.35,vV),o.hl==='ro'?'ask':'',o.hl==='ro'?3.6:2.2,o.hl==='ro'?'':'stroke-dasharray="6 4"');
+  (o.iso||[]).forEach(([p,cls,nom])=>{ s+=isoP(p,cls===undefined?'aux':cls); if(nom) s+=tx(nom,CX(6.3),CY(p*Math.pow(vV(p)/6.3,1.25))-7,'end',cls===undefined?'aux':cls,13,1); });
+  if(o.sup) s+='<path class="fil aux" style="fill:none" stroke-width="2.4" d="M'+CX(0.95)+' '+CY(5.85)+' C'+CX(1.6)+' '+CY(4.6)+' '+CX(2.6)+' '+CY(5.5)+' '+CX(6.35)+' '+CY(3.6)+'"/>'+tx(ital('T')+' &gt; '+svs('T','c'),CX(6.3),CY(3.75)-9,'end','aux',13,1);
+  if(o.crit) s+=pastille(CX(2),CY(5),'ask',6);
+  if(o.zones) s+=tx('1',CX(0.6),CY(2.6),'middle','',19,1)+tx('2',CX(2.7),CY(1.3),'middle','',19,1)+tx('3',CX(5.6),CY(4.2),'middle','',19,1);
+  if(o.palier){ const p=o.palier, l=vL(p), r=vV(p); s+=seg(CX(l),CY(p),CX(r),CY(p),'ask',3.6); }
+  if(o.LV){ const p=o.LV[0], f=o.LV[1], l=vL(p), r=vV(p);
+    s+=pastille(CX(l),CY(p),'',4.5)+pastille(CX(r),CY(p),'',4.5)+tx('L',CX(l)-13,CY(p)+5,'end','',14,1)+tx('V',CX(r)+9,CY(p)-8,'start','',14,1);
+    if(f!==undefined&&f!==null) s+=pastille(CX(l+(r-l)*f),CY(p),'ask',5.5)+tx('M',CX(l+(r-l)*f),CY(p)-10,'middle','ask',14,1); }
+  (o.pts||[]).forEach(([u,p,nom,cls])=>{ s+=pastille(CX(u),CY(p),cls||'ask',5.5)+(nom? (u<2? tx(nom,CX(u)-11,CY(p)+16,'end',cls||'ask',14,1) : tx(nom,CX(u)+6,CY(p)-10,'start',cls||'ask',14,1)) :''); });
+  if(o.fl){ const [u1,p1,u2,p2]=o.fl; s+=seg(CX(u1),CY(p1)-12,CX(u2),CY(p2)-12,'ask',2.4)+tete(CX(u2)+(u2>u1?5:-5),CY(p2)-12,u2>u1?1:-1,0,'ask',7); }
+  return svgM(300,o.grad?224:214,s);
+}
+/* ---------- T(t) d'un glaçon chauffé à puissance constante ---------- */
+function courbeT(hl,sansNoms){
+  let s=seg(46,14,46,190,'',1.6)+seg(46,190,288,190,'',1.6)+tete(46,8,0,-1,'',5)+tete(294,190,1,0,'',5)+tx(ital('t'),290,208,'end','',15)+tx(ital('θ'),38,16,'end','',15);
+  const A=[[50,172],[72,146],[104,146],[160,86],[262,86],[282,70]], C=k=>hl===k?'ask':'aux';
+  s+=tir_(46,146,72,146)+tir_(46,86,160,86)+tx('0 °C',42,150,'end','',11)+tx('100 °C',42,90,'end','',11);
+  [['g',0],['pf',1],['l',2],['pv',3],['v',4]].forEach(([k,i])=>{ s+=seg(A[i][0],A[i][1],A[i+1][0],A[i+1][1],C(k),hl===k?3.8:2.6); });
+  if(!sansNoms) s+=tx('glace',80,172,'start','',11)+tx('eau liquide',136,126,'start','',11)+tx('vapeur',262,60,'middle','',11);
+  return svgM(300,214,s);
+}
+/* ---------- calorimètre ---------- */
+function calo(o){
+  let s='<rect x="78" y="40" width="144" height="124" rx="6" fill="#eef1f5" stroke="#1b2a41" stroke-width="2.4"/>';
+  s+='<rect x="90" y="52" width="120" height="100" fill="#fff" stroke="#1b2a41" stroke-width="1.6"/><rect x="91" y="86" width="118" height="65" fill="#d5e6fa" stroke="none"/>'+seg(90,86,210,86,'aux',1.4);
+  s+='<rect x="70" y="30" width="160" height="12" rx="3" fill="#9aa7b8" stroke="#1b2a41" stroke-width="2"/>';
+  s+=seg(186,14,186,128,'',2.2)+'<circle cx="186" cy="131" r="4.5" fill="#d8432f" stroke="#1b2a41" stroke-width="1.4"/>'+tx('thermomètre',196,20,'start','',12);
+  if(o.glace) s+='<rect x="112" y="78" width="30" height="24" rx="3" fill="#fff" stroke="#1b2a41" stroke-width="2" transform="rotate(-10 127 90)"/>';
+  (o.leg||[]).forEach((l,i)=>{ s+=tx(l,150,186+i*17,'middle',i?'':'aux',13); });
+  return svgM(300,190+(o.leg||[]).length*17-10,s);
+}
+
+/* ================= Activité « Changements d'état » ================= */
+const CHG=['Fusion','Solidification','Vaporisation','Liquéfaction','Sublimation','Condensation'];
+const voc=(a,b,k)=>tq('Un corps pur passe de l’état '+a+' à l’état '+b+'.','Nom de ce changement d’état ?',CHG[k],[CHG[(k+1)%6],CHG[(k+3)%6],CHG[(k+4)%6]],[CHG[k]+' : passage de l’état '+a+' à l’état '+b]);
+const ZPT=['La zone 1','La zone 2','La zone 3'], PTD='Diagramme d’état ('+P+', '+T+') d’un corps pur.';
+const zone=(k,nom,pr)=>sq(diagPT({zones:'num'}),PTD,'Quelle zone correspond '+nom+' ?',ZPT[k],ZPT.filter((_,j)=>j!==k).concat(['Aucune des trois']),pr);
+const COURB=['Courbe de fusion','Courbe de vaporisation','Courbe de sublimation','Courbe de rosée'];
+const courbe=(hl,k,pr)=>sq(diagPT({zones:'noms',hl}),PTD+' Une courbe est tracée en orange.','Quel est son nom ?',COURB[k],COURB.filter((_,j)=>j!==k),pr);
+const N1=[
+ voc('solide','liquide',0),voc('liquide','solide',1),voc('liquide','gazeux',2),voc('gazeux','liquide',3),voc('solide','gazeux',4),voc('gazeux','solide',5),
+ zone(0,'au solide',['Le solide existe aux basses températures et aux pressions élevées']),
+ zone(1,'au liquide',['Le liquide se trouve entre la courbe de fusion et la courbe de vaporisation']),
+ zone(2,'au gaz',['Le gaz existe aux basses pressions et aux températures élevées']),
+ courbe('fus',0,['Elle sépare le domaine du solide de celui du liquide']),
+ courbe('vap',1,['Elle sépare le domaine du liquide de celui du gaz, du point triple au point critique']),
+ courbe('sub',2,['Elle sépare le domaine du solide de celui du gaz']),
+ sq(diagPT({zones:'noms',pt:'T',noms:false}),PTD+' Les trois courbes se rejoignent au point orange.','Quel est le nom de ce point ?','Le point triple',['Le point critique','Le point d’ébullition','Le point de rosée'],['C’est le seul point commun aux trois courbes']),
+ tq('On place un corps pur à la température et à la pression de son point triple.','Que peut-on observer ?','Les trois phases coexistent',['Seul le liquide existe','Le liquide et le gaz ne se distinguent plus','Aucune phase n’est stable'],['Le point triple est le seul état où solide, liquide et gaz sont en équilibre']),
+ sq(diagPT({zones:'noms',pt:'C',noms:false}),PTD+' La courbe de vaporisation s’arrête au point orange.','Quel est le nom de ce point ?','Le point critique',['Le point triple','Le point de fusion','Le point de rosée'],['La courbe de vaporisation va du point triple au point critique']),
+ tq('Un corps pur est porté à une température supérieure à '+Tc+' et à une pression supérieure à '+Pc+' (point critique).','Que peut-on dire de son état ?','On ne distingue plus liquide et gaz',['C’est un solide','Les trois phases coexistent','C’est un mélange de liquide et de vapeur'],['Au-delà du point critique, il n’y a plus de changement d’état entre liquide et gaz : on parle de fluide supercritique']),
+ sq(diagPT({zones:'noms',pts:[[183,yVap(183),'A','ask']]}),PTD+' Le point A est sur la courbe de vaporisation.','Quel est l’état du corps en A ?','Liquide et vapeur en équilibre',['Liquide seul','Vapeur seule','Solide et liquide en équilibre'],['Sur une courbe du diagramme, les deux phases qu’elle sépare coexistent']),
+ sq(diagPT({zones:'num',pts:[[240,166,'A','ask']]}),PTD,'Quel est l’état du corps au point A ?','Gaz',['Liquide','Solide','Liquide et gaz en équilibre'],['Le point A est dans le domaine des basses pressions et des températures élevées : celui du gaz']),
+ sq(diagPT({zones:'noms',fl:[66,104,166,104]}),PTD+' On chauffe le corps à pression constante, de A à B.','Quel changement d’état subit-il ?','Une fusion',['Une vaporisation','Une sublimation','Une solidification'],['Le trajet horizontal traverse la courbe de fusion, du domaine du solide vers celui du liquide']),
+ sq(diagPT({zones:'noms',fl:[215,62,215,122]}),PTD+' On détend le corps à température constante, de A à B.','Quel changement d’état subit-il ?','Une vaporisation',['Une liquéfaction','Une fusion','Une sublimation'],['Le trajet vertical traverse la courbe de vaporisation, du domaine du liquide vers celui du gaz']),
+ sq(diagPT({zones:'noms',fl:[60,166,140,166]}),PTD+' On chauffe le corps à pression constante, de A à B, sous une pression inférieure à celle du point triple.','Quel changement d’état subit-il ?','Une sublimation',['Une fusion','Une vaporisation','Une condensation'],['Sous la pression du point triple, le liquide n’existe pas : le solide passe directement à l’état gazeux']),
+ tq('On considère la pression de vapeur saturante '+Psat+'('+T+') d’un corps pur.','Que représente-t-elle ?','La pression à laquelle liquide et vapeur coexistent à la température '+T,['La pression du point triple','La pression maximale que peut supporter le liquide','La pression atmosphérique'],['C’est la pression lue sur la courbe de vaporisation, à la température '+T]),
+ tq('On considère la pression de vapeur saturante '+Psat+'('+T+').','Comment varie-t-elle avec la température ?','Elle augmente',['Elle diminue','Elle reste constante','Elle augmente puis diminue'],['La courbe de vaporisation est croissante dans le diagramme ('+P+', '+T+')']),
+ tq('En altitude, la pression atmosphérique est plus faible qu’au niveau de la mer.','Que devient la température d’ébullition de l’eau ?','Elle diminue',['Elle augmente','Elle ne change pas','L’eau ne peut plus bouillir'],['L’eau bout quand '+Psat+'('+T+') atteint la pression extérieure.',Psat+' augmente avec '+T+' : une pression plus faible est atteinte à une température plus basse']),
+ tq('Un corps pur change d’état sous une pression fixée.','Comment évolue sa température pendant le changement d’état ?','Elle reste constante',['Elle augmente','Elle diminue','Elle augmente puis diminue'],['À pression fixée, les deux phases ne coexistent qu’à une seule température, lue sur la courbe du diagramme ('+P+', '+T+')'])
+];
+
+const CLD='Diagramme de Clapeyron ('+P+', '+v+') d’un corps pur.', ZCL=['La zone 1','La zone 2','La zone 3'], ETATS=['Liquide','Liquide et vapeur en équilibre','Vapeur sèche','Solide'];
+const zc=(k,q,pr)=>sq(clap({zones:1}),CLD+' La courbe de saturation est en pointillés.',q,ETATS[k],ETATS.filter((_,j)=>j!==k),pr);
+const N2=[
+ tq('On trace le diagramme de Clapeyron ('+P+', '+v+') d’un corps pur.','Que représente '+v+' ?','Le volume massique, '+v+' = '+FR(V,m),['Le volume total du système','La vitesse des molécules','Le volume molaire'],['On porte en abscisse le volume occupé par un kilogramme du corps']),
+ tq('On considère le volume massique '+v+'.','Quelle est son unité ?','m<sup>3</sup>·kg<sup>−1</sup>',['kg·m<sup>−3</sup>','m<sup>3</sup>','m<sup>3</sup>·mol<sup>−1</sup>'],[v+' = '+FR(V,m)+' : un volume divisé par une masse']),
+ sq(clap({hl:'eb'}),CLD+' La branche gauche de la courbe de saturation est en orange.','Quel est son nom ?','Courbe d’ébullition',['Courbe de rosée','Courbe de fusion','Isotherme critique'],['Sur cette branche le corps est un liquide saturant : la première bulle de vapeur y apparaît']),
+ sq(clap({hl:'ro'}),CLD+' La branche droite de la courbe de saturation est en orange.','Quel est son nom ?','Courbe de rosée',['Courbe d’ébullition','Courbe de sublimation','Isotherme critique'],['Sur cette branche le corps est une vapeur saturante : la première goutte de liquide y apparaît']),
+ sq(clap({crit:1}),CLD+' Le sommet de la courbe de saturation est repéré en orange.','Quel est le nom de ce point ?','Le point critique',['Le point triple','Le point de rosée','Le point d’ébullition'],['Les courbes d’ébullition et de rosée se rejoignent au point critique']),
+ zc(0,'Quel est l’état du corps dans la zone 1 ?',['À gauche de la courbe d’ébullition, le volume massique est petit : le corps est liquide']),
+ zc(2,'Quel est l’état du corps dans la zone 3 ?',['À droite de la courbe de rosée, le volume massique est grand : le corps est une vapeur sèche']),
+ zc(1,'Quel est l’état du corps dans la zone 2 ?',['Sous la courbe de saturation, le liquide et la vapeur coexistent']),
+ sq(clap({iso:[[2,'aux']],pts:[[vL(2),2,'A']]}),CLD+' Le point A est sur la courbe d’ébullition.','Quel est l’état du corps en A ?','Liquide saturant : la première bulle de vapeur apparaît',['Vapeur saturante : la première goutte de liquide apparaît','Vapeur sèche','Moitié liquide, moitié vapeur'],['Sur la courbe d’ébullition, le corps est entièrement liquide, à la limite de la vaporisation']),
+ sq(clap({iso:[[2,'aux']],pts:[[vV(2),2,'A']]}),CLD+' Le point A est sur la courbe de rosée.','Quel est l’état du corps en A ?','Vapeur saturante : la première goutte de liquide apparaît',['Liquide saturant : la première bulle de vapeur apparaît','Liquide seul','Moitié liquide, moitié vapeur'],['Sur la courbe de rosée, le corps est entièrement gazeux, à la limite de la liquéfaction']),
+ tq('On trace les isothermes d’Andrews d’un corps pur.','De quoi s’agit-il ?','Des courbes à température constante dans le diagramme ('+P+', '+v+')',['Des courbes à pression constante dans le diagramme ('+P+', '+T+')','Des courbes à volume constant','De la courbe de saturation'],['Chaque isotherme donne '+P+' en fonction de '+v+' à une température fixée']),
+ sq(clap({iso:[[2,'aux']],palier:2}),CLD+' Le palier d’une isotherme de température '+T+' est en orange.','Que vaut la pression sur ce palier ?',Psat+'('+T+'), constante',['La pression critique '+Pc,'Elle augmente de gauche à droite','Elle diminue de gauche à droite'],['Tant que liquide et vapeur coexistent à la température '+T+', la pression reste égale à la pression de vapeur saturante']),
+ sq(clap({iso:[[2,'aux']],palier:2,fl:[4.4,2,2.2,2]}),CLD+' On parcourt le palier dans le sens de la flèche : '+v+' diminue.','Que se passe-t-il ?','La vapeur se liquéfie progressivement',['Le liquide se vaporise progressivement','La pression augmente','La température diminue'],['De la courbe de rosée vers la courbe d’ébullition, la proportion de liquide augmente, à pression et température constantes']),
+ sq(clap({iso:[[2,'aux']],LV:[2,null]}),CLD+' On comprime une vapeur à température constante '+T+' &lt; '+Tc+'.','Où apparaît la première goutte de liquide ?','Au point V, sur la courbe de rosée',['Au point L, sur la courbe d’ébullition','Au milieu du palier','Au point critique'],['La compression amène la vapeur sèche sur la courbe de rosée : c’est là que la liquéfaction commence']),
+ sq(clap({iso:[[2,'aux']],LV:[2,null]}),CLD+' On comprime une vapeur à température constante ; la liquéfaction commence en V.','Où se termine-t-elle ?','Au point L, sur la courbe d’ébullition',['Au point V','Au milieu du palier','Au point critique'],['Au bout du palier, en L, tout le corps est liquide']),
+ sq(clap({iso:[[2,'aux']],LV:[2,null]}),CLD+' On détend un liquide à température constante.','Où apparaît la première bulle de vapeur ?','Au point L, sur la courbe d’ébullition',['Au point V, sur la courbe de rosée','Au milieu du palier','Au point critique'],['La détente amène le liquide sur la courbe d’ébullition : c’est là que la vaporisation commence']),
+ sq(clap({sup:1}),CLD+' On a tracé une isotherme de température '+T+' &gt; '+Tc+'.','Présente-t-elle un palier ?','Non : il n’y a plus de changement d’état',['Oui, plus long que les autres','Oui, à la pression critique','Oui, mais il est vertical'],['Au-dessus de la température critique, on ne peut plus liquéfier le gaz par compression']),
+ sq(clap({iso:[[2,'aux','a'],[3.5,'','b']]}),CLD+' Deux isothermes a et b sont tracées, de températures différentes.','Laquelle correspond à la température la plus élevée ?','L’isotherme b',['L’isotherme a','Elles ont la même température','On ne peut pas savoir'],['Le palier de b est à une pression plus élevée.',Psat+' augmente avec la température']),
+ sq(clap({iso:[[2,'aux','a'],[3.5,'','b']]}),CLD+' Deux isothermes sont tracées.','Comment évolue la longueur du palier quand la température augmente ?','Elle diminue',['Elle augmente','Elle ne change pas','Elle double'],['Les courbes d’ébullition et de rosée se rapprochent quand on monte vers le point critique']),
+ sq(clap({iso:[[3.5,'aux']]}),CLD+' On augmente la température jusqu’à la température critique '+Tc+'.','Que devient le palier ?','Il se réduit à un point : le point critique',['Il devient vertical','Il occupe toute la largeur du diagramme','Il passe sous l’axe des abscisses'],['La longueur du palier diminue quand '+T+' augmente et s’annule à la température critique']),
+ sq(clap({iso:[[2,'aux']]}),CLD+' Dans le domaine du liquide, l’isotherme est presque verticale.','Pourquoi ?','Un liquide est très peu compressible',['Un liquide est très compressible','La température du liquide augmente','La pression du liquide est toujours nulle'],['Il faut une très grande variation de pression pour modifier un peu le volume massique d’un liquide']),
+ sq(clap({grad:1,iso:[[2,'aux']],palier:2}),CLD,'Que vaut la pression de vapeur saturante à la température de cette isotherme ?','2 bar',['5 bar','1 bar','3 bar'],['On lit l’ordonnée du palier de l’isotherme']),
+ sq(clap({grad:1,iso:[[2,'aux']],LV:[2,null]}),CLD,'Que vaut le volume massique '+vv+' de la vapeur saturante ?','5 L·kg<sup>−1</sup>',['1 L·kg<sup>−1</sup>','2 L·kg<sup>−1</sup>','3 L·kg<sup>−1</sup>'],['On lit l’abscisse du point V, extrémité droite du palier, sur la courbe de rosée'])
+];
+
+const DIP='Mélange liquide-vapeur d’un corps pur, de masse totale '+m+' = '+ml+' + '+mv+'.', LMV='Le point M représente un mélange liquide-vapeur sur le palier LV.';
+const N3=[
+ eq(DIP,'Titre massique en vapeur '+xv,FR(mv,m),[FR(ml,m),FR(mv,ml),FR(m,mv)],['Le titre massique en vapeur est la proportion massique de vapeur dans le mélange']),
+ eq(DIP+' On note '+xv+' le titre massique en vapeur.','Titre massique en liquide '+xl,'1 − '+xv,[xv+' − 1',FR('1',xv),xv],[xl+' = '+FR(ml,m)+' et '+ml+' + '+mv+' = '+m]),
+ tq('On considère le titre massique en vapeur '+xv+' d’un mélange liquide-vapeur.','Entre quelles valeurs est-il compris ?','Entre 0 et 1',['Entre −1 et 1','Entre 0 et 100','Il est toujours supérieur à 1'],[xv+' = '+FR(mv,m)+', avec 0 ≤ '+mv+' ≤ '+m]),
+ eq('Le corps est un liquide saturant (point L du palier).',xv,'0',['1','0,5',FR(vl,vv)],['Au point L, tout le corps est liquide : '+mv+' = 0']),
+ eq('Le corps est une vapeur saturante (point V du palier).',xv,'1',['0','0,5',FR(vv,vl)],['Au point V, tout le corps est gazeux : '+mv+' = '+m]),
+ eq('Un mélange contient une masse '+ml+' de liquide saturant, de volume massique '+vl+', et une masse '+mv+' de vapeur saturante, de volume massique '+vv+'.','Volume total '+V,ml+' '+vl+' + '+mv+' '+vv,[ml+' '+vv+' + '+mv+' '+vl,'('+ml+' + '+mv+') ('+vl+' + '+vv+')',FR(ml,vl)+' + '+FR(mv,vv)],['Chaque phase occupe un volume égal à sa masse multipliée par son volume massique']),
+ tq('On écrit que le volume d’un mélange liquide-vapeur est la somme des volumes du liquide et de la vapeur.','Quelle propriété du volume utilise-t-on ?','Son extensivité',['Sa conservation','Son caractère intensif','Le fait que ce soit une fonction d’état'],['Le volume est une grandeur extensive : celui du système est la somme de ceux de ses parties']),
+ eq('Mélange liquide-vapeur de titre '+xv+' ; '+vl+' et '+vv+' sont les volumes massiques du liquide saturant et de la vapeur saturante.','Volume massique '+v+' du mélange',xv+' '+vv+' + (1 − '+xv+') '+vl,[xv+' '+vl+' + (1 − '+xv+') '+vv,xv+' ('+vv+' + '+vl+')',FR(vl+' + '+vv,'2')],[V+' = '+ml+' '+vl+' + '+mv+' '+vv+'.','On divise par la masse totale '+m]),
+ eq('Théorème des moments : mélange liquide-vapeur de volume massique '+v+'.',xv,FR(v+' − '+vl,vv+' − '+vl),[FR(vv+' − '+v,vv+' − '+vl),FR(v+' − '+vl,vv),FR(vv+' − '+vl,v+' − '+vl)],[v+' = '+xv+' '+vv+' + (1 − '+xv+') '+vl+'.','On isole '+xv]),
+ sq(clap({iso:[[2,'aux']],LV:[2,0.4]}),LMV,'Comment s’écrit '+xv+' avec les longueurs du palier ?',FR('LM','LV'),[FR('MV','LV'),FR('LM','MV'),FR('LV','LM')],[xv+' = '+FR(v+' − '+vl,vv+' − '+vl)+'.','LM = '+v+' − '+vl+' et LV = '+vv+' − '+vl]),
+ sq(clap({iso:[[2,'aux']],LV:[2,0.4]}),LMV,'Comment s’écrit '+xl+' avec les longueurs du palier ?',FR('MV','LV'),[FR('LM','LV'),FR('MV','LM'),FR('LV','MV')],[xl+' = 1 − '+xv+' = 1 − '+FR('LM','LV')+'.','LV − LM = MV']),
+ sq(clap({iso:[[2,'aux']],LV:[2,0.5]}),LMV+' Il est au milieu du palier.','Que vaut '+xv+' ?','0,5',['0','1','0,25'],[xv+' = '+FR('LM','LV')+', avec LM égal à la moitié de LV']),
+ sq(clap({iso:[[2,'aux']],LV:[2,0.9]}),LMV+' Il est tout près du point V.','Quelle est la composition du mélange ?','Presque uniquement de la vapeur',['Presque uniquement du liquide','Autant de liquide que de vapeur','Uniquement du liquide'],[xv+' = '+FR('LM','LV')+' est proche de 1']),
+ sq(clap({grad:1,iso:[[2,'aux']],LV:[2,0.25]}),LMV,'Quel calcul donne '+xv+' ?',FR('2 − 1','5 − 1'),[FR('5 − 2','5 − 1'),FR('2','5'),FR('2 − 1','5')],[xv+' = '+FR(v+' − '+vl,vv+' − '+vl)+'.','On lit '+vl+' = 1, '+vv+' = 5 et '+v+' = 2 (en L·kg<sup>−1</sup>)'],{fin:FR('2 − 1','5 − 1')+' = 0,25'}),
+ tq('On veut appliquer le théorème des moments sur une isotherme.','Où lit-on '+vl+' et '+vv+' ?','Aux deux extrémités du palier',['Au milieu du palier','Au point critique','Sur l’axe des ordonnées'],[vl+' est l’abscisse du point L (courbe d’ébullition), '+vv+' celle du point V (courbe de rosée)']),
+ eq('Mélange liquide-vapeur de masse '+m+' et de titre massique en vapeur '+xv+'.','Masse de vapeur '+mv,xv+' '+m,['(1 − '+xv+') '+m,FR(m,xv),FR(xv,m)],[xv+' = '+FR(mv,m)]),
+ eq('Mélange liquide-vapeur de masse '+m+' et de titre massique en vapeur '+xv+'.','Masse de liquide '+ml,'(1 − '+xv+') '+m,[xv+' '+m,FR(m,'1 − '+xv),'(1 + '+xv+') '+m],[ml+' = '+m+' − '+mv+' = '+m+' − '+xv+' '+m]),
+ tq('On se déplace sur le palier d’une isotherme, du point L au point V.','Qu’est-ce qui change ?','La proportion de liquide et de vapeur',['La pression','La température','La masse totale du système'],['Sur le palier, la température et la pression sont constantes : seule la composition du mélange varie']),
+ sq(clap({iso:[[2,'aux']],LV:[2,null],fl:[4.6,2,2.0,2]}),CLD+' On parcourt le palier de V vers L (compression).','Comment évolue '+xv+' ?','Il diminue de 1 à 0',['Il augmente de 0 à 1','Il reste égal à 0,5','Il reste égal à 1'],['En V tout est vapeur ('+xv+' = 1), en L tout est liquide ('+xv+' = 0)']),
+ tq('On veut utiliser le théorème des moments.','Dans quel domaine s’applique-t-il ?','Dans le domaine diphasé, sous la courbe de saturation',['Dans le domaine du liquide seul','Dans le domaine de la vapeur sèche','Au-dessus du point critique'],['Le théorème donne la composition d’un mélange liquide-vapeur : il faut que les deux phases coexistent'])
+];
+
+/* ================= Activité « Changement d'état et combustion » ================= */
+const GL='Une masse '+m+' d’eau, sous pression constante, passe ', ESC=dH+' est la somme des étapes du chemin fictif';
+const E1=[
+ tq('On considère la chaleur latente '+L12+' d’un changement d’état.','Quelle est son unité ?','J·kg<sup>−1</sup>',['J·K<sup>−1</sup>·kg<sup>−1</sup>','J','J·K<sup>−1</sup>'],[Q+' = '+m+' '+L12+' : des joules divisés par des kilogrammes']),
+ tq('On considère la chaleur latente (enthalpie massique de changement d’état) '+L12+' d’un corps pur.','Que représente-t-elle ?','Le transfert thermique reçu par 1 kg qui passe entièrement de la phase 1 à la phase 2, à température constante',['Le transfert thermique reçu par 1 kg dont la température augmente de 1 K','La température du changement d’état','L’énergie totale contenue dans 1 kg du corps'],['Le changement d’état se fait à température et pression constantes']),
+ eq('Une masse '+m+' de corps pur passe entièrement de la phase 1 à la phase 2, à température et pression constantes.',Q,m+' '+L12,[FR(L12,m),m+' '+c+' Δ'+T,FR(m,L12)],[Q+' = '+dH+' = '+m+' '+L12]),
+ tq('Lors d’un changement d’état à pression fixée, on écrit '+Q+' = '+dH+'.','Pourquoi ?','La transformation est isobare',['La transformation est adiabatique','La transformation est isochore','L’enthalpie ne varie pas'],['À pression constante, avec les seules forces de pression : '+Q+' = '+dH]),
+ tq('On compare les signes des chaleurs latentes.','Lesquelles sont positives ?','Fusion, vaporisation, sublimation',['Solidification, liquéfaction, condensation','Fusion et liquéfaction','Toutes'],['Il faut fournir de l’énergie pour passer à un état moins ordonné']),
+ eq('On note '+Lv+' la chaleur latente de vaporisation.','Chaleur latente de liquéfaction '+Ll,'−'+Lv,['+'+Lv,FR('1',Lv),'0'],['La liquéfaction est la transformation inverse de la vaporisation : l’enthalpie varie de façon opposée']),
+ eq('On note '+Lf+' la chaleur latente de fusion.','Chaleur latente de solidification '+Ls,'−'+Lf,['+'+Lf,FR('1',Lf),'−'+Lv],['La solidification est la transformation inverse de la fusion']),
+ eq('Une masse '+m+' d’eau liquide gèle entièrement à 0 °C, sous pression constante.',dH,'−'+m+' '+Lf,['+'+m+' '+Lf,'−'+m+' '+Lv,'0'],[dH+' = '+m+' '+Ls+', avec '+Ls+' = −'+Lf]),
+ tq('Une masse '+m+' de vapeur d’eau se liquéfie entièrement à pression constante.','Quel est le signe du transfert thermique reçu par l’eau ?','Négatif : elle cède de l’énergie',['Positif : elle reçoit de l’énergie','Nul','Cela dépend de la masse'],[Q+' = '+m+' '+Ll+' = −'+m+' '+Lv+' &lt; 0']),
+ tq('Il faut fournir de l’énergie à un solide pour le faire fondre, alors que sa température ne change pas.','À quoi sert cette énergie ?','À rompre des liaisons entre les molécules',['À augmenter la vitesse des molécules','À augmenter la pression','À augmenter la masse du corps'],['L’énergie fournie sert à désordonner la matière, pas à l’échauffer']),
+ tq('On parle de « chaleur sensible » quand la température d’un corps varie sans changement d’état.','Quelle expression lui correspond ?',m+' '+c+' Δ'+T,[m+' '+L12,m+' Δ'+T,c+' Δ'+T],['La température varie : '+dH+' = '+m+' '+c+' Δ'+T]),
+ tq('On parle de « chaleur latente » quand un corps change d’état à température constante.','Quelle expression lui correspond ?',m+' '+L12,[m+' '+c+' Δ'+T,L12+' Δ'+T,FR(m,L12)],['L’état change sans variation de température : '+dH+' = '+m+' '+L12]),
+ tq('Un élève écrit '+dH+' = '+m+' '+c+' Δ'+T+' pour un changement d’état.','A-t-il raison ?','Non : la température ne varie pas, il faut écrire '+m+' '+L12,['Oui, avec la capacité thermique du liquide','Oui, avec la capacité thermique du solide','Non : '+dH+' est nul pendant un changement d’état'],['Pendant le changement d’état, Δ'+T+' = 0 : '+m+' '+c+' Δ'+T+' vaudrait zéro']),
+ eq('Une masse '+m+' de mélange liquide-vapeur se vaporise partiellement : son titre en vapeur varie de Δ'+xv+'.',Q,m+' Δ'+xv+' '+Lv,[m+' '+Lv,FR(m+' '+Lv,'Δ'+xv),'Δ'+xv+' '+Lv],['La masse qui se vaporise vaut '+m+' Δ'+xv]),
+ tq('Pour 1 kg d’eau : chauffer de 0 °C à 100 °C demande environ 420 kJ ; vaporiser à 100 °C demande environ 2260 kJ.','Que peut-on en dire ?','Vaporiser coûte environ cinq fois plus que chauffer',['Chauffer coûte environ cinq fois plus que vaporiser','Les deux coûtent à peu près autant','Vaporiser ne coûte rien, la température ne change pas'],['2260 kJ est un peu plus de cinq fois 420 kJ']),
+ tq('Pour l’eau, on compare les chaleurs latentes de vaporisation '+Lv+' et de fusion '+Lf+'.','Laquelle est la plus grande ?',Lv,[Lf,'Elles sont égales','Cela dépend de la masse'],[Lv+' ≈ 2260 kJ·kg<sup>−1</sup> et '+Lf+' ≈ 334 kJ·kg<sup>−1</sup>']),
+ tq('Pour calculer '+dH+', on remplace la transformation réelle par un chemin fictif d’étapes simples.','Pourquoi est-ce permis ?',H+' est une fonction d’état',['La transformation est adiabatique','La pression est nulle','La masse est constante'],[dH+' ne dépend que de l’état initial et de l’état final, pas du chemin suivi']),
+ tq(GL+'de l’état de glace à '+T1+' &lt; '+Tfus+' à l’état liquide à '+T2+' &gt; '+Tfus+'.','Combien d’étapes le chemin fictif comporte-t-il ?','Trois',['Une','Deux','Quatre'],['Échauffement de la glace jusqu’à '+Tfus+', fusion à '+Tfus+', puis échauffement de l’eau liquide']),
+ eq(GL+'de l’état de glace à '+T1+' &lt; '+Tfus+' à l’état liquide à '+T2+' &gt; '+Tfus+'.',dH,m+' '+cg+' ('+Tfus+' − '+T1+') + '+m+' '+Lf+' + '+m+' '+cl+' ('+T2+' − '+Tfus+')',[m+' '+cl+' ('+Tfus+' − '+T1+') + '+m+' '+Lf+' + '+m+' '+cg+' ('+T2+' − '+Tfus+')',m+' '+cg+' ('+Tfus+' − '+T1+') + '+m+' '+cl+' ('+T2+' − '+Tfus+')',m+' '+cg+' ('+Tfus+' − '+T1+') − '+m+' '+Lf+' + '+m+' '+cl+' ('+T2+' − '+Tfus+')'],[ESC+'.','Glace avec '+cg+', fusion avec +'+m+' '+Lf+', liquide avec '+cl],{large:1}),
+ eq(GL+'de l’état liquide à '+T1+' &gt; '+Tfus+' à l’état de glace à '+T2+' &lt; '+Tfus+'.',dH,m+' '+cl+' ('+Tfus+' − '+T1+') − '+m+' '+Lf+' + '+m+' '+cg+' ('+T2+' − '+Tfus+')',[m+' '+cl+' ('+Tfus+' − '+T1+') + '+m+' '+Lf+' + '+m+' '+cg+' ('+T2+' − '+Tfus+')',m+' '+cg+' ('+Tfus+' − '+T1+') − '+m+' '+Lf+' + '+m+' '+cl+' ('+T2+' − '+Tfus+')',m+' '+cl+' ('+T2+' − '+T1+') − '+m+' '+Lf],[ESC+'.','Liquide avec '+cl+', solidification avec −'+m+' '+Lf+', glace avec '+cg],{large:1}),
+ eq(GL+'de l’état de vapeur à '+Tvap+' à l’état liquide à '+T2+' &lt; '+Tvap+'.',dH,'−'+m+' '+Lv+' + '+m+' '+cl+' ('+T2+' − '+Tvap+')',['+'+m+' '+Lv+' + '+m+' '+cl+' ('+T2+' − '+Tvap+')','−'+m+' '+Lv+' + '+m+' '+cl+' ('+Tvap+' − '+T2+')','−'+m+' '+Lf+' + '+m+' '+cl+' ('+T2+' − '+Tvap+')'],[ESC+'.','Liquéfaction avec −'+m+' '+Lv+', puis refroidissement du liquide'],{large:1}),
+ tq('Dans un chemin en escalier, l’eau est solide sur le premier tronçon.','Quelle capacité thermique massique utiliser sur ce tronçon ?','Celle de la glace, '+cg,['Celle de l’eau liquide, '+cl,'La moyenne de '+cg+' et '+cl,'Aucune : il faut '+Lf],['La glace et l’eau liquide n’ont pas la même capacité thermique massique : on prend celle de la phase présente']),
+ sq(courbeT('pf',1),'Température d’un glaçon chauffé à puissance constante, sous pression atmosphérique.','Que se passe-t-il sur le palier orange ?','La glace fond',['L’eau bout','La glace s’échauffe','Rien : le chauffage est arrêté'],['La température reste égale à 0 °C : c’est le palier de fusion']),
+ sq(courbeT('pv'),'Température d’un glaçon chauffé à puissance constante, sous pression atmosphérique.','Pourquoi le palier orange est-il plus long que celui de la fusion ?',Lv+' est plus grande que '+Lf,['L’eau liquide a une plus grande capacité thermique que la glace','La puissance de chauffage diminue','La masse d’eau augmente'],['À puissance constante, la durée d’un palier est proportionnelle à l’énergie '+m+' '+L12+' à fournir']),
+ sq(courbeT('g'),'Température d’un glaçon chauffé à puissance constante. Le segment orange (glace) est plus pentu que celui de l’eau liquide.','Pourquoi ?',cg+' est plus petite que '+cl,[cg+' est plus grande que '+cl,'La glace reçoit plus de puissance','La glace a une masse plus petite'],['À puissance constante, la température monte d’autant plus vite que la capacité thermique est petite']),
+ tq('On transforme de la glace à −10 °C en eau liquide à 20 °C. On compare les trois étapes du chemin en escalier.','Quel terme est le plus grand ?','La fusion, '+m+' '+Lf,['L’échauffement de la glace','L’échauffement de l’eau liquide','Les trois sont égaux'],['Par kilogramme : environ 21 kJ pour la glace, 334 kJ pour la fusion, 84 kJ pour l’eau liquide'])
+];
+
+const GLA='Un glaçon (masse '+ms+', à '+Tfus+' = 0 °C) est plongé dans une masse '+ml+' d’eau à '+T1+'. ', FT=par(TF+' − '+Tfus), F1=par(TF+' − '+T1);
+const E2=[
+ tq('Un glaçon fond dans l’eau d’un calorimètre.','Quel système choisir, et quel bilan écrire ?','Le calorimètre, l’eau et le glaçon : '+dHS+' = 0',['Le glaçon seul : '+dH+' = 0','L’eau seule : '+dH+' = 0','Le calorimètre seul : '+dHS+' = '+Q],['Pour le système global, la transformation est monobare et adiabatique']),
+ sq(calo({glace:1,leg:['eau : '+svs('m','ℓ')+', '+svs('T','1'),'glaçon : '+svs('m','s')+', à 0 °C']}),GLA+'Tout le glaçon fond ; température finale '+TF+', calorimètre négligé.','Quel bilan écrire ?',ms+' '+Lf+' + '+ms+' '+cl+' '+FT+' + '+ml+' '+cl+' '+F1+' = 0',[ms+' '+Lf+' + '+ml+' '+cl+' '+F1+' = 0',ms+' '+cl+' '+FT+' + '+ml+' '+cl+' '+F1+' = 0','−'+ms+' '+Lf+' + '+ms+' '+cl+' '+FT+' + '+ml+' '+cl+' '+F1+' = 0'],[dHS+' = 0.','Le glaçon fond (+'+ms+' '+Lf+'), puis l’eau de fonte se réchauffe de '+Tfus+' à '+TF+'.','L’eau du calorimètre passe de '+T1+' à '+TF]),
+ sq(calo({glace:1,leg:['eau : '+svs('m','ℓ')+', '+svs('T','1'),'glaçon : '+svs('m','s')+', à 0 °C']}),GLA+'Tout le glaçon fond ; température finale '+TF+'. Le calorimètre a une valeur en eau '+mc+'.','Quel bilan écrire ?',ms+' '+Lf+' + '+ms+' '+cl+' '+FT+' + ('+ml+' + '+mc+') '+cl+' '+F1+' = 0',[ms+' '+Lf+' + ('+ms+' + '+mc+') '+cl+' '+FT+' + '+ml+' '+cl+' '+F1+' = 0',ms+' '+Lf+' + '+ms+' '+cl+' '+FT+' + '+ml+' '+cl+' '+F1+' = 0',ms+' '+Lf+' + ('+ms+' + '+ml+' + '+mc+') '+cl+' '+F1+' = 0'],[dHS+' = 0.','Le calorimètre, initialement à '+T1+' comme l’eau, compte comme une masse '+mc+' d’eau']),
+ tq('Le glaçon (masse '+ms+') sort du congélateur à la température '+Ts+' &lt; 0 °C, au lieu d’être à 0 °C.','Quel terme faut-il ajouter au bilan ?',ms+' '+cg+' ('+Tfus+' − '+Ts+')',[ms+' '+cl+' ('+Tfus+' − '+Ts+')',ms+' '+cg+' ('+Ts+' − '+Tfus+')',ms+' '+Lf],['La glace doit d’abord s’échauffer de '+Ts+' à '+Tfus+', avec la capacité thermique de la glace']),
+ tq('Une fois fondu, le glaçon se réchauffe de '+Tfus+' à '+TF+'.','Avec quelle capacité thermique massique écrire ce terme ?','Celle de l’eau liquide, '+cl,['Celle de la glace, '+cg,'La chaleur latente '+Lf,'La moyenne de '+cg+' et '+cl],['Après la fusion, le glaçon est devenu de l’eau liquide']),
+ tq('Dans le bilan d’un glaçon qui fond, on écrit le terme '+ms+' '+Lf+'.','Quel est son signe ?','Positif : le glaçon reçoit de l’énergie',['Négatif : le glaçon cède de l’énergie','Nul','Cela dépend de la température de l’eau'],[Lf+' &gt; 0 : il faut fournir de l’énergie pour faire fondre la glace']),
+ tq('À la fin de l’expérience, il reste de la glace et de l’eau liquide en équilibre dans le calorimètre.','Quelle est la température finale ?','0 °C',['Une valeur entre 0 °C et '+T1,'Une valeur négative','La température initiale de l’eau'],['Sous la pression atmosphérique, glace et eau liquide ne coexistent qu’à '+Tfus+' = 0 °C']),
+ tq(GLA+'Le calorimètre est négligé.','À quelle condition tout le glaçon fond-il ?',ml+' '+cl+' ('+T1+' − '+Tfus+') &gt; '+ms+' '+Lf,[ml+' '+cl+' ('+T1+' − '+Tfus+') &lt; '+ms+' '+Lf,ml+' &gt; '+ms,T1+' &gt; '+Tfus],['L’eau peut céder au plus '+ml+' '+cl+' ('+T1+' − '+Tfus+') en refroidissant jusqu’à 0 °C.','Il faut '+ms+' '+Lf+' pour fondre tout le glaçon']),
+ tq('En refroidissant jusqu’à 0 °C, l’eau peut céder 30 kJ. Il faut 50 kJ pour fondre toute la glace, prise à 0 °C.','Quel est l’état final ?','De l’eau et de la glace, à 0 °C',['De l’eau liquide au-dessus de 0 °C','De la glace seule','De l’eau liquide à 0 °C, sans glace'],['30 kJ ne suffisent pas pour fondre toute la glace : il en reste']),
+ tq('En refroidissant jusqu’à 0 °C, l’eau peut céder 80 kJ. Il faut 50 kJ pour fondre toute la glace, prise à 0 °C.','Quel est l’état final ?','De l’eau liquide au-dessus de 0 °C',['De l’eau et de la glace, à 0 °C','De la glace seule','De l’eau liquide à 0 °C exactement'],['Toute la glace fond avant que l’eau n’atteigne 0 °C : la température finale est supérieure à 0 °C']),
+ tq(GLA+'Seule une masse '+mf+' de glace fond ; l’état final est à '+Tfus+'. Le calorimètre est négligé.','Quel bilan écrire ?',mf+' '+Lf+' + '+ml+' '+cl+' ('+Tfus+' − '+T1+') = 0',[ms+' '+Lf+' + '+ml+' '+cl+' ('+Tfus+' − '+T1+') = 0',mf+' '+Lf+' + '+ml+' '+cl+' ('+T1+' − '+Tfus+') = 0',mf+' '+Lf+' + '+mf+' '+cl+' ('+Tfus+' − '+T1+') = 0'],[dHS+' = 0.','Seule la masse fondue '+mf+' intervient dans le terme de fusion ; l’eau passe de '+T1+' à '+Tfus]),
+ tq('On mesure la chaleur latente de fusion de la glace avec un calorimètre.','Que faut-il mesurer ?','Les masses, la température initiale de l’eau et la température finale',['Seulement la température finale','La durée de la fusion','La pression dans le calorimètre'],['Dans le bilan, '+Lf+' est la seule inconnue si les masses et les températures sont connues']),
+ tq('On mesure la chaleur latente de fusion de la glace avec un calorimètre.','Comment obtenir la masse du glaçon ?','En pesant le calorimètre avant et après l’expérience',['En mesurant son volume','En le pesant après l’avoir laissé fondre sur la table','En la calculant avec la température finale'],['La masse du glaçon est la différence entre les deux pesées']),
+ tq('Pour mesurer '+Lf+', on utilise un glaçon « fondant », pris dans un mélange eau-glace.','Pourquoi ?','Sa température initiale est connue : 0 °C',['Il fond plus lentement','Sa masse est plus grande','Sa chaleur latente est plus grande'],['Le glaçon est à '+Tfus+' : il n’y a pas de terme d’échauffement de la glace dans le bilan']),
+ tq('Avant d’introduire le glaçon dans le calorimètre, on l’essuie.','Pourquoi ?','Pour ne pas compter de l’eau déjà fondue dans la masse de glace',['Pour le refroidir','Pour éviter qu’il colle au thermomètre','Pour augmenter sa chaleur latente'],['L’eau liquide entraînée n’a pas à fondre : elle fausserait le terme '+ms+' '+Lf]),
+ tq('On mesure '+Lf+' avec un calorimètre, mais on oublie le calorimètre dans le bilan.','Comment est la valeur trouvée ?','Trop petite',['Trop grande','Correcte','Négative'],[ms+' '+Lf+' = ('+ml+' + '+mc+') '+cl+' ('+T1+' − '+TF+') − '+ms+' '+cl+' '+FT+'.','Oublier '+mc+' diminue le membre de droite']),
+ tq('Une masse '+mv+' de vapeur d’eau à '+Tvap+' est injectée dans une masse '+ml+' d’eau à '+T1+' ; elle s’y liquéfie. Température finale '+TF+', calorimètre négligé.','Quel bilan écrire ?','−'+mv+' '+Lv+' + '+mv+' '+cl+' ('+TF+' − '+Tvap+') + '+ml+' '+cl+' '+F1+' = 0',['+'+mv+' '+Lv+' + '+mv+' '+cl+' ('+TF+' − '+Tvap+') + '+ml+' '+cl+' '+F1+' = 0','−'+mv+' '+Lv+' + '+ml+' '+cl+' '+F1+' = 0','−'+mv+' '+Lf+' + '+mv+' '+cl+' ('+TF+' − '+Tvap+') + '+ml+' '+cl+' '+F1+' = 0'],[dHS+' = 0.','La vapeur se liquéfie (−'+mv+' '+Lv+'), puis l’eau formée refroidit de '+Tvap+' à '+TF]),
+ tq('À masse égale, de la vapeur d’eau à 100 °C provoque une brûlure plus grave que de l’eau liquide à 100 °C.','Pourquoi ?','En se liquéfiant sur la peau, la vapeur cède en plus '+m+' '+Lv,['La vapeur est plus chaude que 100 °C','La vapeur a une plus grande capacité thermique massique','La vapeur a une plus grande masse volumique'],['La liquéfaction libère une énergie très supérieure au simple refroidissement de l’eau']),
+ tq('La transpiration refroidit la peau.','Pourquoi ?','La vaporisation de la sueur prélève de l’énergie à la peau',['La sueur est plus froide que la peau','La sueur se solidifie','La sueur augmente la pression sur la peau'],[Lv+' &gt; 0 : l’eau reçoit de l’énergie pour se vaporiser, et la prend à la peau']),
+ tq('On refroidit une boisson avec un glaçon à 0 °C, ou avec la même masse d’eau liquide à 0 °C.','Lequel refroidit le mieux ?','Le glaçon : sa fusion absorbe en plus '+m+' '+Lf,['L’eau liquide : elle se mélange mieux','Les deux refroidissent autant','L’eau liquide : sa capacité thermique est plus grande'],['Les deux se réchauffent ensuite de la même façon, mais le glaçon doit d’abord fondre']),
+ tq('Une résistance de puissance '+Pu+' fait fondre, en une durée '+tau+', une masse '+m+' de glace à 0 °C (pertes négligées).','Que peut-on écrire ?',Pu+' '+tau+' = '+m+' '+Lf,[Pu+' = '+m+' '+Lf+' '+tau,Pu+' '+tau+' = '+m+' '+cg+' '+Tfus,Pu+' '+tau+' = '+FR(Lf,m)],['Énergie fournie par la résistance : '+Pu+' '+tau+'.','Elle sert à fondre la glace : '+dH+' = '+m+' '+Lf]),
+ tq('Une résistance de puissance '+Pu+' chauffe une masse '+m+' d’eau de '+T1+' à '+Tvap+', puis la vaporise entièrement, en une durée '+tau+' (pertes négligées).','Que peut-on écrire ?',Pu+' '+tau+' = '+m+' '+cl+' ('+Tvap+' − '+T1+') + '+m+' '+Lv,[Pu+' '+tau+' = '+m+' '+cl+' ('+Tvap+' − '+T1+')',Pu+' '+tau+' = '+m+' '+Lv,Pu+' '+tau+' = '+m+' '+cl+' ('+Tvap+' − '+T1+') − '+m+' '+Lv],['Énergie fournie : '+Pu+' '+tau+'.','Elle sert à échauffer l’eau liquide, puis à la vaporiser'])
+];
+
+const CH4='CH<sub>4</sub>', C8='C<sub>8</sub>H<sub>18</sub>', PC='PC', nCO2=n+'('+CO2+')', mCO2=m+'('+CO2+')', MCO2=it('M')+'('+CO2+')';
+const E3=[
+ tq('On réalise la combustion d’un hydrocarbure.','Comment qualifier cette réaction ?','Exothermique : elle libère de l’énergie thermique',['Endothermique : elle absorbe de l’énergie thermique','Athermique','Nucléaire'],['Une combustion libère de l’énergie thermique vers l’extérieur']),
+ tq('On réalise une combustion dans l’air.','Quel rôle joue le dioxygène ?','C’est le comburant',['C’est le combustible','C’est un produit','C’est un catalyseur'],['Le comburant est l’espèce qui réagit avec le combustible']),
+ tq('On réalise la combustion du méthane dans l’air.','Quel rôle joue le méthane ?','C’est le combustible',['C’est le comburant','C’est un produit','C’est un solvant'],['Le combustible est l’espèce qui brûle au contact du comburant']),
+ tq('On réalise la combustion complète d’un hydrocarbure.','Quels sont les produits ?','Du dioxyde de carbone et de l’eau',['Du monoxyde de carbone et du dihydrogène','Du carbone et de l’eau','Du dioxygène et de l’eau'],['Combustion complète : tout le carbone donne '+CO2+', tout l’hydrogène donne '+H2O]),
+ tq('On réalise une combustion à température et pression constantes.','Quel est le signe du transfert thermique reçu par le système réactionnel ?','Négatif : il cède de l’énergie',['Positif : il reçoit de l’énergie','Nul','Cela dépend du combustible'],['La réaction est exothermique : l’énergie est cédée à l’extérieur']),
+ tq('On considère le pouvoir calorifique inférieur (PCI) d’un combustible.','Dans quel état est l’eau produite ?','Vapeur',['Liquide','Solide','Il n’y a pas d’eau produite'],['PCI : l’eau produite reste à l’état de vapeur dans les fumées']),
+ tq('On considère le pouvoir calorifique supérieur (PCS) d’un combustible.','Dans quel état est l’eau produite ?','Liquide',['Vapeur','Solide','Il n’y a pas d’eau produite'],['PCS : l’eau produite est ramenée à l’état liquide']),
+ tq('On compare le PCS et le PCI d’un même combustible.','Lequel est le plus grand ?','Le PCS',['Le PCI','Ils sont égaux','Cela dépend de la masse brûlée'],['Le PCS compte en plus l’énergie libérée par la liquéfaction de l’eau produite']),
+ tq('Le PCS d’un combustible est supérieur à son PCI.','D’où vient la différence ?','La liquéfaction de l’eau produite libère de l’énergie en plus',['La combustion est plus complète','Le combustible est plus pur','La température des fumées est plus élevée'],['Liquéfier la vapeur d’eau produite libère sa chaleur latente']),
+ tq('On considère le pouvoir calorifique d’un combustible.','Quelle est son unité ?','J·kg<sup>−1</sup>',['J','J·K<sup>−1</sup>·kg<sup>−1</sup>','W'],['C’est une énergie libérée par unité de masse de combustible']),
+ eq('On brûle complètement une masse '+m+' d’un combustible de pouvoir calorifique PC.','Énergie thermique libérée',m+' × PC',[FR('PC',m),FR(m,'PC'),m+' × PC<sup>2</sup>'],['Le pouvoir calorifique est l’énergie libérée par unité de masse']),
+ tq('On veut libérer une énergie '+E+' en brûlant un combustible de pouvoir calorifique PC.','Que peut-on écrire pour la masse '+mcomb+' de combustible ?',E+' = '+mcomb+' × PC',[mcomb+' = '+E+' × PC',E+' = '+FR('PC',mcomb),E+' = '+mcomb+' + PC'],['L’énergie libérée est proportionnelle à la masse brûlée']),
+ tq('Les fumées d’une chaudière classique sortent chaudes : l’eau produite reste à l’état de vapeur.','Quel pouvoir calorifique faut-il utiliser ?','Le PCI',['Le PCS','La moyenne des deux','Aucun des deux'],['L’eau reste vapeur : sa chaleur latente n’est pas récupérée']),
+ tq('On étudie une chaudière à condensation.','Quel pouvoir calorifique exploite-t-elle ?','Le PCS',['Le PCI','Ni l’un ni l’autre','Le PCI le jour, le PCS la nuit'],['Elle refroidit les fumées pour liquéfier la vapeur d’eau : l’eau produite sort liquide']),
+ tq('Une chaudière à condensation récupère plus d’énergie qu’une chaudière classique, pour la même masse de combustible.','Pourquoi ?','Elle liquéfie la vapeur d’eau des fumées et récupère sa chaleur latente',['Elle brûle le combustible deux fois','Elle utilise plus de dioxygène','Elle produit moins d’eau'],['La liquéfaction de l’eau produite libère une énergie supplémentaire']),
+ eq('Combustion complète du méthane : '+CH4+' + 2 '+O2+' → '+CO2+' + 2 '+H2O+'. On brûle '+n+' moles de méthane.',nCO2,n,['2 '+n,FR(n,'2'),'3 '+n],['L’équation ajustée indique 1 mole de '+CO2+' pour 1 mole de méthane']),
+ eq('Combustion complète de l’octane : 2 '+C8+' + 25 '+O2+' → 16 '+CO2+' + 18 '+H2O+'. On brûle '+n+' moles d’octane.',nCO2,'8 '+n,['16 '+n,'2 '+n,FR(n,'8')],['L’équation ajustée indique 16 moles de '+CO2+' pour 2 moles d’octane, soit 8 pour 1']),
+ tq('On cherche la masse de '+CO2+' produite. On connaît la masse '+mcomb+' de combustible brûlé et sa masse molaire '+Mcomb+'.','Quelle relation donne la quantité de combustible ?',ncomb+' = '+FR(mcomb,Mcomb),[ncomb+' = '+mcomb+' '+Mcomb,ncomb+' = '+FR(Mcomb,mcomb),ncomb+' = '+mcomb+' × PC'],['Une quantité de matière est une masse divisée par une masse molaire']),
+ tq('On cherche la masse de '+CO2+' produite. On connaît la quantité '+ncomb+' de combustible brûlé.','Comment obtenir la quantité de '+CO2+' ?','Avec les coefficients stœchiométriques de l’équation ajustée',['En multipliant par le pouvoir calorifique','En divisant par la masse molaire du combustible','Elle est toujours égale à '+ncomb],['Les coefficients de l’équation donnent les proportions entre combustible brûlé et '+CO2+' formé']),
+ tq('On cherche la masse de '+CO2+' produite. On connaît la quantité '+nCO2+'.','Quelle relation donne la masse de '+CO2+' ?',mCO2+' = '+nCO2+' × '+MCO2,[mCO2+' = '+FR(nCO2,MCO2),mCO2+' = '+nCO2+' × '+Mcomb,mCO2+' = '+nCO2+' × PC'],['Une masse est une quantité de matière multipliée par une masse molaire, ici celle du '+CO2]),
+ tq('On cherche la masse de '+CO2+' produite quand une combustion libère une énergie '+E+'.','Dans quel ordre calcule-t-on les grandeurs ?','Masse de combustible, quantité de combustible, quantité de '+CO2+', masse de '+CO2,['Quantité de '+CO2+', masse de combustible, masse de '+CO2+', quantité de combustible','Masse de '+CO2+', quantité de '+CO2+', quantité de combustible, masse de combustible','Quantité de combustible, masse de combustible, masse de '+CO2+', quantité de '+CO2],[mcomb+' = '+FR(E,'PC')+', puis '+ncomb+' = '+FR(mcomb,Mcomb)+'.','On passe au '+CO2+' par l’équation ajustée, puis '+mCO2+' = '+nCO2+' × '+MCO2]),
+ tq('Une masse '+mcomb+' de combustible (pouvoir calorifique PC) chauffe une masse '+m+' d’eau de '+T1+' à '+T2+' ; les pertes sont négligées.','Que peut-on écrire ?',mcomb+' × PC = '+m+' '+c+' ('+T2+' − '+T1+')',[mcomb+' × PC = '+m+' '+c+' ('+T1+' − '+T2+')',mcomb+' = '+m+' '+c+' ('+T2+' − '+T1+') × PC','PC = '+m+' '+c+' ('+T2+' − '+T1+')'],['Énergie libérée par la combustion : '+mcomb+' × PC.','Elle sert à échauffer l’eau : '+dH+' = '+m+' '+c+' Δ'+T])
+];
+
+const ACT={
+ etat:[{nom:'Vocabulaire et diagramme (P, T)', c:N1},{nom:'Diagramme de Clapeyron', c:N2},{nom:'Théorème des moments', c:N3}],
+ comb:[{nom:'Enthalpie de changement d’état', c:E1},{nom:'Bilans avec changement d’état', c:E2},{nom:'Combustion', c:E3}]
+};
+[ACT.etat,ACT.comb].forEach(A=>A.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.map(e=>e.replace(/\.$/,'')); })));
+return ACT;
+})();
+
 const COMPETENCES=[
  {id:'C1', code:'C1', titre:'Structure de la matière',
   exos:[
@@ -2832,7 +3099,9 @@ const COMPETENCES=[
   ]},
  {id:'TH2', code:'TH2', titre:'Bilan enthalpique',
   exos:[
-   {id:'enth', titre:'Enthalpie et calorimétrie', desc:'Enthalpie, transfert thermique d’une transformation monobare, relation de Mayer, bilans calorimétriques.', niveaux:TH2}
+   {id:'enth', titre:'Enthalpie et calorimétrie', desc:'Enthalpie, transfert thermique d’une transformation monobare, relation de Mayer, bilans calorimétriques.', niveaux:TH2},
+   {id:'etat', titre:'Changements d’état', desc:'Vocabulaire, diagramme (P, T), pression de vapeur saturante, diagramme de Clapeyron, théorème des moments.', niveaux:TH2B.etat},
+   {id:'comb', titre:'Changement d’état et combustion', desc:'Chaleur latente, chemin en escalier, bilans avec changement d’état, pouvoirs calorifiques.', niveaux:TH2B.comb}
   ]},
  {id:'EL1', code:'EL1', titre:'Circuits électriques dans l’ARQS',
   exos:[
