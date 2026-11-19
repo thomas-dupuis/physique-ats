@@ -282,6 +282,15 @@
   .bandeau{background:var(--jaune);border-width:3px;box-shadow:4px 4px 0 var(--encre);font-size:1.08rem;font-weight:800;margin-bottom:16px}
   .bandeau .bl{background:var(--encre);color:#fff;border-right:none;font-size:.82rem;padding:10px 11px}
   .bandeau .bd{padding:10px 0}
+  .med{flex:none;width:30px;height:36px}
+  .podium .med{width:25px;height:30px}
+  .med circle{stroke:var(--encre);stroke-width:2}
+  .med .rub{fill:var(--marge);stroke:var(--encre);stroke-width:1.5;stroke-linejoin:round}
+  .med text{font-family:var(--ui);font-weight:800;font-size:14px;fill:var(--encre)}
+  .med.m1 circle{fill:#f5c518} .med.m2 circle{fill:#c7ced8} .med.m3 circle{fill:#cd8544}
+  .niv.fait.roi{background:var(--vert);border-color:#1e6b3f;box-shadow:3px 3px 0 #1e6b3f;color:#fff}
+  .niv.fait.roi .num{background:#fff;border-color:#fff;color:#1e6b3f}
+  .niv.fait.roi .marque{color:#fff}
 </style>
 </head>
 <body>
@@ -295,7 +304,7 @@
     <button class="bloc podium" id="podium" type="button" style="display:none" aria-label="Les trois premiers du classement, ouvrir le classement"></button>
     <div class="bloc regles" id="regles" style="display:none">
       <h2>Règles</h2>
-      <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.</p>
+      <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Tous les niveaux sont ouverts : jaune à faire, vert validé, vert foncé couronné.</p>
       <p>Refaire un niveau validé coche 5 nouvelles questions : la <b>couronne</b> s’obtient quand toutes sont réussies.</p>
       <h2>Points</h2>
       <ul><li>Niveau validé : <b>10 points</b>.</li><li>Ensuite, chaque nouvelle question réussie pour la couronne : <b>1 point</b> (5 par série).</li><li>Couronne : <b>20 points</b> de plus.</li><li>Niveau déjà couronné : chaque série réussie rapporte encore <b>3 points</b>.</li><li>Série perdue sur une erreur : <b>−1 point</b>.</li></ul>
@@ -2614,6 +2623,148 @@ Object.values(ACT).forEach(Ac=>Ac.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.ma
 return ACT;
 })();
 
+/* =====================================================================
+   1 decies. TH2 — BILAN ENTHALPIQUE : enthalpie et calorimétrie (questions à choix)
+   Choix de Thomas (19/11) : une activité, trois niveaux ; valeurs des capacités thermiques des gaz parfaits
+   et de γ non exigibles (données dans l'énoncé) ; pas de questions presque identiques.
+   ===================================================================== */
+const TH2=(()=>{
+const it=I_, sb=(a,b)=>it(a)+'<sub>'+b+'</sub>';
+const P=it('P'), V=it('V'), T=it('T'), Q=it('Q'), U=it('U'), H=it('H'), n=it('n'), R=it('R'), m=it('m'), c=it('c'), M=it('M'), th=it('θ'), tau=it('τ'), g=it('γ'), I=it('I'), t_=it('t');
+const Pext=sb('P','ext'), T1=sb('T','1'), T2=sb('T','2'), TF=sb('T','F'), Ti=sb('T','i'), th0=sb('θ','0'), th1=sb('θ','1'), th2=sb('θ','2'), thF=sb('θ','F');
+const CPm=sb('C','<i>P</i>,m'), CVm=sb('C','<i>V</i>,m'), CP=sb('C','<i>P</i>'), CV=sb('C','<i>V</i>'), cP=sb('c','<i>P</i>'), Wu=sb('W','u'), Pth=sb('P','th'), Pu=it('P');
+const m1=sb('m','1'), m2=sb('m','2'), me=sb('m','e'), ce=sb('c','e'), cm=sb('c','m'), mc=sb('m','calo'), Cc=sb('C','calo'), ceau=sb('c','eau'), cCu=sb('c','Cu');
+const dH='Δ'+H, dU='Δ'+U, dT='Δ'+T, dHS='Δ'+sb('H','Σ'), par=x=>'('+x+')', D21=par(T2+' − '+T1);
+const tq=(sit,q,ok,faux,pr,o)=>Qz(TX(''),sit,q,ok,faux,pr,Object.assign({large:1},o));
+const eq=(sit,cible,ok,faux,pr,o)=>Qz(TX(''),sit,QE(cible),ok,faux,pr,Object.assign({large:[ok].concat(faux).some(h=>h.replace(/<[^>]+>/g,'').length>13)},o));
+const sq=(d,sit,q,ok,faux,pr,o)=>Qz(d,sit,q,ok,faux,pr,Object.assign({large:1},o));
+const tx=(s,x,y,a,cls,sz)=>'<text class="txt '+(cls||'')+'" style="font-size:'+(sz||15)+'px;font-weight:400" x="'+x+'" y="'+y+'" text-anchor="'+(a||'middle')+'">'+s+'</text>';
+const ital=s=>'<tspan font-style="italic">'+s+'</tspan>';
+const svs=(a,b)=>ital(a)+'<tspan style="font-size:10px" dy="3">'+b+'</tspan><tspan dy="-3" style="font-size:1px"> </tspan>';
+
+/* ---------- schémas ---------- */
+function cyl(bloque){                                   // gaz dans un cylindre, piston libre ou bloqué, chauffé par le bas
+  let s='<rect x="96" y="80" width="108" height="72" fill="#e3edf9" stroke="none"/>';
+  s+=seg(96,30,96,152,'',2.4)+seg(96,152,204,152,'',2.4)+seg(204,152,204,30,'',2.4);
+  s+='<rect x="98" y="66" width="104" height="14" fill="#9aa7b8" stroke="#1b2a41" stroke-width="2"/>'+seg(150,66,150,40,'',3);
+  s+=tx('gaz',150,122,'middle','',15);
+  if(bloque){ s+=seg(82,58,110,58,'',3)+seg(190,58,218,58,'',3)+tx('piston bloqué',150,22,'middle','',14); }
+  else { s+=seg(228,52,228,84,'aux',1.6)+tete(228,46,0,-1,'aux',5)+tete(228,90,0,1,'aux',5)+tx('piston libre',150,22,'middle','',14)+tx(ital('P')+'<tspan style="font-size:11px" dy="3">ext</tspan>',234,34,'start','aux',14); }
+  for(let i=0;i<3;i++){ const x=126+i*24; s+='<path class="fil ask" style="fill:none" stroke-width="2" d="M'+x+' 182 q-6 -7 0 -13 q6 -6 0 -12"/>'; }
+  s+=tx('chauffage',150,200,'middle','ask',14);
+  return svgM(300,206,s);
+}
+function calo(o){                                       // calorimètre : liquide, éventuellement solide plongé ou résistance chauffante
+  let s='<rect x="78" y="40" width="144" height="124" rx="6" fill="#eef1f5" stroke="#1b2a41" stroke-width="2.4"/>';
+  s+='<rect x="90" y="52" width="120" height="100" fill="#fff" stroke="#1b2a41" stroke-width="1.6"/><rect x="91" y="86" width="118" height="65" fill="#d5e6fa" stroke="none"/>'+seg(90,86,210,86,'aux',1.4);
+  s+='<rect x="70" y="30" width="160" height="12" rx="3" fill="#9aa7b8" stroke="#1b2a41" stroke-width="2"/>';
+  s+=seg(186,14,186,128,'',2.2)+'<circle cx="186" cy="131" r="4.5" fill="#d8432f" stroke="#1b2a41" stroke-width="1.4"/>'+tx('thermomètre',196,20,'start','',12);
+  if(o.solide) s+='<rect x="112" y="118" width="34" height="26" fill="#c98a4b" stroke="#1b2a41" stroke-width="2"/>';
+  if(o.res) s+=seg(118,12,118,112,'',1.8)+seg(150,12,150,112,'',1.8)+'<path class="fil ask" style="fill:none" stroke-width="2.4" d="M118 112 l4 10 l5 -18 l5 18 l5 -18 l5 18 l4 -18 l4 8"/>'+tx(ital('P'),134,10,'middle','ask',14);
+  (o.leg||[]).forEach((l,i)=>{ s+=tx(l,150,186+i*17,'middle',i?'':'aux',13); });
+  return svgM(300,190+(o.leg||[]).length*17-10,s);
+}
+function droite(){                                      // θ(t) pendant un chauffage à puissance constante
+  const x0=52,y0=170; let s=seg(x0,20,x0,y0,'',1.6)+seg(x0,y0,262,y0,'',1.6)+tete(x0,14,0,-1,'',5)+tete(268,y0,1,0,'',5);
+  s+=tx(ital('θ'),x0-14,22,'middle','',16)+tx(ital('t'),266,y0+20,'middle','',16);
+  s+=seg(x0,128,236,48,'ask',2.8)+tir_(x0,128,236,128)+tx(ital('θ')+'<tspan style="font-size:11px" dy="3">0</tspan>',x0-8,133,'end','',15)+tx('0',x0-8,y0+16,'end','',13);
+  return svgM(300,196,s);
+}
+
+/* ================= Niveau 1 : enthalpie, Q = ΔH, relation de Mayer ================= */
+const MONO='Transformation monobare, avec équilibre mécanique au début et à la fin ; ', PF='seules les forces de pression travaillent.';
+const N1=[
+ eq('Définition de l’enthalpie '+H+' d’un système.',H,U+' + '+P+' '+V,[U+' − '+P+' '+V,U+' + '+P+' '+T,Q+' + '+P+' '+V],['L’enthalpie est définie à partir de l’énergie interne, de la pression et du volume du système']),
+ tq('On considère l’enthalpie '+H+' d’un système.','Quelle est son unité ?','Le joule',['Le joule par kelvin','Le pascal','Le joule par kilogramme'],[H+' = '+U+' + '+P+' '+V+' : c’est une énergie, comme '+U+' et le produit '+P+' '+V]),
+ tq('L’enthalpie est une fonction d’état.','Qu’en déduit-on pour '+dH+' ?','Elle ne dépend que de l’état initial et de l’état final',['Elle dépend du chemin suivi','Elle est toujours nulle','Elle est toujours égale à '+Q],[H+' ne dépend que de l’état du système : sa variation ne dépend pas de la transformation suivie entre les deux états']),
+ eq(MONO+PF,Q,dH,[dU,'0',dH+' − '+dU],['Premier principe : '+dU+' = '+it('W')+' + '+Q+', avec '+it('W')+' = −'+Pext+' Δ'+V+'.','Comme '+P+' = '+Pext+' au début et à la fin : '+Q+' = Δ('+U+' + '+P+' '+V+') = '+dH]),
+ tq('On considère une transformation monobare.','Quelle grandeur reste constante ?','La pression extérieure '+Pext,['La pression '+P+' du système, à tout instant','La température extérieure','Le volume du système'],['Monobare : la pression extérieure est constante.','Isobare : c’est la pression du système qui reste constante']),
+ tq('On utilise l’enthalpie pour étudier une transformation monobare.','Quel est son intérêt ?','Le travail des forces de pression n’est plus à calculer',['Le transfert thermique est toujours nul','La température reste constante','Le premier principe n’est plus nécessaire'],['Le travail des forces de pression est déjà pris en compte dans '+H+' = '+U+' + '+P+' '+V+' : il reste '+Q+' = '+dH]),
+ tq('Un élève affirme : « '+Q+' = '+dH+' est la définition de l’enthalpie ».','A-t-il raison ?','Non : c’est une propriété de certaines transformations monobares',['Oui, pour toute transformation','Oui, mais seulement pour un gaz parfait','Non : la bonne relation est toujours '+Q+' = '+dU],['La définition est '+H+' = '+U+' + '+P+' '+V+'.',Q+' = '+dH+' n’est vrai que pour une transformation monobare, avec équilibre mécanique initial et final, sans autre travail que celui des forces de pression']),
+ tq('De l’eau chauffe dans une casserole ouverte, à l’air libre.','Quelle grandeur donne directement le transfert thermique reçu ?',dH+' de l’eau',[dU+' de l’eau','Le travail des forces de pression',dH+' − '+dU],['La pression extérieure est constante : la transformation est monobare, donc '+Q+' = '+dH]),
+ tq('Un gaz chauffe dans une bouteille rigide fermée.','Quelle grandeur donne directement le transfert thermique reçu ?',dU+' du gaz',[dH+' du gaz','Le travail des forces de pression',dH+' + '+dU],['Le volume est constant : le travail des forces de pression est nul.','Premier principe : '+Q+' = '+dU]),
+ tq('Transformation monobare au cours de laquelle une résistance chauffante fournit le travail électrique '+Wu+'.','Comment s’écrit le bilan d’enthalpie ?',dH+' = '+Q+' + '+Wu,[dH+' = '+Q,dH+' = '+Wu+' − '+Q,dU+' = '+Q+' + '+Wu],['Le travail des forces de pression est pris en compte dans '+H+'.','Il reste le transfert thermique et le travail autre que celui des forces de pression']),
+ eq('Transformation monobare et adiabatique, avec équilibre mécanique au début et à la fin ; '+PF,dH,'0',[Q+' + '+P+' '+V,dU,'−'+Pext+' Δ'+V],['Monobare : '+dH+' = '+Q+'.','Adiabatique : '+Q+' = 0']),
+ eq('Un gaz parfait ('+n+' moles, capacité thermique molaire à volume constant '+CVm+') passe de '+T1+' à '+T2+'.',dU,n+' '+CVm+' '+D21,[n+' '+CPm+' '+D21,n+' '+R+' '+D21,FR(CVm,n)+' '+D21],['Pour un gaz parfait, l’énergie interne ne dépend que de la température : '+dU+' = '+n+' '+CVm+' '+dT]),
+ eq('Un gaz parfait ('+n+' moles, capacité thermique molaire à pression constante '+CPm+') passe de '+T1+' à '+T2+'.',dH,n+' '+CPm+' '+D21,[n+' '+CVm+' '+D21,n+' '+R+' '+D21,FR(CPm,n)+' '+D21],['Pour un gaz parfait, l’enthalpie ne dépend que de la température : '+dH+' = '+n+' '+CPm+' '+dT]),
+ eq('Un gaz parfait ('+n+' moles, capacités thermiques molaires '+CVm+' et '+CPm+') est chauffé à volume constant de '+T1+' à '+T2+'.',dH,n+' '+CPm+' '+D21,[n+' '+CVm+' '+D21,'0',n+' ('+CPm+' + '+CVm+') '+D21],[dH+' = '+n+' '+CPm+' '+dT+' pour toute transformation d’un gaz parfait, même à volume constant.','C’est '+Q+' = '+dU+' = '+n+' '+CVm+' '+dT+' qui fait intervenir '+CVm]),
+ tq('Pour un gaz parfait, on écrit '+dH+' = '+n+' '+CPm+' '+dT+'.','Pour quelles transformations est-ce valable ?','Pour toute transformation',['Seulement à pression constante','Seulement pour une transformation adiabatique','Seulement à volume constant'],['L’enthalpie d’un gaz parfait ne dépend que de la température : seules '+T1+' et '+T2+' comptent']),
+ tq('On considère l’enthalpie d’un gaz parfait (quantité de matière fixée).','De quoi dépend-elle ?','De la température seulement',['De la pression seulement','De la température et de la pression','Du volume seulement'],[H+' = '+U+' + '+P+' '+V+' = '+U+' + '+n+' '+R+' '+T+', et '+U+' ne dépend que de '+T]),
+ eq('Un gaz parfait subit une transformation au cours de laquelle sa température finale est égale à sa température initiale.',dH,'0',[n+' '+R+' '+T,Q,'−'+it('W')],[dH+' = '+n+' '+CPm+' '+dT+', avec '+dT+' = 0']),
+ eq('Une phase condensée (masse '+m+', capacité thermique massique '+c+') passe de '+T1+' à '+T2+'.',dH,m+' '+c+' '+D21,[FR(c,m)+' '+D21,m+' '+c+' ('+T1+' − '+T2+')',m+' '+c+' '+T2],['Pour une phase condensée : '+dH+' = '+m+' '+c+' '+dT+', avec '+dT+' = '+T2+' − '+T1]),
+ tq('On considère une phase condensée, incompressible et indilatable.','Comparer '+dH+' et '+dU+'.',dH+' ≃ '+dU,[dH+' = '+dU+' + '+n+' '+R+' '+dT,dH+' = −'+dU,dH+' = 0'],['Le volume ne varie pratiquement pas et le terme '+P+' '+V+' est négligeable : '+dH+' ≃ '+dU+' = '+m+' '+c+' '+dT]),
+ tq('On considère la capacité thermique molaire à pression constante '+CPm+'.','Quelle est son unité ?','J·K<sup>−1</sup>·mol<sup>−1</sup>',['J·K<sup>−1</sup>·kg<sup>−1</sup>','J·K<sup>−1</sup>','J·mol<sup>−1</sup>'],[dH+' = '+n+' '+CPm+' '+dT+' : des joules divisés par des moles et des kelvins']),
+ tq('On considère la capacité thermique massique à pression constante '+cP+'.','Quelle est son unité ?','J·K<sup>−1</sup>·kg<sup>−1</sup>',['J·K<sup>−1</sup>·mol<sup>−1</sup>','J·K<sup>−1</sup>','J·kg<sup>−1</sup>'],[dH+' = '+m+' '+cP+' '+dT+' : des joules divisés par des kilogrammes et des kelvins']),
+ eq('Un corps de masse molaire '+M+' a une capacité thermique massique '+cP+'.',CPm,M+' '+cP,[FR(cP,M),FR(M,cP),n+' '+cP],[CP+' = '+n+' '+CPm+' = '+m+' '+cP+', avec '+m+' = '+n+' '+M]),
+ tq('Relation de Mayer, pour un gaz parfait.','Laquelle est correcte ?',CPm+' − '+CVm+' = '+R,[CVm+' − '+CPm+' = '+R,CPm+' + '+CVm+' = '+R,CPm+' = '+R+' '+CVm],[dH+' = '+dU+' + '+n+' '+R+' '+dT+', donc '+n+' '+CPm+' = '+n+' '+CVm+' + '+n+' '+R],{large:1}),
+ eq('Relation de Mayer pour '+n+' moles de gaz parfait, de capacités thermiques '+CP+' et '+CV+'.',CP+' − '+CV,n+' '+R,[R,FR(R,n),n+' '+R+' '+T],[CP+' = '+n+' '+CPm+' et '+CV+' = '+n+' '+CVm+'.',CPm+' − '+CVm+' = '+R]),
+ eq('Définition du coefficient '+g+' d’un gaz parfait.',g,FR(CP,CV),[FR(CV,CP),CP+' − '+CV,CP+' '+CV],['C’est le rapport des capacités thermiques à pression constante et à volume constant.','Il est supérieur à 1 car '+CP+' &gt; '+CV]),
+ eq('Pour un gaz parfait diatomique, on donne '+CVm+' = '+FR('5','2')+' '+R+'.',CPm,FR('7','2')+' '+R,[FR('3','2')+' '+R,FR('5','2')+' '+R,FR('5','7')+' '+R],['Relation de Mayer : '+CPm+' = '+CVm+' + '+R+'.',FR('5','2')+' '+R+' + '+R+' = '+FR('7','2')+' '+R])
+];
+
+/* ================= Niveau 2 : transferts thermiques et bilan calorimétrique ================= */
+const CALO='On réalise un mélange dans un calorimètre (méthode des mélanges).';
+const N2=[
+ sq(cyl(false),'Un gaz parfait ('+n+' moles, '+CPm+', '+CVm+') est chauffé lentement de '+T1+' à '+T2+'. Le piston est libre.',QE(Q),n+' '+CPm+' '+D21,[n+' '+CVm+' '+D21,n+' '+R+' '+D21,'0'],['Piston libre : la pression du gaz reste égale à '+Pext+', la transformation est monobare.',Q+' = '+dH+' = '+n+' '+CPm+' '+dT]),
+ sq(cyl(true),'Un gaz parfait ('+n+' moles, '+CPm+', '+CVm+') est chauffé de '+T1+' à '+T2+'. Le piston est bloqué.',QE(Q),n+' '+CVm+' '+D21,[n+' '+CPm+' '+D21,n+' '+R+' '+D21,'0'],['Piston bloqué : le volume est constant, le travail des forces de pression est nul.',Q+' = '+dU+' = '+n+' '+CVm+' '+dT]),
+ eq('Un bloc de cuivre (masse '+m+', capacité thermique massique '+c+') est chauffé à l’air libre de '+th1+' à '+th2+'.',Q,m+' '+c+' ('+th2+' − '+th1+')',[m+' '+c+' ('+th1+' − '+th2+')',FR(m+' '+c,th2+' − '+th1),m+' '+c+' '+th2],['À l’air libre la transformation est monobare : '+Q+' = '+dH+'.','Phase condensée : '+dH+' = '+m+' '+c+' Δ'+th]),
+ tq('Un corps refroidit à l’air libre, sous pression constante.','Quel est le signe du transfert thermique '+Q+' qu’il reçoit ?','Négatif',['Positif','Nul','Cela dépend de sa masse'],[Q+' = '+dH+' = '+m+' '+c+' '+dT+', avec '+dT+' &lt; 0.','Le corps cède de l’énergie à l’extérieur']),
+ tq('On chauffe 1,0 kg d’eau de 20 °C à 30 °C, à l’air libre. On donne '+ceau+' ≈ 4,2 kJ·K<sup>−1</sup>·kg<sup>−1</sup>.','Quel transfert thermique faut-il fournir ?','42 kJ',['4,2 kJ','126 kJ','420 kJ'],[Q+' = '+dH+' = '+m+' '+ceau+' Δ'+th+'.','1,0 × 4,2 × 10 = 42 kJ']),
+ tq('On fournit le même transfert thermique à deux blocs de même masse, l’un d’eau, l’autre de cuivre. On donne '+cCu+' &lt; '+ceau+'.','Lequel s’échauffe le plus ?','Le cuivre',['L’eau','Ils s’échauffent autant','On ne peut pas savoir'],[dT+' = '+FR(Q,m+' '+c)+' : à '+Q+' et '+m+' égaux, l’élévation de température est la plus grande pour la plus petite capacité thermique']),
+ eq('Une masse '+m+' de liquide, de capacité thermique massique '+c+', reçoit le transfert thermique '+Q+' sous pression constante.','Élévation de température '+dT,FR(Q,m+' '+c),[FR(m+' '+c,Q),Q+' '+m+' '+c,FR(Q,m)],[Q+' = '+dH+' = '+m+' '+c+' '+dT]),
+ eq('Une source fournit une puissance thermique constante '+Pth+' à une masse '+m+' de liquide (capacité thermique massique '+c+'), dont la température augmente de '+dT+'.','Durée du chauffage',FR(m+' '+c+' '+dT,Pth),[FR(Pth,m+' '+c+' '+dT),m+' '+c+' '+dT+' '+Pth,FR(m+' '+c,Pth)],['Énergie reçue : '+Q+' = '+Pth+' × durée.',Q+' = '+dH+' = '+m+' '+c+' '+dT]),
+ tq('Une bouilloire de puissance 2,0 kW chauffe 1,0 kg d’eau de 20 °C à 100 °C. On donne '+ceau+' ≈ 4,2 kJ·K<sup>−1</sup>·kg<sup>−1</sup> ; les pertes sont négligées.','Combien de temps faut-il ?','Environ 170 s',['Environ 17 s','Environ 340 s','Environ 670 s'],[Q+' = '+m+' '+ceau+' Δ'+th+' = 1,0 × 4,2 × 80 = 336 kJ.','Durée : '+FR('336','2,0')+' = 168 s']),
+ tq('On réalise une expérience dans un calorimètre.','Quel est le rôle du calorimètre ?','Limiter les transferts thermiques avec l’extérieur',['Maintenir la température constante','Maintenir le volume constant','Chauffer le contenu'],['Les parois d’un calorimètre sont calorifugées : la transformation est considérée comme adiabatique']),
+ tq('Une transformation a lieu dans un calorimètre, en contact avec l’atmosphère.','Comment la qualifier ?','Monobare et adiabatique',['Isochore et adiabatique','Isotherme et monobare','Isotherme et isochore'],['La pression extérieure est celle de l’atmosphère, constante : monobare.','Les parois sont calorifugées : adiabatique']),
+ tq(CALO,'Quel système faut-il choisir pour écrire le bilan ?','Le calorimètre et tout son contenu',['Le corps chaud seul','Le corps froid seul','Le calorimètre seul, sans son contenu'],['Seul le système global n’échange pas d’énergie thermique avec l’extérieur']),
+ eq(CALO+' Le système est {calorimètre + contenu}, sans résistance chauffante.',dHS,'0',[Q+' + '+Wu,sb('m','Σ')+' '+c+' '+dT,dU],['Monobare : '+dHS+' = '+Q+'.','Adiabatique : '+Q+' = 0']),
+ tq(CALO+' On écrit '+dHS+' = 0 pour le système {calorimètre + contenu}.','Comment le justifier ?','La transformation est monobare et adiabatique',['La température du système ne varie pas','Le volume du système est constant','L’enthalpie d’un système est toujours constante'],['Monobare, avec équilibre mécanique initial et final : '+dHS+' = '+Q+'.','Adiabatique : '+Q+' = 0']),
+ tq('On écrit '+dHS+' comme la somme des '+sb('Δ<i>H</i>','<i>i</i>')+' des corps placés dans le calorimètre.','Quelle propriété de l’enthalpie utilise-t-on ?','Son extensivité',['Le fait que ce soit une fonction d’état','Sa conservation','Son caractère intensif'],['L’enthalpie est extensive : celle d’un système est la somme des enthalpies de ses sous-systèmes']),
+ tq('On mélange de l’eau chaude et de l’eau froide dans un calorimètre.','Quel est le signe de '+dH+' pour l’eau froide seule ?','Positif',['Négatif','Nul','Cela dépend des masses'],['L’eau froide s’échauffe : '+dH+' = '+m+' '+c+' ('+TF+' − '+Ti+') &gt; 0.','Elle reçoit l’énergie cédée par l’eau chaude']),
+ tq('Un élève écrit « '+dH+' = 0 » pour chacun des corps placés dans le calorimètre.','A-t-il raison ?','Non : seule l’enthalpie du système global ne varie pas',['Oui : le calorimètre est calorifugé','Oui : la transformation est monobare','Non : '+dH+' n’est jamais nul'],['Les corps échangent de l’énergie entre eux : chaque '+sb('Δ<i>H</i>','<i>i</i>')+' est non nul.','C’est leur somme qui est nulle']),
+ eq('Dans le bilan, un corps (masse '+m+', capacité thermique massique '+c+') passe de la température '+Ti+' à la température finale '+TF+'.','Son terme '+dH,m+' '+c+' ('+TF+' − '+Ti+')',[m+' '+c+' ('+Ti+' − '+TF+')',m+' '+c+' ('+TF+' + '+Ti+')',m+' '+c+' '+TF],['Variation = valeur finale − valeur initiale']),
+ tq('On écrit le terme '+m+' '+c+' ('+TF+' − '+Ti+') du corps le plus chaud placé dans le calorimètre.','Quel est son signe ?','Négatif',['Positif','Nul','Cela dépend de sa capacité thermique'],['La température finale est inférieure à sa température initiale : '+TF+' − '+Ti+' &lt; 0.','Le corps chaud cède de l’énergie']),
+ tq('On donne la valeur en eau '+mc+' d’un calorimètre.','Que représente-t-elle ?','La masse d’eau qui aurait la même capacité thermique que le calorimètre',['La masse d’eau que le calorimètre peut contenir','La masse du calorimètre vide','La masse d’eau évaporée pendant l’expérience'],['Le calorimètre s’échauffe avec son contenu : on le remplace dans le bilan par une masse d’eau équivalente']),
+ eq('Un calorimètre a une valeur en eau '+mc+'.','Sa capacité thermique '+Cc,mc+' '+ceau,[FR(mc,ceau),FR(ceau,mc),mc],['Le calorimètre a la même capacité thermique qu’une masse '+mc+' d’eau']),
+ tq('Un calorimètre contient de l’eau froide depuis longtemps. On y verse de l’eau chaude.','Quelle est la température initiale du calorimètre ?','Celle de l’eau froide',['Celle de l’eau chaude','Celle de la salle','La moyenne des deux températures'],['Le calorimètre est à l’équilibre thermique avec l’eau qu’il contient depuis longtemps']),
+ tq('On écrit un bilan calorimétrique avec des températures en degrés Celsius.','Est-ce correct ?','Oui : seuls des écarts de température interviennent',['Non : il faut toujours des kelvins','Oui, à condition de diviser par 273','Non : le bilan n’est alors plus homogène'],['Un écart de température a la même valeur en degrés Celsius et en kelvins']),
+ tq('Avant de relever la température finale dans le calorimètre, on agite le mélange.','Pourquoi ?','Pour que la température soit la même partout',['Pour chauffer le mélange','Pour éviter les fuites thermiques','Pour maintenir la pression constante'],['Le bilan suppose un état final d’équilibre, à une température '+TF+' unique'])
+];
+
+/* ================= Niveau 3 : calorimétrie ================= */
+const NEG='calorimètre négligé', F1=par(TF+' − '+T1), F2=par(TF+' − '+T2), BIL=dHS+' = 0, développé par extensivité';
+const N3=[
+ sq(calo({leg:['eau froide : '+svs('m','1')+', '+svs('T','1'),'eau chaude ajoutée : '+svs('m','2')+', '+svs('T','2')]}),'On mélange deux masses d’eau (capacité thermique massique '+c+'). La température finale est '+TF+' ; le calorimètre est négligé.','Quel bilan écrire ?',m1+' '+c+' '+F1+' + '+m2+' '+c+' '+F2+' = 0',[m1+' '+c+' '+F1+' = '+m2+' '+c+' '+F2,m1+' '+c+' '+par(T1+' − '+TF)+' + '+m2+' '+c+' '+F2+' = 0','('+m1+' + '+m2+') '+c+' '+TF+' = 0'],[BIL+'.','Chaque terme s’écrit '+m+' '+c+' ('+TF+' − '+Ti+')']),
+ sq(calo({solide:1,leg:['eau : '+svs('m','e')+', '+svs('c','e')+', '+svs('T','1'),'métal : '+ital('m')+', '+svs('c','m')+', '+svs('T','2')]}),'Un métal chaud est plongé dans l’eau d’un calorimètre de valeur en eau '+mc+', initialement à '+T1+'. La température finale est '+TF+'.','Quel bilan écrire ?','('+me+' + '+mc+') '+ce+' '+F1+' + '+m+' '+cm+' '+F2+' = 0',[me+' '+ce+' '+F1+' + '+m+' '+cm+' '+F2+' = 0','('+me+' + '+mc+') '+ce+' '+F1+' = '+m+' '+cm+' '+F2,'('+me+' + '+mc+') '+ce+' '+F1+' + '+m+' '+ce+' '+F2+' = 0'],[BIL+'.','Le calorimètre compte comme une masse '+mc+' d’eau, initialement à '+T1]),
+ eq('On mélange deux masses égales d’eau, l’une à '+T1+', l’autre à '+T2+' ('+NEG+').',TF,FR(T1+' + '+T2,'2'),[T1+' + '+T2,FR(T2+' − '+T1,'2'),'√('+T1+' '+T2+')'],[m+' '+c+' '+F1+' + '+m+' '+c+' '+F2+' = 0.','Donc 2 '+TF+' = '+T1+' + '+T2]),
+ eq('On mélange une masse '+m1+' d’eau à '+T1+' et une masse '+m2+' d’eau à '+T2+' ('+NEG+').',TF,FR(m1+' '+T1+' + '+m2+' '+T2,m1+' + '+m2),[FR(m1+' '+T2+' + '+m2+' '+T1,m1+' + '+m2),FR(T1+' + '+T2,'2'),FR(m1+' '+T1+' + '+m2+' '+T2,m1+' '+m2)],[m1+' '+c+' '+F1+' + '+m2+' '+c+' '+F2+' = 0.','On regroupe les termes en '+TF]),
+ tq('On mélange 300 g d’eau à 20 °C et 100 g d’eau à 60 °C ('+NEG+').','Quelle est la température finale ?','30 °C',['40 °C','50 °C','35 °C'],[thF+' = '+FR(m1+' '+th1+' + '+m2+' '+th2,m1+' + '+m2)+'.',FR('300 × 20 + 100 × 60','400')+' = 30 °C']),
+ tq('On met en contact dans un calorimètre un corps à la température '+T1+' et un corps à la température '+T2+' &gt; '+T1+'.','Que peut-on dire de la température finale ?','Elle est comprise entre '+T1+' et '+T2,['Elle est supérieure à '+T2,'Elle est inférieure à '+T1,'Elle vaut toujours la moyenne de '+T1+' et '+T2],['Le corps chaud cède de l’énergie et se refroidit, le corps froid en reçoit et s’échauffe']),
+ tq('On met en contact dans un calorimètre deux corps de températures différentes.','De quelle température initiale la température finale est-elle la plus proche ?','De celle du corps de plus grande capacité thermique',['De celle du corps le plus chaud','De celle du corps le plus froid','De celle du corps de plus petite masse'],['Les deux corps échangent la même énergie en valeur absolue.','Celui dont la capacité thermique '+m+' '+c+' est la plus grande voit sa température varier le moins']),
+ tq('On mélange deux masses d’eau de températures différentes ('+NEG+'). On recommence en doublant les deux masses.','Que devient la température finale ?','Elle est inchangée',['Elle double','Elle est divisée par deux','Elle se rapproche de la température de l’eau chaude'],[TF+' = '+FR(m1+' '+T1+' + '+m2+' '+T2,m1+' + '+m2)+' : le facteur 2 se simplifie']),
+ tq('On verse de l’eau chaude dans un calorimètre contenant de l’eau froide. Le calorimètre, initialement froid, n’est pas négligeable.','Comparer la température finale à celle calculée en le négligeant.','Elle est plus basse',['Elle est plus élevée','Elle est identique','On ne peut pas savoir'],['Le calorimètre doit lui aussi être réchauffé : il s’ajoute à l’eau froide dans le bilan']),
+ eq('Un métal (masse '+m+', température '+T2+') est plongé dans une masse '+me+' d’eau (capacité '+ce+', température '+T1+') ; '+NEG+', température finale '+TF+'.',cm,FR(me+' '+ce+' '+F1,m+' '+par(T2+' − '+TF)),[FR(me+' '+ce+' '+F1,m+' '+F2),FR(m+' '+par(T2+' − '+TF),me+' '+ce+' '+F1),FR(me+' '+ce+' '+par(T2+' − '+TF),m+' '+F1)],[me+' '+ce+' '+F1+' + '+m+' '+cm+' '+F2+' = 0.','On isole '+cm+', avec −'+F2+' = '+par(T2+' − '+TF)]),
+ eq('On verse une masse '+m2+' d’eau à '+T2+' dans un calorimètre contenant une masse '+m1+' d’eau à '+T1+'. La température finale est '+TF+'.','Valeur en eau '+mc,FR(m2+' '+par(T2+' − '+TF),TF+' − '+T1)+' − '+m1,[FR(m2+' '+par(T2+' − '+TF),TF+' − '+T1),FR(m1+' '+F1,T2+' − '+TF)+' − '+m2,FR(m2+' '+par(T2+' − '+TF),TF+' − '+T1)+' + '+m1],['('+m1+' + '+mc+') '+c+' '+F1+' + '+m2+' '+c+' '+F2+' = 0.','On isole '+m1+' + '+mc+', puis '+mc]),
+ tq('On mesure la capacité thermique massique d’un métal chaud plongé dans l’eau d’un calorimètre. On oublie le calorimètre dans le bilan.','Comment est la valeur trouvée ?','Trop petite',['Trop grande','Correcte','Négative'],[cm+' = '+FR('('+me+' + '+mc+') '+ce+' '+F1,m+' '+par(T2+' − '+TF))+'.','Oublier '+mc+' diminue le numérateur']),
+ tq('Pour mesurer la capacité thermique d’un métal, on le sort d’un bain d’eau bouillante avant de le plonger dans le calorimètre.','Pourquoi ?','Sa température initiale est alors connue',['Pour le nettoyer','Pour qu’il ne change pas d’état','Pour augmenter sa capacité thermique'],['Le métal est à l’équilibre thermique avec l’eau bouillante : sa température initiale vaut 100 °C']),
+ tq('On mélange de l’eau chaude et de l’eau froide dans un calorimètre qui laisse fuir un peu d’énergie vers la salle, plus froide que le mélange.','Comment est la température finale mesurée ?','Plus basse que celle prévue',['Plus haute que celle prévue','Égale à celle prévue','Égale à celle de la salle'],['Le système cède de l’énergie à l’extérieur : '+dHS+' = '+Q+' &lt; 0']),
+ eq('Une résistance chauffante de puissance '+Pu+' fonctionne pendant une durée '+tau+'.','Travail électrique '+Wu,Pu+' '+tau,[FR(Pu,tau),FR(tau,Pu),Pu+' '+tau+'<sup>2</sup>'],['Une puissance est une énergie par unité de temps']),
+ eq('Une résistance chauffante est soumise à la tension '+it('U')+' et parcourue par l’intensité '+I+' pendant une durée '+tau+'.','Travail électrique '+Wu,it('U')+' '+I+' '+tau,[FR(it('U')+' '+I,tau),FR(it('U'),I)+' '+tau,it('U')+' '+I],['Puissance électrique reçue : '+Pu+' = '+it('U')+' '+I+'.',Wu+' = '+Pu+' '+tau]),
+ tq('On chauffe un liquide dans un calorimètre avec une résistance chauffante. On écrit '+dHS+' = '+Wu+'.','Quel est le système ?','Le calorimètre, le liquide et la résistance',['Le liquide seul','La résistance seule','Le générateur'],['La transformation est monobare et adiabatique pour ce système, qui reçoit le travail électrique '+Wu+'.','On néglige la capacité thermique de la résistance']),
+ sq(calo({res:1,leg:['eau : '+ital('m')+', '+ital('c')]}),'Une résistance de puissance '+Pu+' chauffe l’eau pendant '+tau+' ; la température passe de '+th0+' à '+thF+'. Valeur en eau du calorimètre : '+mc+'.','Quel bilan écrire ?','('+m+' + '+mc+') '+c+' ('+thF+' − '+th0+') = '+Pu+' '+tau,[m+' '+c+' ('+thF+' − '+th0+') = '+Pu+' '+tau,'('+m+' + '+mc+') '+c+' ('+thF+' − '+th0+') = 0','('+m+' + '+mc+') '+c+' ('+thF+' − '+th0+') = '+FR(Pu,tau)],[dHS+' = '+Wu+', avec '+Wu+' = '+Pu+' '+tau+'.','L’eau et le calorimètre s’échauffent de '+th0+' à '+thF]),
+ eq('Une résistance de puissance '+Pu+' chauffe pendant '+tau+' une masse '+m+' d’eau (capacité '+c+') dans un calorimètre ; la température passe de '+th0+' à '+thF+'.','Valeur en eau '+mc,FR(Pu+' '+tau,c+' ('+thF+' − '+th0+')')+' − '+m,[FR(Pu+' '+tau,c+' ('+thF+' − '+th0+')'),FR(Pu+' '+tau,c+' ('+thF+' − '+th0+')')+' + '+m,FR(c+' ('+thF+' − '+th0+')',Pu+' '+tau)+' − '+m],['('+m+' + '+mc+') '+c+' ('+thF+' − '+th0+') = '+Pu+' '+tau+'.','On isole '+m+' + '+mc+', puis '+mc]),
+ eq('Une résistance de puissance '+Pu+' chauffe pendant '+tau+' une masse '+m+' d’un liquide inconnu ; la température passe de '+th0+' à '+thF+' ('+NEG+').','Capacité thermique massique '+c,FR(Pu+' '+tau,m+' ('+thF+' − '+th0+')'),[FR(m+' ('+thF+' − '+th0+')',Pu+' '+tau),FR(Pu,m+' '+tau+' ('+thF+' − '+th0+')'),FR(Pu+' '+tau+' '+m,thF+' − '+th0)],[m+' '+c+' ('+thF+' − '+th0+') = '+Pu+' '+tau]),
+ tq('Une résistance de puissance constante chauffe un liquide dans un calorimètre. On double la durée de chauffage.','Que devient l’élévation de température ?','Elle double',['Elle est inchangée','Elle est divisée par deux','Elle quadruple'],['('+m+' + '+mc+') '+c+' Δ'+th+' = '+Pu+' '+tau+' : Δ'+th+' est proportionnelle à '+tau]),
+ sq(droite(),'Une résistance de puissance constante '+Pu+' chauffe l’eau d’un calorimètre. On relève la température '+th+' au cours du temps.','Pourquoi obtient-on une droite ?','L’énergie reçue est proportionnelle à la durée',['La température de l’eau reste constante','Le calorimètre perd de l’énergie','La puissance augmente au cours du temps'],['('+m+' + '+mc+') '+c+' ('+th+' − '+th0+') = '+Pu+' '+t_+' : '+th+' est une fonction affine du temps']),
+ sq(droite(),'Une résistance de puissance constante '+Pu+' chauffe une masse '+m+' d’eau (capacité '+c+') dans un calorimètre de valeur en eau '+mc+'.','Pente de la droite ?',FR(Pu,'('+m+' + '+mc+') '+c),[FR('('+m+' + '+mc+') '+c,Pu),FR(Pu,m+' '+c),Pu+' ('+m+' + '+mc+') '+c],['('+m+' + '+mc+') '+c+' ('+th+' − '+th0+') = '+Pu+' '+t_+'.','Donc '+th+' = '+th0+' + '+FR(Pu,'('+m+' + '+mc+') '+c)+' '+t_]),
+ tq('Une résistance de 100 W chauffe pendant 42 s une masse de 100 g d’eau ('+NEG+'). On donne '+ceau+' ≈ 4,2 kJ·K<sup>−1</sup>·kg<sup>−1</sup>.','De combien la température augmente-t-elle ?','10 °C',['1 °C','42 °C','100 °C'],[Wu+' = '+Pu+' '+tau+' = 100 × 42 = 4200 J.','Δ'+th+' = '+FR(Wu,m+' '+ceau)+' = '+FR('4200','0,100 × 4200')])
+];
+
+const ACT=[{nom:'Enthalpie et relation de Mayer', c:N1},{nom:'Transferts thermiques et bilan calorimétrique', c:N2},{nom:'Calorimétrie', c:N3}];
+ACT.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.map(e=>e.replace(/\.$/,'')); }));
+return ACT;
+})();
+
 const COMPETENCES=[
  {id:'C1', code:'C1', titre:'Structure de la matière',
   exos:[
@@ -2646,6 +2797,10 @@ const COMPETENCES=[
   exos:[
    {id:'transfo', titre:'Transformations et travail', desc:'Nature des transformations, lecture d’un énoncé, travail des forces de pression, diagramme de Watt.', niveaux:TH1.A},
    {id:'bilan', titre:'Transfert thermique et premier principe', desc:'Transfert thermique, premier principe, énergie interne, bilans d’énergie, état final.', niveaux:TH1.B}
+  ]},
+ {id:'TH2', code:'TH2', titre:'Bilan enthalpique',
+  exos:[
+   {id:'enth', titre:'Enthalpie et calorimétrie', desc:'Enthalpie, transfert thermique d’une transformation monobare, relation de Mayer, bilans calorimétriques.', niveaux:TH2}
   ]},
  {id:'EL1', code:'EL1', titre:'Circuits électriques dans l’ARQS',
   exos:[
@@ -2792,7 +2947,7 @@ async function recupere(){                                // fusionne la progres
   try{
     const t=await monJeton(), d=await appel(DOCS()+'/'+session.uid,null,{method:'GET',headers:{Authorization:'Bearer '+t}});
     const p=deCarte(d.fields&&d.fields.prog), e=deCarte(d.fields&&d.fields.essais), x=deCarte(d.fields&&d.fields.echecs);
-    for(const k in p) prog[k]= /_c$|_q\d+$/.test(k)? (prog[k]||0)|p[k] : Math.max(prog[k]||0,p[k]);
+    for(const k in p) prog[k]= /_c$|_v$|_q\d+$/.test(k)? (prog[k]||0)|p[k] : Math.max(prog[k]||0,p[k]);
     for(const k in e) essais[k]=Math.max(essais[k]||0,e[k]);
     for(const k in x) echecs[k]=Math.max(echecs[k]||0,x[k]);
     if(!session.nom&&d.fields&&d.fields.nom){ session.nom=d.fields.nom.stringValue||''; try{ localStorage.setItem(CLE_S,JSON.stringify(session)); }catch(x){} }
@@ -2836,6 +2991,10 @@ function questions(exo,niv){
   return out.sort((a,b)=>a.iv-b.iv);
 }
 const bits=n=>{ let c=0; for(;n;n>>>=1) c+=n&1; return c; };
+/* Niveaux validés d'un exercice, un bit par niveau. Tous les niveaux sont ouverts (choix de Thomas, 19/11) : on peut donc valider
+   le niveau 3 sans le 1. Ancien format : prog[cle] = nombre de niveaux validés dans l'ordre ; nouveau : prog[cle+'_v'] (un bit par niveau). */
+const masqueV=(P,cle,n)=>(((1<<Math.min(P[cle]||0,n))-1)|(P[cle+'_v']||0))&((1<<n)-1);
+const valide=(cle,k)=>!!(masqueV(prog,cle,30)>>k&1);
 const cochees=(cle,k)=>prog[cle+'_q'+k]||0;
 function serie5(exo,niv,cle,k){                               // 5 questions : d'abord celles qui ne sont pas encore cochées
   const Q=questions(exo,niv), m=cochees(cle,k);
@@ -2851,14 +3010,14 @@ const NBQ={};
 const nbQ=(c,e,k)=>NBQ[c.id+'.'+e.id+k]||(NBQ[c.id+'.'+e.id+k]=questions(e,e.niveaux[k]).length);
 function points(P,E){
   let s=0;
-  COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, f=Math.min(P[cle]||0,e.niveaux.length);
-    for(let k=0;k<f;k++) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+3*(P[cle+'_r'+k]||0) : 0); }));
+  COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, mv=masqueV(P,cle,e.niveaux.length);
+    for(let k=0;k<e.niveaux.length;k++) if(mv>>k&1) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+3*(P[cle+'_r'+k]||0) : 0); }));
   return Math.max(0,s-Object.values(E||{}).reduce((a,b)=>a+(+b||0),0));
 }
 function bilan(P,E){                                             // niveaux validés, couronnes, échecs (affichés dans le classement)
   let niv=0, cour=0;
-  COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, f=Math.min(P[cle]||0,e.niveaux.length); niv+=f;
-    for(let k=0;k<f;k++) cour+=(P[cle+'_c']||0)>>k&1; }));
+  COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, mv=masqueV(P,cle,e.niveaux.length); niv+=bits(mv);
+    cour+=bits((P[cle+'_c']||0)&mv); }));
   return {niv,cour,ech:Object.values(E||{}).reduce((a,b)=>a+(+b||0),0)};
 }
 const ptsTxt=n=>n+' point'+(n>1?'s':'');
@@ -2872,7 +3031,7 @@ function accueil(){
     h+='<div class="themes">';
     THEMES.forEach(([nom],i)=>{
       const cs=COMPETENCES.filter(c=>themeDe(c)===i); let tot=0, f=0;
-      cs.forEach(c=>c.exos.forEach(e=>{ tot+=e.niveaux.length; f+=Math.min(faits(c,e),e.niveaux.length); }));
+      cs.forEach(c=>c.exos.forEach(e=>{ tot+=e.niveaux.length; f+=bits(masqueV(prog,c.id+'.'+e.id,e.niveaux.length)); }));
       h+='<button class="theme'+(cs.length?'':' vide')+'" data-t="'+i+'"'+(cs.length?'':' disabled')+'><span class="tn">'+nom+'</span><span class="tc">'+(cs.length? cs.map(c=>c.code).join(' · ') : 'à venir')+'</span>'
         +(cs.length?'<span class="tp">'+f+' / '+tot+' niveaux validés</span>':'')+'</button>';
     });
@@ -2882,12 +3041,12 @@ function accueil(){
     if(themeDe(comp)!==theme) return;
     h+='<div class="bloc comp"><div class="entete"><span class="code">'+comp.code+'</span><h2>'+comp.titre+'</h2></div>';
     comp.exos.forEach((exo,b)=>{
-      const n=exo.niveaux.length, f=Math.min(faits(comp,exo),n);
+      const n=exo.niveaux.length, mv=masqueV(prog,comp.id+'.'+exo.id,n), f=bits(mv);
       h+='<div class="exo"><div class="ligne"><h3>'+exo.titre+'</h3><span class="score">'+f+' / '+n+'</span></div><p>'+exo.desc+'</p><div class="liste">';
       exo.niveaux.forEach((nv,k)=>{
-        const etat= k<f?'fait': (k===f||PROF?'suivant':'verrou');
-        h+='<button class="niv '+etat+(k<f&&couronne(comp.id+'.'+exo.id,k)?' roi':'')+'" data-a="'+a+'" data-b="'+b+'" data-k="'+k+'"'+(etat==='verrou'?' disabled':'')+'><span class="num">'+(k+1)+'</span><span class="nomn">'+nv.nom+'</span>'
-          +'<span class="marque">'+(k<f? (couronne(comp.id+'.'+exo.id,k)? COURONNE+'validé' : 'validé<small>'+Math.min(bits(cochees(comp.id+'.'+exo.id,k)),questions(exo,nv).length)+' / '+questions(exo,nv).length+' questions</small>') :k===f?'à faire':etat==='verrou'?'verrouillé':'')+'</span></button>';
+        const ok=!!(mv>>k&1), etat= ok?'fait':'suivant';
+        h+='<button class="niv '+etat+(ok&&couronne(comp.id+'.'+exo.id,k)?' roi':'')+'" data-a="'+a+'" data-b="'+b+'" data-k="'+k+'"><span class="num">'+(k+1)+'</span><span class="nomn">'+nv.nom+'</span>'
+          +'<span class="marque">'+(ok? (couronne(comp.id+'.'+exo.id,k)? COURONNE+'validé' : 'validé<small>'+Math.min(bits(cochees(comp.id+'.'+exo.id,k)),questions(exo,nv).length)+' / '+questions(exo,nv).length+' questions</small>') :'à faire')+'</span></button>';
       });
       h+='</div></div>';
     });
@@ -2919,7 +3078,7 @@ $('raz').addEventListener('click',()=>{
 
 function lancer(a,b,k){
   const comp=COMPETENCES[a], exo=comp.exos[b], niv=exo.niveaux[k]; theme=themeDe(comp);
-  const ce=comp.id+'.'+exo.id, deja=k<faits(comp,exo), S=serie5(exo,niv,ce,k);
+  const ce=comp.id+'.'+exo.id, deja=valide(ce,k), S=serie5(exo,niv,ce,k);
   partie={a,b,k,comp,exo,niv,deja,total:S.total,items:S.items,n:0};
   essais[ce]=(essais[ce]||0)+1;
   $('ou').innerHTML='<span class="ouL"><span>'+comp.code+' · '+exo.titre+'</span>'+(deja&&!couronne(ce,k)?'<span class="ouC">'+COURONNE+bits(cochees(ce,k))+' / '+S.total+'</span>':'')+'</span><b>Niveau '+(k+1)+' · '+niv.nom+'</b>';
@@ -2977,19 +3136,19 @@ $('finMenu').addEventListener('click',()=>{ accueil(); litPodium(); });
 
 function gagne(){
   const p=partie, cleP=p.comp.id+'.'+p.exo.id, total=p.exo.niveaux.length, ptsAvant=points(prog,echecs);
-  if((prog[cleP]||0)<p.k+1){ prog[cleP]=p.k+1; sauve(); }
+  prog[cleP+'_v']=(prog[cleP+'_v']||0)|(1<<p.k);
   const avant=couronne(cleP,p.k); if(avant) prog[cleP+'_r'+p.k]=(prog[cleP+'_r'+p.k]||0)+1;
   let m=cochees(cleP,p.k); p.items.forEach(x=>{ m|=1<<x.jq; }); prog[cleP+'_q'+p.k]=m;
   const nb=bits(m), roi=nb>=p.total; if(roi) prog[cleP+'_c']=(prog[cleP+'_c']||0)|(1<<p.k);
   sauve();
-  const dernier=p.k===total-1, gagneeIci=roi&&!avant, reste=p.total-nb;
+  const dernier=p.k===total-1, tous=bits(masqueV(prog,cleP,total))===total, gagneeIci=roi&&!avant, reste=p.total-nb;
   $('finCour').innerHTML=gagneeIci?COURONNE:''; $('finCour').style.display=gagneeIci?'block':'none';
   $('tampon').innerHTML= gagneeIci?'Validé': p.deja?'<small>Série</small>réussie':'<small>Niveau</small>validé';
-  $('finTitre').textContent= p.deja||!dernier? 'Niveau '+(p.k+1)+' : '+p.niv.nom : 'Exercice terminé';
+  $('finTitre').textContent= p.deja||!tous? 'Niveau '+(p.k+1)+' : '+p.niv.nom : 'Exercice terminé';
   const suiteC= roi? '' : '<br>Couronne : '+nb+' / '+p.total+' questions réussies.';
   $('finTexte').innerHTML= gagneeIci? 'Les '+p.total+' questions du niveau ont toutes été réussies.'
     : p.deja? '5 sur 5, sans une erreur.'+(roi?'':'<br>Couronne : '+nb+' / '+p.total+' questions réussies, encore '+reste+'.')
-    : (dernier? '« '+p.exo.titre+' » : les '+total+' niveaux sont validés.' : '5 sur 5, sans une erreur. Le niveau '+(p.k+2)+' est ouvert.')+suiteC;
+    : (tous? '« '+p.exo.titre+' » : les '+total+' niveaux sont validés.' : '5 sur 5, sans une erreur.')+suiteC;
   const gain=points(prog,echecs)-ptsAvant; $('finGain').textContent= gain>0? '+'+ptsTxt(gain)+' · total : '+ptsTxt(points(prog,echecs)) : '';
   $('finEncore').style.display= roi?'none':'block';
   $('finSuivant').style.display=dernier?'none':'block';
@@ -3050,7 +3209,7 @@ async function suivi(){
     const l=(await listeEleves()).filter(e=>e.id!==session.uid).sort((a,b)=>a.nom.localeCompare(b.nom));
     let h='<table><tr><th>Élève</th>'+exos.map(e=>'<th>'+e.nom+'</th>').join('')+'<th>Essais</th><th>Dernière activité</th></tr>';
     for(const e of l) h+='<tr><td class="g"><b>'+(e.nom||'—').replace(/</g,'&lt;')+'</b><button class="lien suppr" data-id="'+e.id+'">Supprimer</button></td>'
-      +exos.map(x=>{ const v=Math.min(e.prog[x.cle]||0,x.n), ec=e.echecs[x.cle]||0, es=e.essais[x.cle]||0;
+      +exos.map(x=>{ const v=bits(masqueV(e.prog,x.cle,x.n)), ec=e.echecs[x.cle]||0, es=e.essais[x.cle]||0;
           const qr=x.nq.reduce((s,N,k)=>s+Math.min(bits(e.prog[x.cle+'_q'+k]||0),N),0), qt=x.nq.reduce((s,N)=>s+N,0), co=Math.min(bits(e.prog[x.cle+'_c']||0),x.n);
           return '<td class="'+(v===x.n?'tout':v?'part':'')+'">'+v+'/'+x.n
             +'<small class="ec">'+es+' essai'+(es>1?'s':'')+'</small><small class="ec'+(ec?' oui':'')+'">'+ec+' échec'+(ec>1?'s':'')+'</small>'
@@ -3095,6 +3254,8 @@ async function litMasques(t){
 }
 let rangsL=[], rangsM=new Set();
 /* les trois premiers, sous le titre de l'accueil des thématiques */
+const rangH=r=> r>3? '<span class="rn">'+r+'</span>'
+  : '<svg class="med m'+r+'" viewBox="0 0 30 36" role="img" aria-label="'+['or','argent','bronze'][r-1]+'"><path class="rub" d="M8 1 H14 L17 13 H11 Z M22 1 H16 L13 13 H19 Z"/><circle cx="15" cy="22" r="11.5"/><text x="15" y="27" text-anchor="middle">'+r+'</text></svg>';
 let podium=null;
 const triC=l=>l.slice().sort((a,b)=>b.pts-a.pts||a.nom.localeCompare(b.nom));
 function majPodium(l,m){ podium=triC(l.filter(e=>!m.has(e.id))).slice(0,3); montrePodium(); }
@@ -3103,7 +3264,7 @@ function montrePodium(){
   $('podium').style.display=vu?'block':'none'; if(!vu) return;
   let rang=0;
   $('podium').innerHTML='<span class="pt_">Classement · les 3 premiers</span>'+podium.map((e,i)=>{ if(!i||e.pts!==podium[i-1].pts) rang=i+1;
-    return '<span class="pr'+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span><span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pp">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span></span>'; }).join('');
+    return '<span class="pr'+(e.id===session.uid?' moi':'')+'">'+rangH(rang)+'<span class="nm">'+(e.nom||'—').replace(/</g,'&lt;')+'</span><span class="pp">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span></span>'; }).join('');
 }
 async function litPodium(){
   if(!EN_LIGNE||!session) return;
@@ -3118,7 +3279,7 @@ function dessineClassement(){
   const prof=estProf(session.email), vus=rangsL.filter(e=>!rangsM.has(e.id)), caches=prof? rangsL.filter(e=>rangsM.has(e.id)) : [];
   let h='', rang=0;
   vus.forEach((e,i)=>{ if(!i||e.pts!==vus[i-1].pts) rang=i+1;
-    h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'"><span class="rn">'+rang+'</span>'+ligneC(e)+'<span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span>'
+    h+='<div class="rg'+(rang<=3?' top':'')+(e.id===session.uid?' moi':'')+'">'+rangH(rang)+ligneC(e)+'<span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span>'
       +(prof?'<button class="lien masq" data-id="'+e.id+'" data-m="1">Retirer</button>':'')+'</div>'; });
   if(caches.length) h+='<p class="sep">Retirés du classement (visibles par vous seulement)</p>'
     +caches.map(e=>'<div class="rg hors"><span class="rn">–</span>'+ligneC(e)+'<span class="pt">'+e.pts+' <small>pt'+(e.pts>1?'s':'')+'</small></span><button class="lien masq" data-id="'+e.id+'" data-m="">Remettre</button></div>').join('');
