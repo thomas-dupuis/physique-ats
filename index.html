@@ -298,7 +298,7 @@
       <p><b>5 questions</b> par niveau, <b>aucune erreur</b> permise. Un niveau réussi ouvre le suivant.</p>
       <p>Refaire un niveau validé coche 5 nouvelles questions : la <b>couronne</b> s’obtient quand toutes sont réussies.</p>
       <h2>Points</h2>
-      <ul><li>Niveau validé : <b>10 points</b>.</li><li>Ensuite, chaque nouvelle question réussie pour la couronne : <b>1 point</b> (5 par série).</li><li>Couronne : <b>20 points</b> de plus.</li><li>Niveau déjà couronné : chaque série réussie rapporte encore <b>2 points</b>.</li><li>Série perdue sur une erreur : <b>−1 point</b>.</li></ul>
+      <ul><li>Niveau validé : <b>10 points</b>.</li><li>Ensuite, chaque nouvelle question réussie pour la couronne : <b>1 point</b> (5 par série).</li><li>Couronne : <b>20 points</b> de plus.</li><li>Niveau déjà couronné : chaque série réussie rapporte encore <b>3 points</b>.</li><li>Série perdue sur une erreur : <b>−1 point</b>.</li></ul>
     </div>
     <div class="compte" id="compte" style="display:none"><span>Connecté : <b id="qui"></b> <button class="lien" id="renom" type="button">modifier</button></span><button class="lien" id="sortir">Se déconnecter</button></div>
     <form class="renom" id="renomF" style="display:none"><input id="renomI" type="text" maxlength="60" autocomplete="name" aria-label="Prénom et nom"><button class="gros" type="submit">Enregistrer</button></form>
@@ -336,7 +336,7 @@
   <section class="ecran" id="classE">
     <div class="haut"><button class="ferme" id="kRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Classement</h2><button class="lien" id="kMaj">Actualiser</button></div>
     <div class="bloc rangs" id="kListe"></div>
-    <p class="note">Niveau validé : 10 points. Ensuite, chaque nouvelle question réussie pour la couronne : 1 point (5 par série). Couronne : 20 points de plus. Niveau déjà couronné : 2 points par série réussie. Série perdue sur une erreur : −1 point.</p>
+    <p class="note">Niveau validé : 10 points. Ensuite, chaque nouvelle question réussie pour la couronne : 1 point (5 par série). Couronne : 20 points de plus. Niveau déjà couronné : 3 points par série réussie. Série perdue sur une erreur : −1 point.</p>
   </section>
 
   <section class="ecran" id="jeu">
@@ -2846,13 +2846,13 @@ function serie5(exo,niv,cle,k){                               // 5 questions : d
 
 /* ---------- points ----------
    niveau validé : 10 ; ensuite 1 point par nouvelle question cochée (5 par série, la série de validation en coche déjà 5) ;
-   couronne : +20 ; niveau déjà couronné : +2 par série réussie (compteur prog[cle+'_r'+k]) ; série perdue : −1 ; jamais sous 0. Calculé à partir de la progression enregistrée : rien de plus à stocker. */
+   couronne : +20 ; niveau déjà couronné : +3 par série réussie (compteur prog[cle+'_r'+k]) ; série perdue : −1 ; jamais sous 0. Calculé à partir de la progression enregistrée : rien de plus à stocker. */
 const NBQ={};
 const nbQ=(c,e,k)=>NBQ[c.id+'.'+e.id+k]||(NBQ[c.id+'.'+e.id+k]=questions(e,e.niveaux[k]).length);
 function points(P,E){
   let s=0;
   COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, f=Math.min(P[cle]||0,e.niveaux.length);
-    for(let k=0;k<f;k++) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+2*(P[cle+'_r'+k]||0) : 0); }));
+    for(let k=0;k<f;k++) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+3*(P[cle+'_r'+k]||0) : 0); }));
   return Math.max(0,s-Object.values(E||{}).reduce((a,b)=>a+(+b||0),0));
 }
 function bilan(P,E){                                             // niveaux validés, couronnes, échecs (affichés dans le classement)
