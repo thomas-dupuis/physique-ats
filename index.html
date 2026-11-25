@@ -326,6 +326,33 @@
   .bandeau.message .bd span{display:inline;padding-left:0;animation:none}
   .rep svg.mini{width:100%;max-width:150px;height:auto;display:block;margin:0 auto}
   svg.mini{width:150px;max-width:100%;height:auto;vertical-align:middle}
+  .gros.avent{background:var(--rouge);border-color:var(--encre);box-shadow:4px 4px 0 var(--encre);margin:0 0 16px}
+  .avgrille{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0 12px}
+  .avc{min-height:78px;background:#fff;border:2px solid var(--encre);border-radius:6px;box-shadow:3px 3px 0 var(--encre);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px;color:var(--encre)}
+  .avc{position:relative;min-height:100px} .avc b{font-size:1rem;line-height:1;position:absolute;top:5px;left:6px} .avc .ave{font-size:1.6rem;line-height:1;margin-bottom:8px} .avc small{position:absolute;left:2px;right:2px;bottom:4px;font-size:.56rem;font-weight:700;line-height:1.1;text-align:center;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+  .avc:disabled .ave{filter:grayscale(1);opacity:.55}
+  .avc.ouvert{background:#fff6cf}
+  .avc.gagne{background:var(--vert-c);border-color:var(--vert);box-shadow:3px 3px 0 var(--vert);color:var(--vert)}
+  .avc.perdu{background:var(--rouge-c);border-color:var(--rouge);box-shadow:3px 3px 0 var(--rouge);color:var(--rouge)}
+  .avc:disabled{background:#f1f3f6;border-color:#b9c3d1;box-shadow:none;color:#8d98a8}
+  .avq{font-family:var(--math);font-size:1.08rem;line-height:1.4;margin:14px 0 16px;padding-left:1.4em} .avq li{margin-bottom:10px}
+  .avf{display:flex;align-items:center} .avf .avu{font-family:var(--math);font-size:1.2rem}
+  .avgagn:empty{display:none} .avgagn p{margin:0 0 8px;font-size:.92rem;line-height:1.35} .avgagn .avp{color:var(--gris)}
+  .avdep p{margin:0 0 12px;line-height:1.4}
+  .avchrono{margin:0 0 10px;font-weight:800;font-size:1.05rem;background:var(--jaune);border:2px solid var(--encre);border-radius:6px;padding:6px 10px;text-align:center;position:sticky;top:6px;z-index:5}
+  .avchrono.urgent{background:var(--rouge);color:#fff}
+  .guirlande{height:28px;margin:-6px -8px 4px;overflow:hidden} .guirlande svg{display:block;width:100%;height:28px}
+  .guirlande .amp{animation:clignote 2.4s infinite} .guirlande .a1{animation-delay:.8s} .guirlande .a2{animation-delay:1.6s}
+  @keyframes clignote{0%,60%,100%{opacity:1}75%{opacity:.35}}
+  .neige{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+  .neige i{position:absolute;top:-24px;color:#8fb6de;font-style:normal;opacity:.7;animation:tombe linear infinite}
+  @keyframes tombe{to{transform:translate(18px,105vh) rotate(180deg)}}
+  body.noel #accueil>*:not(.neige){position:relative;z-index:1}
+  .sapin{font-size:.8em}
+  @media (prefers-reduced-motion:reduce){ .neige{display:none} .guirlande .amp{animation:none} }
+  .avchap{margin:-4px 0 12px;font-weight:800;font-size:.95rem}
+  .avcor{padding:10px 12px;margin-top:10px}
+  .avcor h3{margin:0 0 4px;font-size:1rem;text-transform:uppercase;letter-spacing:1px} .avcor .avq{margin:6px 0 0} .avcor .avq li:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -357,6 +384,7 @@
       <form class="renom" id="msgF" style="display:none"><input id="msgI" type="text" maxlength="200" placeholder="Message aux élèves (vide = pas de message)" aria-label="Message aux élèves"><button class="gros" type="submit">Publier</button></form>
       <p class="msg" id="bandM"></p>
     </div>
+    <button class="gros avent" id="aventB" type="button" style="display:none">Calendrier de l’Avent</button>
     <div id="competences"></div>
     <div class="pied"><button class="lien" id="raz">Effacer ma progression</button></div>
   </section>
@@ -384,6 +412,33 @@
   <section class="ecran" id="badgesE">
     <div class="haut"><button class="ferme" id="bRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Badges</h2><b id="bCompte"></b></div>
     <div id="bListe"></div>
+  </section>
+
+  <section class="ecran" id="aventE">
+    <div class="haut"><button class="ferme" id="avRetour" aria-label="Retour">✕</button><h2 style="margin:0;flex:1">Calendrier de l’Avent</h2></div>
+    <p class="note" id="avInfo"></p>
+    <div class="avgrille" id="avGrille"></div>
+    <p class="note">Chaque code trouvé fait gagner un Schoko-Bons.</p>
+    <button class="gros second" id="avGagnB" type="button" style="display:none">Voir les gagnants</button>
+    <div class="bloc avgagn" id="avGagn"></div>
+  </section>
+
+  <section class="ecran" id="aventC">
+    <div class="haut"><button class="ferme" id="avcRetour" aria-label="Retour au calendrier">✕</button><h2 style="margin:0;flex:1" id="avTitre"></h2></div>
+    <p class="avchap" id="avChapitre"></p>
+    <div class="bloc avdep" id="avDepart"><p>Prépare une feuille et un stylo. Dès que tu commences le défi, tu as <b>15 minutes</b> et <b>3 essais</b> pour entrer le code. Garde ta feuille : la rédaction te sera demandée pour obtenir le Schoko-Bons.</p><button class="gros" id="avGo" type="button">Commencer le défi</button></div>
+    <div id="avCorps">
+    <p class="avchrono" id="avChrono"></p>
+    <div class="bloc schema" id="avSchema"></div>
+    <p class="enonce" id="avEnonce"></p>
+    <ol class="avq" id="avQ"></ol>
+    <form class="renom avf" id="avF"><input id="avI" type="text" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Code" aria-label="Code"><span class="avu" id="avUnite"></span><button class="gros" id="avV" type="button">Valider</button></form>
+    <p class="msg" id="avMsg"></p>
+    <p class="note" id="avReste"></p>
+    <p class="note" id="avCorD" style="display:none">La correction sera affichée ici à partir de demain.</p>
+    <div class="bloc avcor" id="avCor" style="display:none"><h3 id="avCorT">Correction</h3><ol class="avq" id="avCorL"></ol></div>
+    <button class="gros second" id="avRaz" type="button" style="display:none">Recommencer cette case (phase de test)</button>
+    </div>
   </section>
 
   <section class="ecran" id="classE">
@@ -3604,6 +3659,7 @@ function accueil(){
   $('classB').style.display=EN_LIGNE&&session?'block':'none';
   $('outilsProf').style.display=EN_LIGNE&&session&&estProf(session.email)?'block':'none'; $('bandF').style.display='none'; $('msgF').style.display='none'; $('bandM').textContent='';
   montreBandeau(); montrePodium();
+  $('aventB').style.display=theme<0&&avVisible()?'block':'none';
   $('compte').style.display=EN_LIGNE?'flex':'none';
   $('renomF').style.display='none';
   if(EN_LIGNE&&session){ $('qui').textContent=session.nom||session.email; }
@@ -3899,6 +3955,203 @@ BANDEAUX.forEach(B=>{
     }catch(e){ $('bandM').className='msg ko'; $('bandM').textContent= e.code===403?'Refusé : les nouvelles règles Firebase ne sont pas encore publiées.':e.message; }
   });
 });
+
+/* ---------- calendrier de l'Avent ----------
+   25 cases (1er au 25 décembre). Une case ne s'ouvre que le bon jour ; 3 essais pour entrer le code (valeur numérique).
+   prog.av<j> : nombre d'essais ratés (1 à 3), ou 10 + essais ratés quand le code a été trouvé (fusion par maximum).
+   Le code n'est pas écrit dans le fichier : seulement son empreinte (hAv). Pour calculer une empreinte : hAv(jour,'valeur').
+   AVENT_ELEVES = false : le calendrier n'est visible que du professeur (et de la version de test sans comptes), toutes cases ouvertes. */
+const AVENT_ELEVES=false, AVENT_AN=2026, AVENT_ESSAIS=3;
+const hAv=(j,v)=>{ let h1=0x811c9dc5, h2=0x1b873593; const s='avent'+j+'|'+v; for(let i=0;i<s.length;i++){ const c=s.charCodeAt(i); h1=Math.imul(h1^c,16777619); h2=Math.imul(h2^c,0x85ebca6b)^(h2>>>13); } return (h1>>>0).toString(16)+(h2>>>0).toString(16); };
+const AVENT=[];                                                   // AVENT[j] : {theme, titre (court), schema(), enonce, q:[3 questions], unite, h}
+const avN=nomHTML, avI_=s=>'<i>'+s+'</i>', avNomme=c=>{ c.e.forEach(e=>{ if(e.k==='R') e.nom='R_'+e.id.slice(1); }); return c; };
+const avC=(e,q)=>()=>dessiner(avNomme({t:'dc',e}),q);
+const avG=avI_('g')+' = 10 m·s<sup>−2</sup>';
+/* schémas de mécanique du calendrier : la situation seulement, jamais les forces (le bilan est demandé à l'élève) */
+const avPiste=()=>{ let s='<path class="fil" stroke-width="2.4" d="M40 56 C 110 60 120 170 190 176 S 250 172 264 172"/>';
+  s+='<circle cx="52" cy="57" r="4" fill="#1b2a41"/>'+etiq('A',52,42,'middle')+'<circle cx="236" cy="174" r="4" fill="#1b2a41"/>'+etiq('B',236,198,'middle');
+  s+=tir_(52,57,286,57)+tir_(236,174,286,174)+seg(274,61,274,170,'aux',1.3)+tete(274,57,0,-1,'aux',4)+tete(274,174,0,1,'aux',4)+etiq('h',288,122,'middle','aux');
+  return svgM(300,210,s); };
+const avPalet=()=>{ let s=solM(24,276,150)+'<rect class="cmp" x="44" y="118" width="48" height="32"/>'+'<rect x="204" y="118" width="48" height="32" fill="none" stroke="#1b2a41" stroke-width="1.4" stroke-dasharray="5 5"/>';
+  s+=etiq('A',68,180,'middle')+etiq('B',228,180,'middle')+fleche(100,134,46,0,'aux',null,2)+etiq('v_A',124,116,'middle','aux');
+  return svgM(300,200,s); };
+const avLuge=()=>{ const b=Math.PI/3; let s=solM(24,276,150)+'<rect class="cmp" x="96" y="110" width="64" height="40"/>'+seg(160,130,160+116*Math.cos(b),130-116*Math.sin(b),'',1.6)+tir_(160,130,262,130)+arcNom(160,130,44,0,-b,'β');
+  s+=fleche(34,96,44,0,'aux','v',2,[-18,-12]); return svgM(300,190,s); };
+const avM=s=>s.replace('>M</tspan>','>m</tspan>');
+const avChoc=()=>{ let s=murM(268,92,160,1)+solM(24,268,160)+ressortP(268,138,168,138)+'<rect class="cmp" x="54" y="116" width="44" height="44"/>';
+  s+=fleche(104,138,46,0,'aux',null,2)+etiq('v_A',128,120,'middle','aux')+etiq('k',218,112,'middle')+etiq('m',76,106,'middle');
+  return svgM(300,200,s); };
+const AVX=(j,theme,titre,schema,enonce,q,unite,h)=>{ AVENT[j]={theme,titre,schema,enonce,q,unite,h}; };
+AVX(1,'EL1','Kirchhoff',()=>dessiner(avNomme(deuxMailles(1,1,1)),[I('i_3','R3'),I('i_1','R1'),I('i_2','R2')]),
+  'Le générateur idéal de tension a pour force électromotrice '+avI_('E')+' = 12 V. Les résistances valent '+avN('R_1')+' = 2 Ω, '+avN('R_2')+' = 6 Ω et '+avN('R_3')+' = 3 Ω.',
+  ['Écrire la loi des nœuds, puis la loi des mailles dans la maille formée par '+avN('R_2')+' et '+avN('R_3')+'. En déduire '+avN('i_1')+' en fonction de '+avN('i_3')+', '+avN('R_2')+' et '+avN('R_3')+'.',
+   'Écrire la loi des mailles dans la maille formée par le générateur, '+avN('R_1')+' et '+avN('R_3')+'. En déduire l’expression de '+avN('i_3')+' en fonction de '+avI_('E')+', '+avN('R_1')+', '+avN('R_2')+' et '+avN('R_3')+'.',
+   'Calculer '+avN('i_3')+' en ampères : c’est le code.'],'A','91b437dc5e0fa8e0');
+AVX(2,'M1','Plan incliné',()=>scPlan(null,{a:30}),
+  'Une masse '+avI_('m')+' = 4 kg est posée sur un plan incliné d’un angle '+avI_('α')+' = 30° par rapport à l’horizontale. On prend '+avG+'.',
+  ['Faire un schéma et choisir une base : un axe le long du plan, un axe perpendiculaire au plan, dirigé vers le haut.',
+   'Exprimer les deux composantes du poids dans cette base en fonction de '+avI_('m')+', '+avI_('g')+' et '+avI_('α')+'.',
+   'Calculer la norme de la composante du poids le long du plan, en newtons : c’est le code.'],'N','864e374fee65abbd');
+AVX(3,'C1','Avancement',null,
+  'La réaction 2 H<sub>2</sub> + O<sub>2</sub> → 2 H<sub>2</sub>O est totale. Initialement : '+avI_('n')+'<sub>0</sub>(H<sub>2</sub>) = 0,60 mol et '+avI_('n')+'<sub>0</sub>(O<sub>2</sub>) = 0,40 mol, sans eau. Donnée : '+avI_('M')+'(H<sub>2</sub>O) = 18 g·mol<sup>−1</sup>.',
+  ['Dresser le tableau d’avancement.','Déterminer le réactif limitant et l’avancement final '+avN('x_f')+'.','Calculer la masse d’eau formée, en grammes : c’est le code.'],'g','6907ea9be028330a');
+AVX(4,'TH1','Travail',null,
+  'Un gaz se détend de '+avN('V_1')+' = 3 L à '+avN('V_2')+' = 5 L contre une pression extérieure constante '+avN('P_ext')+' = 2 bar.',
+  ['Écrire l’expression du travail élémentaire des forces de pression.','En déduire le travail '+avI_('W')+' reçu par le gaz en fonction de '+avN('P_ext')+', '+avN('V_1')+' et '+avN('V_2')+'.','Calculer '+avI_('W')+' en joules, avec son signe : c’est le code.'],'J','4b5c7efae85b9ff0');
+AVX(5,'M2','Glissement',()=>scPlan(null,{a:30}),
+  'Un palet est lâché sans vitesse sur un plan incliné d’un angle '+avI_('α')+' = 30° par rapport à l’horizontale. Il glisse sans frottement. On prend '+avG+'.',
+  ['Faire le bilan des forces et projeter le principe fondamental de la dynamique le long du plan.','En déduire l’accélération, puis la vitesse '+avI_('v')+'('+avI_('t')+').','Calculer la vitesse à '+avI_('t')+' = 2 s, en m·s<sup>−1</sup> : c’est le code.'],'m·s<sup>−1</sup>','ea867ddb9b2dde7');
+AVX(6,'EL2','Constante de temps',avC([V([0,1],[0,0]),R('R1',[0,0],[1.4,0]),R('R2',[1.4,0],[1.4,1]),W([1.4,0],[2.8,0]),C('C',[2.8,0],[2.8,1]),W([2.8,1],[1.4,1],[0,1])],[U('u_C','C')]),
+  'Le condensateur est initialement déchargé. '+avN('R_1')+' = 6 kΩ, '+avN('R_2')+' = 3 kΩ et '+avI_('C')+' = 5 µF.',
+  ['Écrire la loi des nœuds et les lois des mailles.','Établir l’équation différentielle vérifiée par '+avN('u_C')+', la mettre sous forme canonique et identifier la constante de temps '+avI_('τ')+'.','Calculer '+avI_('τ')+' en millisecondes : c’est le code.'],'ms','a212655072e2e6a8');
+AVX(7,'M3','Énergie mécanique',avPiste,
+  'Un skieur part sans vitesse d’un point A et descend une piste sans frottement. Le point B est situé 5 m plus bas que A. On prend '+avG+'.',
+  ['Faire le bilan des forces : lesquelles travaillent ? Lesquelles sont conservatives ?','Écrire alors le théorème de l’énergie mécanique entre A et B et en déduire la vitesse '+avN('v_B')+'.','Calculer '+avN('v_B')+' en m·s<sup>−1</sup> : c’est le code.'],'m·s<sup>−1</sup>','1b109f3142edaf94');
+AVX(8,'TH2','Calorimétrie',null,
+  'Dans un calorimètre parfait, de capacité thermique négligeable, on mélange 200 g d’eau à 20 °C et 100 g d’eau à 80 °C.',
+  ['Définir le système et écrire le bilan enthalpique.','En déduire l’expression de la température finale '+avN('T_F')+'.','Calculer '+avN('T_F')+' en °C : c’est le code.'],'°C','83c10d332bcaf993');
+AVX(9,'M4','Pulsation propre',()=>avM(scRessort(null,{t:'VH'})),
+  'Une masse est suspendue à un ressort vertical. À l’équilibre, le ressort est allongé de 2,5 cm par rapport à sa longueur à vide. On prend '+avG+'.',
+  ['Écrire la condition d’équilibre de la masse.','En déduire la pulsation propre '+avN('ω_0')+' de l’oscillateur en fonction de '+avI_('g')+' et de l’allongement à l’équilibre.','Calculer '+avN('ω_0')+' en rad·s<sup>−1</sup> : c’est le code.'],'rad·s<sup>−1</sup>','5493494c4b75ccda');
+AVX(10,'EL1','Pont diviseur',()=>dessiner(avNomme(deuxMailles(1,1,1)),[U('U','R2')]),
+  avI_('E')+' = 12 V et '+avN('R_1')+' = '+avN('R_2')+' = '+avN('R_3')+' = 4 kΩ.',
+  ['Exprimer la résistance équivalente à l’association de '+avN('R_2')+' et '+avN('R_3')+'.','Par un pont diviseur de tension, exprimer la tension '+avI_('U')+' aux bornes de '+avN('R_2')+'.','Calculer '+avI_('U')+' en volts : c’est le code.'],'V','8f2c21e29e0dce65');
+AVX(11,'M2','Vitesse limite',()=>scChute(null,{fluide:1}),
+  'Une bille de masse '+avI_('m')+' = 0,20 kg tombe verticalement dans un fluide. Elle subit une force de frottement fluide de norme '+avI_('α v')+', avec '+avI_('α')+' = 0,50 kg·s<sup>−1</sup>. La poussée d’Archimède est négligée. On prend '+avG+'.',
+  ['Projeter le principe fondamental de la dynamique sur la verticale.','En déduire l’expression de la vitesse limite '+avN('v_ℓ')+'.','Calculer '+avN('v_ℓ')+' en m·s<sup>−1</sup> : c’est le code.'],'m·s<sup>−1</sup>','fdafe72572a4f2f7');
+AVX(12,'C1','Gaz parfait',null,
+  'Du diazote, de masse molaire '+avI_('M')+' = 28 g·mol<sup>−1</sup>, occupe un volume '+avI_('V')+' = 24,9 L sous la pression '+avI_('P')+' = 1,0 bar à la température '+avI_('T')+' = 300 K. Donnée : '+avI_('R')+' = 8,3 J·K<sup>−1</sup>·mol<sup>−1</sup>.',
+  ['Convertir les données dans les unités du système international.','Exprimer la quantité de matière '+avI_('n')+', puis la masse '+avI_('m')+' du gaz.','Calculer '+avI_('m')+' en grammes : c’est le code.'],'g','f0fe2b22908f7ee3');
+AVX(13,'TH1','Premier principe',null,
+  'Deux moles de gaz parfait, de capacité thermique molaire à volume constant '+avN('C_V,m')+' = 20 J·K<sup>−1</sup>·mol<sup>−1</sup>, passent de 300 K à 350 K en recevant un travail '+avI_('W')+' = 500 J.',
+  ['Exprimer la variation d’énergie interne Δ'+avI_('U')+' du gaz.','Écrire le premier principe et en déduire l’expression du transfert thermique '+avI_('Q')+'.','Calculer '+avI_('Q')+' en joules : c’est le code.'],'J','47aed7c7c1b1e742');
+AVX(14,'M3','Frottement',avPalet,
+  'Un palet de masse '+avI_('m')+' = 0,5 kg est lancé en A à la vitesse '+avN('v_A')+' = 6 m·s<sup>−1</sup> sur un sol horizontal. Il subit une force de frottement constante de norme '+avI_('f')+' = 3 N et s’arrête en B.',
+  ['Exprimer le travail de chaque force entre A et B.','Écrire le théorème de l’énergie cinétique entre A et B et en déduire la distance AB.','Calculer AB en mètres : c’est le code.'],'m','5d8ff6efa924365f');
+AVX(15,'EL2','Régime permanent',avC([V([0,1],[0,0]),R('R1',[0,0],[1,0]),R('R2',[1,0],[2,0]),L('L',[2,0],[2,1]),W([2,1],[0,1])],[I('i','L')]),
+  'Le circuit est branché depuis longtemps. '+avI_('E')+' = 12 V, '+avN('R_1')+' = 2 Ω, '+avN('R_2')+' = 4 Ω et '+avI_('L')+' = 0,1 H.',
+  ['Comment se comporte la bobine en régime permanent ?','Exprimer l’intensité '+avI_('i')+' en régime permanent, puis l’énergie stockée dans la bobine.','Calculer cette énergie en joules : c’est le code.'],'J','4216f57928989ebb');
+AVX(16,'M2','Principe d’inertie',avLuge,
+  'Une luge est tirée à vitesse constante, en ligne droite, sur un sol horizontal. La corde est inclinée d’un angle '+avI_('β')+' = 60° au-dessus de l’horizontale et sa tension vaut '+avI_('T')+' = 40 N. Le sol exerce sur la luge une force de frottement horizontale de norme '+avI_('f')+'.',
+  ['Faire le bilan des forces. Que dit le principe d’inertie ?','Projeter sur l’horizontale et en déduire l’expression de '+avI_('f')+'.','Calculer '+avI_('f')+' en newtons : c’est le code.'],'N','cb33319e7e31f3cc');
+AVX(17,'TH2','Fusion',null,
+  'On transforme 50 g de glace à 0 °C en eau liquide à 20 °C, à pression constante. Données : '+avN('L_fus')+' = 330 kJ·kg<sup>−1</sup> ; capacité thermique massique de l’eau liquide '+avI_('c')+' = 4,2 kJ·K<sup>−1</sup>·kg<sup>−1</sup>.',
+  ['Décomposer la transformation en deux étapes.','Exprimer la variation d’enthalpie de chaque étape.','Calculer la variation d’enthalpie totale en kilojoules : c’est le code.'],'kJ','571bab4c8f71381');
+AVX(18,'M4','Conditions initiales',()=>avM(scRessort(null,{t:'HG'})),
+  'Un oscillateur harmonique de pulsation propre '+avN('ω_0')+' = 20 rad·s<sup>−1</sup> a pour solution '+avI_('x')+'('+avI_('t')+') = '+avI_('A')+' cos('+avN('ω_0')+avI_('t')+') + '+avI_('B')+' sin('+avN('ω_0')+avI_('t')+'). À '+avI_('t')+' = 0 : '+avI_('x')+'(0) = 3 cm et la vitesse vaut 0,8 m·s<sup>−1</sup>.',
+  ['Déterminer '+avI_('A')+'.','Dériver '+avI_('x')+'('+avI_('t')+') et déterminer '+avI_('B')+'.','Calculer l’amplitude √('+avI_('A')+'<sup>2</sup> + '+avI_('B')+'<sup>2</sup>) en centimètres : c’est le code.'],'cm','b96d7ccd33f76e67');
+AVX(19,'EL1','Puissance',avC([V([0,1],[0,0]),R('R1',[0,0],[1.4,0]),R('R2',[1.4,0],[1.4,1]),W([1.4,1],[0,1])],[I('i','R1')]),
+  avI_('E')+' = 10 V, '+avN('R_1')+' = 2 Ω et '+avN('R_2')+' = 3 Ω.',
+  ['Écrire la loi des mailles et en déduire l’expression de '+avI_('i')+'.','Exprimer la puissance reçue par '+avN('R_2')+'.','Calculer cette puissance en watts : c’est le code.'],'W','1abc36c4d628a0aa');
+AVX(20,'M2','Ressort',()=>avM(scRessort(null,{t:'VH'})),
+  'Une masse '+avI_('m')+' = 0,50 kg est suspendue, immobile, à un ressort vertical de raideur '+avI_('k')+' = 100 N·m<sup>−1</sup> et de longueur à vide '+avN('ℓ_0')+' = 20 cm. On prend '+avG+'.',
+  ['Faire le bilan des forces à l’équilibre.','En déduire l’expression de la longueur du ressort à l’équilibre.','Calculer cette longueur en centimètres : c’est le code.'],'cm','38b68b0ef94bbc57');
+AVX(21,'TH1','Isochore',null,
+  'Un gaz parfait, enfermé dans une enceinte rigide, est chauffé de 300 K à 450 K. Sa pression initiale vaut 1,0 bar.',
+  ['Quelle est la nature de la transformation ? Que vaut le travail reçu ?','Avec l’équation d’état, relier la pression et la température du gaz.','Calculer la pression finale en bar : c’est le code.'],'bar','8a707f8c7a109e1f');
+AVX(22,'M3','Compression',avChoc,
+  'Une masse '+avI_('m')+' = 0,10 kg glisse sans frottement sur un sol horizontal et arrive en A, à la vitesse '+avN('v_A')+' = 2 m·s<sup>−1</sup>, au contact d’un ressort horizontal de raideur '+avI_('k')+' = 40 N·m<sup>−1</sup>, initialement au repos. En B, la compression du ressort est maximale.',
+  ['Exprimer l’énergie cinétique et l’énergie potentielle élastique en A, puis en B.','Écrire le théorème de l’énergie mécanique entre A et B et en déduire la compression maximale.','Calculer cette compression en centimètres : c’est le code.'],'cm','e563b384f1aad6c6');
+AVX(23,'EL2','Régime critique',avC([V([0,1],[0,0]),R('R1',[0,0],[1,0]),L('L',[1,0],[2,0]),C('C',[2,0],[2,1]),W([2,1],[0,1])],[U('u_C','C')]),
+  avI_('L')+' = 10 mH et '+avI_('C')+' = 1 µF. On cherche la valeur '+avN('R_c')+' de la résistance pour laquelle le régime est critique.',
+  ['Établir l’équation différentielle vérifiée par '+avN('u_C')+' et la mettre sous forme canonique.','Quelle est la valeur du facteur de qualité en régime critique ? En déduire l’expression de '+avN('R_c')+'.','Calculer '+avN('R_c')+' en ohms : c’est le code.'],'Ω','7554a99ae02b1245');
+AVX(24,'TH2','Méthode électrique',null,
+  'Dans un calorimètre parfait, de capacité thermique négligeable, une résistance de puissance 100 W chauffe 200 g d’eau pendant 84 s. Donnée : '+avI_('c')+' = 4200 J·K<sup>−1</sup>·kg<sup>−1</sup>.',
+  ['Exprimer l’énergie reçue par l’eau.','Écrire le bilan enthalpique et en déduire l’élévation de température Δ'+avI_('θ')+'.','Calculer Δ'+avI_('θ')+' en kelvins : c’est le code.'],'K','6c0d983288a93b97');
+AVX(25,'TH1','Isotherme',null,
+  'Un gaz parfait, initialement à la pression '+avN('P_1')+' = 1,0 bar et au volume '+avN('V_1')+' = 10 L, est comprimé de façon isotherme et réversible jusqu’au volume '+avN('V_2')+' = 5 L. Donnée : ln 2 = 0,69.',
+  ['Écrire le travail élémentaire et exprimer la pression '+avI_('P')+' du gaz en fonction de '+avI_('V')+'.','Intégrer pour obtenir le travail '+avI_('W')+' en fonction de '+avN('P_1')+', '+avN('V_1')+' et '+avN('V_2')+'.','Calculer '+avI_('W')+' en joules, avec son signe : c’est le code.'],'J','51c519edc4689139');
+
+const AVENT_DUREE=15*60, AV_T0=2000000000;                        // prog.avt<j> = AV_T0 − heure de début (s) : la fusion par maximum garde le début le plus ancien
+const AV_EMO={C1:'🧪',M1:'📐',M2:'🍎',M3:'🎢',M4:'🪀',TH1:'🌡️',TH2:'🧊',EL1:'💡',EL2:'⚡'};   // un emoji par chapitre
+const avEmo=A=>AV_EMO[A.theme]||'🎁';
+const avChap=A=>{ const c=COMPETENCES.find(c=>c.code===A.theme); return c?c.titre:A.titre; };
+const avProf=()=>!!(EN_LIGNE&&session&&estProf(session.email));
+const avTest=()=>!EN_LIGNE||avProf();                            // phase de test : toutes les cases ouvertes ; ni essais ni temps comptés pour le professeur
+const avVisible=()=>AVENT_ELEVES||avTest()||(avJour()>=1&&avJour()<=25);   // élèves : bouton visible du 1er au 25 décembre inclus
+const avJour=()=>{ const d=new Date(); return d.getFullYear()===AVENT_AN&&d.getMonth()===11? d.getDate() : (d.getFullYear()>AVENT_AN? 99 : 0); };
+const avDebut=j=>prog['avt'+j]? AV_T0-prog['avt'+j] : 0;
+const avReste=j=>{ const d=avDebut(j); return d? d+AVENT_DUREE-Math.floor(Date.now()/1000) : AVENT_DUREE; };
+const avHorsTemps=j=>!avProf()&&avDebut(j)>0&&avReste(j)<=0;
+const avEtat=j=>{ const v=prog['av'+j]||0; if(v>=10) return 'gagne'; if(v>=AVENT_ESSAIS||avHorsTemps(j)) return 'perdu';
+  if(!AVENT[j]) return avTest()?'vide':(j<avJour()?'passe':'ferme'); if(avTest()) return 'ouvert'; const a=avJour(); return j===a?'ouvert':j<a?'passe':'ferme'; };
+/* corrections (3 lignes par case), encodées pour ne pas être lisibles directement dans le fichier */
+const AVCOR=JSON.parse(decodeURIComponent(escape(atob('W1siPGk+aTwvaT48c3ViPjE8L3N1Yj4gPSA8aT5pPC9pPjxzdWI+Mjwvc3ViPiArIDxpPmk8L2k+PHN1Yj4zPC9zdWI+IGV0IDxpPlI8L2k+PHN1Yj4yPC9zdWI+IDxpPmk8L2k+PHN1Yj4yPC9zdWI+ID0gPGk+UjwvaT48c3ViPjM8L3N1Yj4gPGk+aTwvaT48c3ViPjM8L3N1Yj4sIGRvbmMgPGk+aTwvaT48c3ViPjE8L3N1Yj4gPSAoMSArIDxpPlI8L2k+PHN1Yj4zPC9zdWI+LzxpPlI8L2k+PHN1Yj4yPC9zdWI+KSA8aT5pPC9pPjxzdWI+Mzwvc3ViPi4iLCAiPGk+RTwvaT4gPSA8aT5SPC9pPjxzdWI+MTwvc3ViPiA8aT5pPC9pPjxzdWI+MTwvc3ViPiArIDxpPlI8L2k+PHN1Yj4zPC9zdWI+IDxpPmk8L2k+PHN1Yj4zPC9zdWI+LCBkb25jIDxpPmk8L2k+PHN1Yj4zPC9zdWI+ID0gPGk+RTwvaT4gLyAoPGk+UjwvaT48c3ViPjE8L3N1Yj4gKyA8aT5SPC9pPjxzdWI+Mzwvc3ViPiArIDxpPlI8L2k+PHN1Yj4xPC9zdWI+PGk+UjwvaT48c3ViPjM8L3N1Yj4vPGk+UjwvaT48c3ViPjI8L3N1Yj4pLiIsICI8aT5pPC9pPjxzdWI+Mzwvc3ViPiA9IDEyIC8gKDIgKyAzICsgMSkgPSAyIEEuIl0sIFsiQXhlICg8aT5PeDwvaT4pIGxlIGxvbmcgZHUgcGxhbiwgdmVycyBsZSBiYXMgZGUgbGEgcGVudGUgOyBheGUgKDxpPk95PC9pPikgcGVycGVuZGljdWxhaXJlIGF1IHBsYW4sIHZlcnMgbGUgaGF1dC4iLCAiPGk+UDwvaT48c3ViPng8L3N1Yj4gPSA8aT5tPC9pPiA8aT5nPC9pPiBzaW4gPGk+zrE8L2k+IGV0IDxpPlA8L2k+PHN1Yj55PC9zdWI+ID0g4oiSPGk+bTwvaT4gPGk+ZzwvaT4gY29zIDxpPs6xPC9pPi4iLCAiPGk+bTwvaT4gPGk+ZzwvaT4gc2luIDxpPs6xPC9pPiA9IDQgw5cgMTAgw5cgMCw1ID0gMjAgTi4iXSwgWyJIPHN1Yj4yPC9zdWI+IDogMCw2MCDiiJIgMjxpPng8L2k+IDsgTzxzdWI+Mjwvc3ViPiA6IDAsNDAg4oiSIDxpPng8L2k+IDsgSDxzdWI+Mjwvc3ViPk8gOiAyPGk+eDwvaT4uIiwgIjAsNjAg4oiSIDI8aT54PC9pPiA9IDAgZG9ubmUgPGk+eDwvaT4gPSAwLDMwIG1vbCA7IDAsNDAg4oiSIDxpPng8L2k+ID0gMCBkb25uZSA8aT54PC9pPiA9IDAsNDAgbW9sLiBIPHN1Yj4yPC9zdWI+IGVzdCBsaW1pdGFudCBldCA8aT54PC9pPjxzdWI+Zjwvc3ViPiA9IDAsMzAgbW9sLiIsICI8aT5uPC9pPihIPHN1Yj4yPC9zdWI+TykgPSAyPGk+eDwvaT48c3ViPmY8L3N1Yj4gPSAwLDYwIG1vbCwgZG9uYyA8aT5tPC9pPiA9IDAsNjAgw5cgMTggPSAxMCw4IGcuIl0sIFsizrQ8aT5XPC9pPiA9IOKIkjxpPlA8L2k+PHN1Yj5leHQ8L3N1Yj4gZDxpPlY8L2k+LiIsICI8aT5XPC9pPiA9IOKIkjxpPlA8L2k+PHN1Yj5leHQ8L3N1Yj4gKDxpPlY8L2k+PHN1Yj4yPC9zdWI+IOKIkiA8aT5WPC9pPjxzdWI+MTwvc3ViPikuIiwgIjxpPlc8L2k+ID0g4oiSMsK3MTA8c3VwPjU8L3N1cD4gw5cgMsK3MTA8c3VwPuKIkjM8L3N1cD4gPSDiiJI0MDAgSi4iXSwgWyJGb3JjZXMgOiBwb2lkcyBldCByw6lhY3Rpb24gbm9ybWFsZS4gTGUgbG9uZyBkdSBwbGFuIDogPGk+bTwvaT4gPGk+YTwvaT4gPSA8aT5tPC9pPiA8aT5nPC9pPiBzaW4gPGk+zrE8L2k+LiIsICI8aT5hPC9pPiA9IDxpPmc8L2k+IHNpbiA8aT7OsTwvaT4sIGRvbmMgPGk+djwvaT4oPGk+dDwvaT4pID0gPGk+ZzwvaT4gc2luIDxpPs6xPC9pPiDDlyA8aT50PC9pPiAodml0ZXNzZSBpbml0aWFsZSBudWxsZSkuIiwgIjxpPnY8L2k+ID0gMTAgw5cgMCw1IMOXIDIgPSAxMCBtwrdzPHN1cD7iiJIxPC9zdXA+LiJdLCBbIjxpPmk8L2k+PHN1Yj4xPC9zdWI+ID0gPGk+aTwvaT48c3ViPjI8L3N1Yj4gKyA8aT5pPC9pPjxzdWI+Qzwvc3ViPiA7IDxpPkU8L2k+ID0gPGk+UjwvaT48c3ViPjE8L3N1Yj4gPGk+aTwvaT48c3ViPjE8L3N1Yj4gKyA8aT51PC9pPjxzdWI+Qzwvc3ViPiA7IDxpPnU8L2k+PHN1Yj5DPC9zdWI+ID0gPGk+UjwvaT48c3ViPjI8L3N1Yj4gPGk+aTwvaT48c3ViPjI8L3N1Yj4gOyA8aT5pPC9pPjxzdWI+Qzwvc3ViPiA9IDxpPkM8L2k+IGQ8aT51PC9pPjxzdWI+Qzwvc3ViPi9kPGk+dDwvaT4uIiwgImQ8aT51PC9pPjxzdWI+Qzwvc3ViPi9kPGk+dDwvaT4gKyA8aT51PC9pPjxzdWI+Qzwvc3ViPi88aT7PhDwvaT4gPSA8aT5FPC9pPi8oPGk+UjwvaT48c3ViPjE8L3N1Yj48aT5DPC9pPiksIGF2ZWMgPGk+z4Q8L2k+ID0gPGk+UjwvaT48c3ViPjE8L3N1Yj48aT5SPC9pPjxzdWI+Mjwvc3ViPjxpPkM8L2k+IC8gKDxpPlI8L2k+PHN1Yj4xPC9zdWI+ICsgPGk+UjwvaT48c3ViPjI8L3N1Yj4pLiIsICI8aT7PhDwvaT4gPSAywrcxMDxzdXA+Mzwvc3VwPiDDlyA1wrcxMDxzdXA+4oiSNjwvc3VwPiA9IDEwPHN1cD7iiJIyPC9zdXA+IHMgPSAxMCBtcy4iXSwgWyJMZSBwb2lkcyB0cmF2YWlsbGUgZXQgaWwgZXN0IGNvbnNlcnZhdGlmIDsgbGEgcsOpYWN0aW9uIG5vcm1hbGUgbmUgdHJhdmFpbGxlIHBhcy4gQXVjdW5lIGZvcmNlIG5vbiBjb25zZXJ2YXRpdmUgbmUgdHJhdmFpbGxlLiIsICI8aT5FPC9pPjxzdWI+bTwvc3ViPihCKSDiiJIgPGk+RTwvaT48c3ViPm08L3N1Yj4oQSkgPSAwLCBzb2l0IMK9IDxpPm08L2k+IDxpPnY8L2k+PHN1Yj5CPC9zdWI+PHN1cD4yPC9zdXA+IOKIkiA8aT5tPC9pPiA8aT5nPC9pPiA8aT5oPC9pPiA9IDAsIGRvbmMgPGk+djwvaT48c3ViPkI8L3N1Yj4gPSDiiJooMjxpPmc8L2k+PGk+aDwvaT4pLiIsICI8aT52PC9pPjxzdWI+Qjwvc3ViPiA9IOKImigyIMOXIDEwIMOXIDUpID0gMTAgbcK3czxzdXA+4oiSMTwvc3VwPi4iXSwgWyJTeXN0w6htZSA6IGxlcyBkZXV4IG1hc3NlcyBk4oCZZWF1LiBDYWxvcmltw6h0cmUgcGFyZmFpdCwgcHJlc3Npb24gY29uc3RhbnRlIDogzpQ8aT5IPC9pPiA9IDAuIiwgIjxpPm08L2k+PHN1Yj4xPC9zdWI+IDxpPmM8L2k+ICg8aT5UPC9pPjxzdWI+Rjwvc3ViPiDiiJIgPGk+VDwvaT48c3ViPjE8L3N1Yj4pICsgPGk+bTwvaT48c3ViPjI8L3N1Yj4gPGk+YzwvaT4gKDxpPlQ8L2k+PHN1Yj5GPC9zdWI+IOKIkiA8aT5UPC9pPjxzdWI+Mjwvc3ViPikgPSAwLCBkb25jIDxpPlQ8L2k+PHN1Yj5GPC9zdWI+ID0gKDxpPm08L2k+PHN1Yj4xPC9zdWI+PGk+VDwvaT48c3ViPjE8L3N1Yj4gKyA8aT5tPC9pPjxzdWI+Mjwvc3ViPjxpPlQ8L2k+PHN1Yj4yPC9zdWI+KSAvICg8aT5tPC9pPjxzdWI+MTwvc3ViPiArIDxpPm08L2k+PHN1Yj4yPC9zdWI+KS4iLCAiPGk+VDwvaT48c3ViPkY8L3N1Yj4gPSAoMjAwIMOXIDIwICsgMTAwIMOXIDgwKSAvIDMwMCA9IDQwIMKwQy4iXSwgWyI8aT5rPC9pPiDOlDxpPuKEkzwvaT4gPSA8aT5tPC9pPiA8aT5nPC9pPi4iLCAiPGk+z4k8L2k+PHN1Yj4wPC9zdWI+ID0g4oiaKDxpPms8L2k+LzxpPm08L2k+KSA9IOKImig8aT5nPC9pPi/OlDxpPuKEkzwvaT4pLiIsICI8aT7PiTwvaT48c3ViPjA8L3N1Yj4gPSDiiJooMTAgLyAwLDAyNSkgPSDiiJooNDAwKSA9IDIwIHJhZMK3czxzdXA+4oiSMTwvc3VwPi4iXSwgWyI8aT5SPC9pPjxzdWI+w6lxPC9zdWI+ID0gPGk+UjwvaT48c3ViPjI8L3N1Yj48aT5SPC9pPjxzdWI+Mzwvc3ViPiAvICg8aT5SPC9pPjxzdWI+Mjwvc3ViPiArIDxpPlI8L2k+PHN1Yj4zPC9zdWI+KSA9IDIga86pLiIsICI8aT5VPC9pPiA9IDxpPkU8L2k+IDxpPlI8L2k+PHN1Yj7DqXE8L3N1Yj4gLyAoPGk+UjwvaT48c3ViPjE8L3N1Yj4gKyA8aT5SPC9pPjxzdWI+w6lxPC9zdWI+KS4iLCAiPGk+VTwvaT4gPSAxMiDDlyAyIC8gNiA9IDQgVi4iXSwgWyJBeGUgdmVydGljYWwgdmVycyBsZSBiYXMgOiA8aT5tPC9pPiBkPGk+djwvaT4vZDxpPnQ8L2k+ID0gPGk+bTwvaT4gPGk+ZzwvaT4g4oiSIDxpPs6xPC9pPiA8aT52PC9pPi4iLCAiw4AgbGEgdml0ZXNzZSBsaW1pdGUsIGQ8aT52PC9pPi9kPGk+dDwvaT4gPSAwLCBkb25jIDxpPnY8L2k+PHN1Yj7ihJM8L3N1Yj4gPSA8aT5tPC9pPiA8aT5nPC9pPiAvIDxpPs6xPC9pPi4iLCAiPGk+djwvaT48c3ViPuKEkzwvc3ViPiA9IDAsMjAgw5cgMTAgLyAwLDUwID0gNCBtwrdzPHN1cD7iiJIxPC9zdXA+LiJdLCBbIjxpPlA8L2k+ID0gMSwwwrcxMDxzdXA+NTwvc3VwPiBQYSBldCA8aT5WPC9pPiA9IDI0LDnCtzEwPHN1cD7iiJIzPC9zdXA+IG08c3VwPjM8L3N1cD4uIiwgIjxpPm48L2k+ID0gPGk+UFY8L2k+IC8gKDxpPlJUPC9pPikgZXQgPGk+bTwvaT4gPSA8aT5uPC9pPiA8aT5NPC9pPi4iLCAiPGk+bjwvaT4gPSAyNDkwIC8gKDgsMyDDlyAzMDApID0gMSwwIG1vbCwgZG9uYyA8aT5tPC9pPiA9IDI4IGcuIl0sIFsizpQ8aT5VPC9pPiA9IDxpPm48L2k+IDxpPkM8L2k+PHN1Yj5WLG08L3N1Yj4gzpQ8aT5UPC9pPiA9IDIgw5cgMjAgw5cgNTAgPSAyMDAwIEouIiwgIs6UPGk+VTwvaT4gPSA8aT5XPC9pPiArIDxpPlE8L2k+LCBkb25jIDxpPlE8L2k+ID0gzpQ8aT5VPC9pPiDiiJIgPGk+VzwvaT4uIiwgIjxpPlE8L2k+ID0gMjAwMCDiiJIgNTAwID0gMTUwMCBKLiJdLCBbIkxlIHBvaWRzIGV0IGxhIHLDqWFjdGlvbiBub3JtYWxlIG5lIHRyYXZhaWxsZW50IHBhcyA7IDxpPlc8L2k+KDxpPmY8L2k+KSA9IOKIkjxpPmY8L2k+IMOXIEFCLiIsICIwIOKIkiDCvSA8aT5tPC9pPiA8aT52PC9pPjxzdWI+QTwvc3ViPjxzdXA+Mjwvc3VwPiA9IOKIkjxpPmY8L2k+IMOXIEFCLCBkb25jIEFCID0gPGk+bTwvaT4gPGk+djwvaT48c3ViPkE8L3N1Yj48c3VwPjI8L3N1cD4gLyAoMjxpPmY8L2k+KS4iLCAiQUIgPSAwLDUgw5cgMzYgLyA2ID0gMyBtLiJdLCBbIkVuIHLDqWdpbWUgcGVybWFuZW50LCBsYSBib2JpbmUgc2UgY29tcG9ydGUgY29tbWUgdW4gZmlsIDogbGEgdGVuc2lvbiDDoCBzZXMgYm9ybmVzIGVzdCBudWxsZS4iLCAiPGk+aTwvaT4gPSA8aT5FPC9pPiAvICg8aT5SPC9pPjxzdWI+MTwvc3ViPiArIDxpPlI8L2k+PHN1Yj4yPC9zdWI+KSBldCBs4oCZw6luZXJnaWUgc3RvY2vDqWUgdmF1dCDCvSA8aT5MPC9pPiA8aT5pPC9pPjxzdXA+Mjwvc3VwPi4iLCAiPGk+aTwvaT4gPSAxMiAvIDYgPSAyIEEsIGRvbmMgwr0gw5cgMCwxIMOXIDI8c3VwPjI8L3N1cD4gPSAwLDIgSi4iXSwgWyJGb3JjZXMgOiBwb2lkcywgcsOpYWN0aW9uIG5vcm1hbGUsIGZyb3R0ZW1lbnQsIHRlbnNpb24gZGUgbGEgY29yZGUuIE1vdXZlbWVudCByZWN0aWxpZ25lIHVuaWZvcm1lIDogbGEgc29tbWUgZGVzIGZvcmNlcyBlc3QgbnVsbGUuIiwgIlN1ciBs4oCZaG9yaXpvbnRhbGUgOiA8aT5UPC9pPiBjb3MgPGk+zrI8L2k+IOKIkiA8aT5mPC9pPiA9IDAsIGRvbmMgPGk+ZjwvaT4gPSA8aT5UPC9pPiBjb3MgPGk+zrI8L2k+LiIsICI8aT5mPC9pPiA9IDQwIMOXIDAsNSA9IDIwIE4uIl0sIFsiw4l0YXBlIDEgOiBmdXNpb24gZGUgbGEgZ2xhY2Ugw6AgMCDCsEMuIMOJdGFwZSAyIDogw6ljaGF1ZmZlbWVudCBkZSBs4oCZZWF1IGxpcXVpZGUgZGUgMCDCsEMgw6AgMjAgwrBDLiIsICLOlDxpPkg8L2k+PHN1Yj4xPC9zdWI+ID0gPGk+bTwvaT4gPGk+TDwvaT48c3ViPmZ1czwvc3ViPiBldCDOlDxpPkg8L2k+PHN1Yj4yPC9zdWI+ID0gPGk+bTwvaT4gPGk+YzwvaT4gzpQ8aT5UPC9pPi4iLCAiMCwwNTAgw5cgMzMwICsgMCwwNTAgw5cgNCwyIMOXIDIwID0gMTYsNSArIDQsMiA9IDIwLDcga0ouIl0sIFsiPGk+eDwvaT4oMCkgPSA8aT5BPC9pPiwgZG9uYyA8aT5BPC9pPiA9IDMgY20uIiwgIkxhIGTDqXJpdsOpZSBlbiAwIHZhdXQgPGk+QjwvaT4gPGk+z4k8L2k+PHN1Yj4wPC9zdWI+LCBkb25jIDxpPkI8L2k+ID0gMCw4IC8gMjAgPSAwLDA0IG0gPSA0IGNtLiIsICLiiJooMzxzdXA+Mjwvc3VwPiArIDQ8c3VwPjI8L3N1cD4pID0gNSBjbS4iXSwgWyI8aT5FPC9pPiA9ICg8aT5SPC9pPjxzdWI+MTwvc3ViPiArIDxpPlI8L2k+PHN1Yj4yPC9zdWI+KSA8aT5pPC9pPiwgZG9uYyA8aT5pPC9pPiA9IDxpPkU8L2k+IC8gKDxpPlI8L2k+PHN1Yj4xPC9zdWI+ICsgPGk+UjwvaT48c3ViPjI8L3N1Yj4pLiIsICI8aT5QPC9pPiA9IDxpPlI8L2k+PHN1Yj4yPC9zdWI+IDxpPmk8L2k+PHN1cD4yPC9zdXA+LiIsICI8aT5pPC9pPiA9IDEwIC8gNSA9IDIgQSwgZG9uYyA8aT5QPC9pPiA9IDMgw5cgMjxzdXA+Mjwvc3VwPiA9IDEyIFcuIl0sIFsiRm9yY2VzIDogcG9pZHMgZXQgdGVuc2lvbiBkdSByZXNzb3J0LiDDgCBs4oCZw6lxdWlsaWJyZSA6IDxpPms8L2k+ICg8aT7ihJM8L2k+PHN1Yj7DqXE8L3N1Yj4g4oiSIDxpPuKEkzwvaT48c3ViPjA8L3N1Yj4pID0gPGk+bTwvaT4gPGk+ZzwvaT4uIiwgIjxpPuKEkzwvaT48c3ViPsOpcTwvc3ViPiA9IDxpPuKEkzwvaT48c3ViPjA8L3N1Yj4gKyA8aT5tPC9pPiA8aT5nPC9pPiAvIDxpPms8L2k+LiIsICI8aT5tPC9pPiA8aT5nPC9pPiAvIDxpPms8L2k+ID0gNSAvIDEwMCA9IDAsMDUgbSA9IDUgY20sIGRvbmMgPGk+4oSTPC9pPjxzdWI+w6lxPC9zdWI+ID0gMjUgY20uIl0sIFsiVHJhbnNmb3JtYXRpb24gaXNvY2hvcmUgOiA8aT5XPC9pPiA9IDAuIiwgIjxpPlBWPC9pPiA9IDxpPm5SVDwvaT4gYXZlYyA8aT5WPC9pPiBldCA8aT5uPC9pPiBjb25zdGFudHMgOiA8aT5QPC9pPjxzdWI+Mjwvc3ViPiA9IDxpPlA8L2k+PHN1Yj4xPC9zdWI+IDxpPlQ8L2k+PHN1Yj4yPC9zdWI+IC8gPGk+VDwvaT48c3ViPjE8L3N1Yj4uIiwgIjxpPlA8L2k+PHN1Yj4yPC9zdWI+ID0gMSwwIMOXIDQ1MCAvIDMwMCA9IDEsNSBiYXIuIl0sIFsiRW4gQSA6IDxpPkU8L2k+PHN1Yj5jPC9zdWI+ID0gwr0gPGk+bTwvaT4gPGk+djwvaT48c3ViPkE8L3N1Yj48c3VwPjI8L3N1cD4gZXQgPGk+RTwvaT48c3ViPnA8L3N1Yj4gPSAwLiBFbiBCIDogPGk+RTwvaT48c3ViPmM8L3N1Yj4gPSAwIGV0IDxpPkU8L2k+PHN1Yj5wPC9zdWI+ID0gwr0gPGk+azwvaT4gPGk+eDwvaT48c3VwPjI8L3N1cD4uIiwgIlNhbnMgZnJvdHRlbWVudCwgPGk+RTwvaT48c3ViPm08L3N1Yj4oQikg4oiSIDxpPkU8L2k+PHN1Yj5tPC9zdWI+KEEpID0gMCA6IMK9IDxpPms8L2k+IDxpPng8L2k+PHN1cD4yPC9zdXA+ID0gwr0gPGk+bTwvaT4gPGk+djwvaT48c3ViPkE8L3N1Yj48c3VwPjI8L3N1cD4sIGRvbmMgPGk+eDwvaT4gPSA8aT52PC9pPjxzdWI+QTwvc3ViPiDiiJooPGk+bTwvaT4vPGk+azwvaT4pLiIsICI8aT54PC9pPiA9IDIgw5cg4oiaKDAsMDAyNSkgPSAyIMOXIDAsMDUgPSAwLDEwIG0gPSAxMCBjbS4iXSwgWyJkPHN1cD4yPC9zdXA+PGk+dTwvaT48c3ViPkM8L3N1Yj4vZDxpPnQ8L2k+PHN1cD4yPC9zdXA+ICsgKDxpPlI8L2k+LzxpPkw8L2k+KSBkPGk+dTwvaT48c3ViPkM8L3N1Yj4vZDxpPnQ8L2k+ICsgPGk+dTwvaT48c3ViPkM8L3N1Yj4vKDxpPkxDPC9pPikgPSA8aT5FPC9pPi8oPGk+TEM8L2k+KSwgZG9uYyA8aT7PiTwvaT48c3ViPjA8L3N1Yj4gPSAxL+KImig8aT5MQzwvaT4pIGV0IDxpPs+JPC9pPjxzdWI+MDwvc3ViPi88aT5RPC9pPiA9IDxpPlI8L2k+LzxpPkw8L2k+LiIsICJSw6lnaW1lIGNyaXRpcXVlIDogPGk+UTwvaT4gPSAxLzIsIGRvbmMgPGk+UjwvaT48c3ViPmM8L3N1Yj4gPSAyIDxpPkw8L2k+IDxpPs+JPC9pPjxzdWI+MDwvc3ViPiA9IDIg4oiaKDxpPkw8L2k+LzxpPkM8L2k+KS4iLCAiPGk+UjwvaT48c3ViPmM8L3N1Yj4gPSAyIMOXIOKImigxMDxzdXA+4oiSMjwvc3VwPiAvIDEwPHN1cD7iiJI2PC9zdXA+KSA9IDIgw5cgMTAwID0gMjAwIM6pLiJdLCBbIsOJbmVyZ2llIHJlw6d1ZSA6IDxpPlA8L2k+IDxpPs+EPC9pPiA9IDEwMCDDlyA4NCA9IDg0MDAgSi4iLCAiPGk+bTwvaT4gPGk+YzwvaT4gzpQ8aT7OuDwvaT4gPSA8aT5QPC9pPiA8aT7PhDwvaT4sIGRvbmMgzpQ8aT7OuDwvaT4gPSA8aT5QPC9pPiA8aT7PhDwvaT4gLyAoPGk+bTwvaT4gPGk+YzwvaT4pLiIsICLOlDxpPs64PC9pPiA9IDg0MDAgLyAoMCwyIMOXIDQyMDApID0gMTAgSy4iXSwgWyLOtDxpPlc8L2k+ID0g4oiSPGk+UDwvaT4gZDxpPlY8L2k+ICh0cmFuc2Zvcm1hdGlvbiByw6l2ZXJzaWJsZSkgZXQgPGk+UDwvaT4gPSA8aT5uUlQ8L2k+LzxpPlY8L2k+ID0gPGk+UDwvaT48c3ViPjE8L3N1Yj48aT5WPC9pPjxzdWI+MTwvc3ViPi88aT5WPC9pPi4iLCAiPGk+VzwvaT4gPSDiiJI8aT5QPC9pPjxzdWI+MTwvc3ViPjxpPlY8L2k+PHN1Yj4xPC9zdWI+IGxuKDxpPlY8L2k+PHN1Yj4yPC9zdWI+LzxpPlY8L2k+PHN1Yj4xPC9zdWI+KS4iLCAiPGk+UDwvaT48c3ViPjE8L3N1Yj48aT5WPC9pPjxzdWI+MTwvc3ViPiA9IDEwPHN1cD41PC9zdXA+IMOXIDEwPHN1cD7iiJIyPC9zdXA+ID0gMTAwMCBKLCBkb25jIDxpPlc8L2k+ID0g4oiSMTAwMCDDlyBsbigxLzIpID0gMTAwMCDDlyAwLDY5ID0gNjkwIEouIl1d'))));
+const avDuree=s=>Math.floor(s/60)+' min '+String(s%60).padStart(2,'0')+' s';
+let avCase=0, avHorloge=0;
+function ecranAvent(){
+  let h='';
+  for(let j=1;j<=25;j++){ const e=avEtat(j), A=AVENT[j];
+    h+='<button class="avc '+e+'" data-j="'+j+'"'+(A&&(e==='ouvert'||e==='gagne'||e==='perdu')?'':' disabled')+'><b>'+j+'</b><span class="ave">'+(A?avEmo(A):'')+'</span><small>'+(A?avChap(A):e==='vide'?'à venir':'')+'</small></button>'; }
+  $('avGrille').innerHTML=h; $('avInfo').textContent= (avTest()? 'Phase de test : toutes les cases sont ouvertes et le calendrier est caché aux élèves. ' : 'Une case par jour, à faire le jour même. ')+'Une fois le défi commencé : 15 minutes et '+AVENT_ESSAIS+' essais pour entrer le code.';
+  $('avGagnB').style.display=avProf()?'block':'none'; $('avGagn').innerHTML='';
+  montre('aventE');
+}
+function ecranCase(j){
+  const A=AVENT[j]; if(!A) return; avCase=j;
+  $('avTitre').textContent=avEmo(A)+' '+j+(j===1?'er':'')+' décembre'; $('avChapitre').textContent=A.theme+' · '+avChap(A);
+  $('avSchema').innerHTML=A.schema?A.schema():''; $('avEnonce').innerHTML=A.enonce; $('avQ').innerHTML=A.q.map(t=>'<li>'+t+'</li>').join('');
+  $('avCorL').innerHTML=(AVCOR[j-1]||[]).map(t=>'<li>'+t+'</li>').join('');
+  $('avUnite').innerHTML=A.unite||''; $('avI').value=''; avMaj(''); montre('aventC');
+  clearInterval(avHorloge); avHorloge=setInterval(()=>{ if(!$('aventC').classList.contains('actif')){ clearInterval(avHorloge); return; } avMaj(null); },1000);
+}
+function avMaj(msg,cls){
+  const e=avEtat(avCase), v=prog['av'+avCase]||0, fini=e==='gagne'||e==='perdu', attente=!fini&&!avProf()&&!avDebut(avCase);
+  $('avDepart').style.display=attente?'block':'none'; $('avCorps').style.display=attente?'none':'block';
+  $('avSchema').style.display=AVENT[avCase].schema?'block':'none'; $('avF').style.display=fini?'none':'flex';
+  if(fini){ $('avMsg').className='msg '+(e==='gagne'?'ok':'ko');
+    $('avMsg').textContent= e==='gagne'?'Code trouvé'+(prog['avd'+avCase]?' en '+avDuree(prog['avd'+avCase]):'')+' : tu as gagné un Schoko-Bons ! Garde ta feuille, la rédaction te sera demandée.' : v>=AVENT_ESSAIS?'Les '+AVENT_ESSAIS+' essais sont utilisés : la case est perdue.':'Les 15 minutes sont écoulées : la case est perdue.'; }
+  else if(msg!==null){ $('avMsg').className='msg '+(cls||''); $('avMsg').textContent=msg||''; }
+  const demain=avTest()||avJour()>avCase;                         // la correction n'est montrée aux élèves que le lendemain
+  $('avCor').style.display=(avProf()||(fini&&demain))&&AVCOR[avCase-1]?'block':'none'; $('avCorT').textContent=avProf()&&!fini?'Correction (visible du professeur seulement)':'Correction';
+  $('avCorD').style.display=fini&&!demain?'block':'none';
+  $('avRaz').style.display=fini&&avTest()&&!AVENT_ELEVES?'block':'none';
+  const r=Math.max(0,avReste(avCase));
+  $('avChrono').style.display=fini||attente||avProf()?'none':'block'; $('avChrono').classList.toggle('urgent',r<=120);
+  $('avChrono').textContent='Temps restant : '+Math.floor(r/60)+' min '+String(r%60).padStart(2,'0')+' s';
+  $('avReste').textContent= fini||attente?'' : avProf()?'Compte professeur : ni les essais ni le temps ne sont comptés.' : 'Essais restants : '+(AVENT_ESSAIS-v)+' / '+AVENT_ESSAIS;
+}
+$('avGo').addEventListener('click',()=>{ if(avEtat(avCase)!=='ouvert'||avDebut(avCase)) return; prog['avt'+avCase]=AV_T0-Math.floor(Date.now()/1000); sauve(); avMaj(''); });
+$('avF').addEventListener('submit',ev=>ev.preventDefault());
+$('avI').addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); avValide(); } });
+$('avV').addEventListener('click',()=>avValide());
+function avValide(){
+  const A=AVENT[avCase], x=parseFloat($('avI').value.replace(',','.').replace(/[^0-9.eE+-]/g,''));
+  if(!A||avEtat(avCase)!=='ouvert'){ avMaj(''); return; }
+  if(isNaN(x)){ avMaj('Entre une valeur numérique.','ko'); return; }
+  const bon=hAv(avCase,String(Math.round(x*1000)/1000))===A.h;
+  if(avProf()){ avMaj(bon?'Code correct.':'Code faux.',bon?'ok':'ko'); return; }
+  const v=prog['av'+avCase]||0; prog['av'+avCase]= bon? 10+v : v+1;
+  if(bon) prog['avd'+avCase]=Math.max(1,Math.floor(Date.now()/1000)-avDebut(avCase));   // durée de résolution, en secondes
+  sauve();
+  avMaj(bon?'':'Code faux.','ko'); if(!bon) $('avI').value='';
+}
+$('avRaz').addEventListener('click',()=>{ delete prog['av'+avCase]; delete prog['avt'+avCase]; delete prog['avd'+avCase]; sauve(); $('avI').value=''; avMaj(''); });
+$('aventB').addEventListener('click',ecranAvent);
+$('avRetour').addEventListener('click',accueil);
+$('avcRetour').addEventListener('click',ecranAvent);
+$('avGrille').addEventListener('click',ev=>{ const b=ev.target.closest('.avc'); if(b&&!b.disabled) ecranCase(+b.dataset.j); });
+$('avGagnB').addEventListener('click',async()=>{
+  $('avGagn').innerHTML='<p>Chargement…</p>';
+  try{ const l=(await listeEleves()).filter(e=>e.id!==session.uid).sort((a,b)=>a.nom.localeCompare(b.nom)), maintenant=Math.floor(Date.now()/1000), nm=e=>(e.nom||'—').replace(/</g,'&lt;'); let h='';
+    for(let j=1;j<=25;j++){ const g=l.filter(e=>(e.prog['av'+j]||0)>=10).sort((a,b)=>(a.prog['avd'+j]||1e9)-(b.prog['avd'+j]||1e9)), p=l.filter(e=>{ const v=e.prog['av'+j]||0, t=e.prog['avt'+j]; return v<10&&(v>=AVENT_ESSAIS||(t&&AV_T0-t+AVENT_DUREE<=maintenant)); }); if(!g.length&&!p.length) continue;
+      h+='<p><b>'+j+' décembre</b> — gagné ('+g.length+') : '+(g.map(e=>nm(e)+(e.prog['avd'+j]?' ('+avDuree(e.prog['avd'+j])+(e.prog['av'+j]>10?', '+(e.prog['av'+j]-9)+'ᵉ essai':'')+')':'')).join(', ')||'personne')+(p.length?'<br><span class="avp">perdu ('+p.length+') : '+p.map(nm).join(', ')+'</span>':'')+'</p>'; }
+    $('avGagn').innerHTML=h||'<p>Aucune case jouée pour l’instant.</p>';
+  }catch(e){ $('avGagn').innerHTML='<p>Impossible de lire les données : '+e.message+'</p>'; }
+});
+
+/* ---------- décor de Noël : du 1er au 25 décembre (ou adresse terminée par ?noel pour le voir avant) ---------- */
+(()=>{ const d=new Date(); if(!((d.getFullYear()===AVENT_AN&&d.getMonth()===11&&d.getDate()<=25)||/[?&]noel\b/.test(location.search)||!EN_LIGNE)) return;   // version de test sans comptes : décor toujours visible
+  document.body.classList.add('noel');
+  const coul=['#d8432f','#2f9e5e','#ffd84d','#1f6fd1']; let s='<path d="M0 4 Q 20 16 40 4 T 80 4 T 120 4 T 160 4 T 200 4 T 240 4 T 280 4 T 320 4 T 360 4 T 400 4 T 440 4 T 480 4 T 520 4" fill="none" stroke="#1b2a41" stroke-width="1.4"/>';
+  for(let k=0;k<13;k++) s+='<rect x="'+(18+40*k)+'" y="9" width="4" height="4" fill="#1b2a41"/><ellipse class="amp a'+(k%3)+'" cx="'+(20+40*k)+'" cy="18" rx="4.5" ry="6.5" fill="'+coul[k%4]+'" stroke="#1b2a41" stroke-width="1.2"/>';
+  const g=document.createElement('div'); g.className='guirlande'; g.setAttribute('aria-hidden','true'); g.innerHTML='<svg viewBox="0 0 520 28" preserveAspectRatio="xMidYMin slice">'+s+'</svg>';
+  document.querySelector('.page').prepend(g);
+  const n=document.createElement('div'); n.className='neige'; n.setAttribute('aria-hidden','true'); let f='';
+  for(let k=0;k<14;k++) f+='<i style="left:'+((k*7.3+3)%100).toFixed(1)+'%;animation-duration:'+(9+(k*5)%8)+'s;animation-delay:-'+((k*3.7)%12).toFixed(1)+'s;font-size:'+(10+(k*3)%9)+'px">❄︎</i>';
+  n.innerHTML=f; $('accueil').prepend(n);
+  const t=document.querySelector('.tete h1 .fluo'); if(t) t.insertAdjacentHTML('afterend',' <span class="sapin" aria-hidden="true">🎄</span>');
+})();
 
 if(EN_LIGNE&&!session) ecranConnexion();
 else{ if(EN_LIGNE) podiumGarde(); accueil(); if(EN_LIGNE) litPodium(); if(EN_LIGNE) recupere().then(ok=>{ if(ok===false){ deconnexion(); ecranConnexion(); } else { const nvB=badgesNouveaux(); sauve(); accueil(); litBandeau(); litPodium(); annonceBadges(nvB); } }); if(!EN_LIGNE){ const nvB=badgesNouveaux(); if(nvB.length){ sauve(); annonceBadges(nvB); } } }
