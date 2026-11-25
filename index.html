@@ -324,6 +324,8 @@
   .toastB.vu{visibility:visible;opacity:1;transition:transform .25s,opacity .25s}
   .bandeau.message .bd{white-space:normal;padding:9px 12px;font-size:1rem;line-height:1.3}
   .bandeau.message .bd span{display:inline;padding-left:0;animation:none}
+  .rep svg.mini{width:100%;max-width:150px;height:auto;display:block;margin:0 auto}
+  svg.mini{width:150px;max-width:100%;height:auto;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -1439,35 +1441,45 @@ const sens=(sU,sI)=>'Les flèches de '+u_+' et de '+i_+' sont '+(sU*sI>0?'en sen
 /* ---------- Activité « Cours » ---------- */
 const OG_I=[['une LED','10 mA'],['le seuil d\u2019électrocution','100 mA'],['une lampe','1 A'],['un radiateur de 2 kW','10 A'],['un démarreur automobile','100 A'],['un éclair','10 à 100 kA']];
 const OG_U=[['une pile','1,5 V'],['une batterie automobile','12 V'],['le secteur','230 V'],['une ligne très haute tension','400 kV'],['entre un nuage d\u2019orage et le sol','500 MV']];
-const ORDRES=[];
-[[OG_I,'Intensité','d\u2019intensité'],[OG_U,'Tension','de tension']].forEach(([T,G,dg])=>T.forEach(([nom,val],k)=>{
-  const autres=j=>[1,2,3].map(d=>T[(k+d+j)%T.length]).filter(x=>x[0]!==nom).slice(0,3), rappel='Ordres de grandeur '+dg+' du cours : '+T.map(x=>x[0]+', '+x[1]).join(' ; ');
-  ORDRES.push(Qz(TX(G+' : '+nom),'Donner l\u2019ordre de grandeur.','Ordre de grandeur ?',val,autres(0).map(x=>x[1]),rappel,{fin:val}));
-  ORDRES.push(Qz(TX(val),'À quel système correspond cet ordre de grandeur '+dg+' ?','Système ?',nom[0].toUpperCase()+nom.slice(1),autres(1).map(x=>x[0][0].toUpperCase()+x[0].slice(1)),rappel,{large:1,fin:nom}));
-}));
+const ORDRES=(()=>{                                         // refonte du 24/11 : niveau court, sans calcul (demande de Thomas)
+  const q=(sit,qu,ok,faux,pr)=>Qz(TX(''),sit,qu,ok,faux,pr,{large:1}), RI='Ordres de grandeur du cours : '+OG_I.map(x=>x[0]+', '+x[1]).join(' ; '), RU='Ordres de grandeur du cours : '+OG_U.map(x=>x[0]+', '+x[1]).join(' ; ');
+  return [
+   q('On compare les intensités dans une LED, une lampe et un radiateur.','Quel est le classement, de la plus petite à la plus grande ?','LED, lampe, radiateur',['Lampe, LED, radiateur','Radiateur, lampe, LED','LED, radiateur, lampe'],RI),
+   q('On compare quatre appareils en fonctionnement.','Lequel est parcouru par la plus grande intensité ?','Un démarreur automobile',['Un radiateur de 2 kW','Une lampe','Une LED'],RI),
+   q('Une LED est allumée.','Quel est l’ordre de grandeur de l’intensité qui la traverse ?','Une dizaine de milliampères',['Une dizaine d’ampères','Une dizaine de microampères','Un ampère'],RI),
+   q('Un radiateur de 2 kW est branché sur le secteur.','Quel est l’ordre de grandeur de l’intensité qui le traverse ?','Une dizaine d’ampères',['Une dizaine de milliampères','Un millier d’ampères','Un dixième d’ampère'],RI),
+   q('Un courant traverse le corps humain.','À partir de quel ordre de grandeur est-il mortel ?','Une centaine de milliampères',['Une centaine d’ampères','Une dizaine d’ampères','Un microampère'],RI),
+   q('Un éclair frappe le sol.','Quel est l’ordre de grandeur de l’intensité ?','Des dizaines de kiloampères',['Quelques ampères','Quelques milliampères','Une centaine d’ampères'],RI),
+   q('On compare les tensions d’une pile, d’une batterie automobile et du secteur.','Quel est le classement, de la plus petite à la plus grande ?','Pile, batterie, secteur',['Batterie, pile, secteur','Secteur, batterie, pile','Pile, secteur, batterie'],RU),
+   q('On compare quatre tensions.','Laquelle est la plus élevée ?','Celle d’une ligne très haute tension',['Celle du secteur','Celle d’une batterie automobile','Celle d’une pile'],RU),
+   q('On branche un appareil sur une prise du secteur.','Quelle est la tension ?','230 V',['12 V','1,5 V','400 kV'],RU),
+   q('On utilise une pile ronde du commerce.','Quelle est sa tension ?','1,5 V',['12 V','230 V','150 V'],RU),
+   q('On mesure la tension d’une batterie automobile.','Quelle valeur trouve-t-on ?','12 V',['1,5 V','230 V','120 V'],RU),
+   q('L’électricité est transportée sur de longues distances par des lignes très haute tension.','Quel est l’ordre de grandeur de la tension ?','Des centaines de kilovolts',['Des centaines de volts','Quelques volts','Des centaines de millivolts'],RU)
+  ];
+})();
 const RAP='Rappel : '+lam+' = '+c_+'\u2009'+I_('T')+' = '+FR(c_,f_)+', avec '+c_+' = 3 × 10<sup>8</sup> m·s<sup>−1</sup>.';
 const p10=(m,n)=>(m===1?'':nb(m)+' × ')+'10<sup>'+(n<0?'−'+(-n):n)+'</sup>';
-const ARQS=[
- ...[['un signal de fréquence '+f_+' = 50 Hz','6000 km',['6000 m','60 km','1,5 × 10<sup>10</sup> m'],FR('3 × 10<sup>8</sup>','50')+' = 6 × 10<sup>6</sup> m'],
-     ['un signal de fréquence '+f_+' = 1 kHz','300 km',['300 m','3 km','3 × 10<sup>11</sup> m'],FR('3 × 10<sup>8</sup>','10<sup>3</sup>')+' = 3 × 10<sup>5</sup> m'],
-     ['un signal de fréquence '+f_+' = 1 MHz','300 m',['300 km','3 m','3 × 10<sup>14</sup> m'],FR('3 × 10<sup>8</sup>','10<sup>6</sup>')+' = 3 × 10<sup>2</sup> m'],
-     ['un signal de fréquence '+f_+' = 100 MHz','3 m',['300 m','3 cm','30 km'],FR('3 × 10<sup>8</sup>','10<sup>8</sup>')+' = 3 m'],
-     ['un signal de fréquence '+f_+' = 1 GHz','30 cm',['3 m','30 m','3 mm'],FR('3 × 10<sup>8</sup>','10<sup>9</sup>')+' = 0,3 m'],
-     ['un signal de fréquence '+f_+' = 3 GHz','10 cm',['1 m','10 m','1 mm'],FR('3 × 10<sup>8</sup>','3 × 10<sup>9</sup>')+' = 0,1 m']]
-   .map(([s,ok,faux,calc])=>Qz(TX('Longueur d\u2019onde pour '+s),RAP,QE(lam),ok,faux,lam+' = '+FR(c_,f_)+' = '+calc,{fin:lam+' = '+ok})),
- ...[['période '+I_('T')+' = 1 ms','300 km',['300 m','3 km','3 × 10<sup>11</sup> m'],'3 × 10<sup>8</sup> × 10<sup>−3</sup> = 3 × 10<sup>5</sup> m'],
-     ['période '+I_('T')+' = 1 µs','300 m',['300 km','3 m','0,3 m'],'3 × 10<sup>8</sup> × 10<sup>−6</sup> = 3 × 10<sup>2</sup> m'],
-     ['période '+I_('T')+' = 1 ns','30 cm',['30 m','3 m','3 mm'],'3 × 10<sup>8</sup> × 10<sup>−9</sup> = 0,3 m']]
-   .map(([s,ok,faux,calc])=>Qz(TX('Longueur d\u2019onde pour un signal de '+s),RAP,QE(lam),ok,faux,lam+' = '+c_+'\u2009'+I_('T')+' = '+calc,{fin:lam+' = '+ok})),
- ...[['3 m','10 ns',['1 ns','100 ns','10 µs'],FR('3','3 × 10<sup>8</sup>')+' = 10<sup>−8</sup> s'],['30 cm','1 ns',['10 ns','0,1 ns','1 µs'],FR('0,3','3 × 10<sup>8</sup>')+' = 10<sup>−9</sup> s'],
-     ['300 km','1 ms',['1 µs','10 ms','1 s'],FR('3 × 10<sup>5</sup>','3 × 10<sup>8</sup>')+' = 10<sup>−3</sup> s'],['3 km','10 µs',['10 ms','1 µs','10 ns'],FR('3 × 10<sup>3</sup>','3 × 10<sup>8</sup>')+' = 10<sup>−5</sup> s'],
-     ['6000 km','20 ms',['2 ms','20 µs','2 s'],FR('6 × 10<sup>6</sup>','3 × 10<sup>8</sup>')+' = 2 × 10<sup>−2</sup> s']]
-   .map(([L,ok,faux,calc])=>Qz(TX('Circuit de longueur '+L_+' = '+L),'Le signal se propage à la vitesse '+c_+' = 3 × 10<sup>8</sup> m·s<sup>−1</sup>. Quel est le temps de propagation ?',QE(Dt),ok,faux,Dt+' = '+FR(L_,c_)+' = '+calc,{fin:Dt+' = '+ok})),
- ...[['Circuit de TP de 1 m, GBF à 1 kHz','300 km',1],['Circuit de TP de 1 m, GBF à 1 MHz','300 m',1],['Ligne électrique de 100 km, à 50 Hz','6000 km',1],['Circuit imprimé de 10 cm, signal à 1 MHz','300 m',1],
-     ['Antenne de 1 m, signal à 100 MHz','3 m',0],['Carte électronique de 10 cm, signal à 3 GHz','10 cm',0],['Câble de 300 m, signal à 1 MHz','300 m',0],['Circuit de 30 cm, signal à 1 GHz','30 cm',0],['Câble de 3 km, signal à 1 MHz','300 m',0]]
-   .map(([s,l,ok])=>{ const R=['Valable : '+L_+' est très petit devant '+lam,'Non valable : '+L_+' n\u2019est pas très petit devant '+lam,'Valable : '+L_+' est très grand devant '+lam,'Non valable : '+L_+' est très petit devant '+lam];
-     return Qz(TX(s),RAP+' L\u2019ARQS est-elle valable ?','ARQS ?',R[ok?0:1],R.filter((x,k)=>k!==(ok?0:1)),[lam+' = '+FR(c_,f_)+' = '+l,'Critère de l\u2019ARQS : '+L_+' ≪ '+lam+(ok?' ; il est vérifié':' ; il n\u2019est pas vérifié')],{large:1,fin:ok?'ARQS valable':'ARQS non valable'}); })
-];
+const ARQS=(()=>{                                           // refonte du 24/11 : niveau court, sans calcul de puissances de dix
+  const q=(sit,qu,ok,faux,pr)=>Qz(TX(''),sit,qu,ok,faux,pr,{large:1}), Lc=I_('L'), VAL='Valable : '+Lc+' est très petit devant '+lam, NON='Non valable : '+Lc+' n’est pas très petit devant '+lam;
+  const cas=(sit,ok,pr)=>q(sit,'L’ARQS est-elle valable ?',ok?VAL:NON,[ok?NON:VAL,'Valable seulement en régime continu','On ne peut pas savoir sans connaître la tension'],pr);
+  return [
+   q('On étudie un circuit dans le cadre de l’ARQS.','Que signifie ce sigle ?','Approximation des régimes quasi stationnaires',['Approximation des résistances quasi semblables','Analyse des régimes quasi sinusoïdaux','Approximation des réseaux à quatre sources'],'On néglige le temps de propagation des signaux dans le circuit'),
+   q('Un circuit de longueur '+Lc+' est parcouru par un signal de longueur d’onde '+lam+'.','À quelle condition l’ARQS est-elle valable ?',Lc+' très petit devant '+lam,[Lc+' très grand devant '+lam,Lc+' égal à '+lam,'Aucune : elle est toujours valable'],'Le signal doit avoir la même valeur, au même instant, dans tout le circuit'),
+   q('On compare le temps de propagation du signal dans le circuit à sa période.','À quelle condition l’ARQS est-elle valable ?','Temps de propagation très petit devant la période',['Temps de propagation très grand devant la période','Temps de propagation égal à la période','Période nulle'],'C’est la même condition que '+Lc+' très petit devant '+lam+', écrite avec des durées'),
+   q('L’ARQS est valable dans un circuit.','Que peut-on dire de l’intensité le long d’une branche ?','Elle est la même en tout point, au même instant',['Elle diminue le long de la branche','Elle est nulle','Elle est constante au cours du temps'],'La propagation est considérée comme instantanée : l’intensité peut varier dans le temps, mais pas d’un point à l’autre de la branche'),
+   q('L’ARQS est valable dans un circuit.','Quelles lois peut-on appliquer ?','La loi des nœuds et la loi des mailles',['Aucune loi de l’électricité','Seulement la loi d’Ohm','Seulement la loi des nœuds'],'Les lois de Kirchhoff s’appliquent à chaque instant, comme en régime continu'),
+   q('La longueur d’onde vaut '+lam+' = '+FR(c_,f_)+'.','Que devient-elle quand la fréquence augmente ?','Elle diminue',['Elle augmente','Elle ne change pas','Elle double'],lam+' est inversement proportionnelle à '+f_),
+   q('On augmente la fréquence du signal qui alimente un circuit.','Que devient la validité de l’ARQS ?','Elle est plus difficile à respecter',['Elle est plus facile à respecter','Elle ne dépend pas de la fréquence','Elle devient toujours parfaite'],'La longueur d’onde diminue : elle se rapproche de la taille du circuit'),
+   q('Dans un circuit, les signaux électriques se propagent très vite.','Quel est l’ordre de grandeur de leur vitesse ?','Celle de la lumière, 3 × 10<sup>8</sup> m·s<sup>−1</sup>',['Celle du son, 340 m·s<sup>−1</sup>','Quelques mètres par seconde','Elle est infinie'],'C’est la vitesse de propagation du signal, pas celle des électrons'),
+   cas('Circuit de TP : '+Lc+' = 1 m ; signal de longueur d’onde '+lam+' = 300 km.',true,'1 m est négligeable devant 300 km'),
+   cas('Ligne électrique : '+Lc+' = 100 km ; signal à 50 Hz, de longueur d’onde '+lam+' = 6000 km.',true,'100 km reste petit devant 6000 km'),
+   cas('Antenne : '+Lc+' = 1 m ; signal de longueur d’onde '+lam+' = 3 m.',false,'1 m et 3 m sont du même ordre de grandeur'),
+   cas('Carte électronique : '+Lc+' = 10 cm ; signal de longueur d’onde '+lam+' = 10 cm.',false,'Le circuit a la taille de la longueur d’onde'),
+   cas('Câble : '+Lc+' = 3 km ; signal de longueur d’onde '+lam+' = 300 m.',false,'Le câble est plus long que la longueur d’onde'),
+   q('En travaux pratiques, les circuits mesurent environ un mètre et les fréquences ne dépassent pas le mégahertz.','L’ARQS est-elle valable ?','Oui : la longueur d’onde vaut au moins des centaines de mètres',['Non : les fréquences sont trop élevées','Non : les circuits sont trop petits','Seulement en régime continu'],'À 1 MHz, '+lam+' = 300 m : le circuit est très petit devant la longueur d’onde')
+  ];
+})();
 const d_=(x,t)=>FR('d'+x,'d'+(t||I_('t')));
 const L1=sub('L','1'), L2=sub('L','2'), C1=sub('C','1'), C2=sub('C','2'), Leq=sub('L','éq'), Ceq=sub('C','éq');
 const BOBINE=[
@@ -1501,7 +1513,7 @@ const CONDO=[
  Qz(TX('Condensateurs '+C_+' et 2'+C_+' en série'),'Donner la capacité équivalente.',QE(Ceq),FR('2'+C_,'3'),['3'+C_,FR('3'+C_,'2'),FR(C_,'3')],Ceq+' = '+FR(C_+' × 2'+C_,C_+' + 2'+C_),{fin:Ceq+' = '+FR('2'+C_,'3')})
 ];
 const CONV=[];
-[[1,1,'dipôle'],[1,-1,'dipôle'],[-1,1,'dipôle'],[-1,-1,'dipôle'],[1,1,'moteur'],[-1,1,'pile'],[1,-1,'batterie'],[-1,-1,'lampe']].forEach(([sU,sI,nom])=>{
+[[1,1,'dipôle'],[-1,1,'pile'],[-1,-1,'lampe']].forEach(([sU,sI,nom])=>{
   const ok='Convention '+CONVN(sU,sI);
   CONV.push(Qz(dipole(sU,sI,nom),'Quelle convention d\u2019orientation a-t-on choisie pour ce dipôle ?','Convention ?',ok,['Convention '+CONVN(sU,-sI),'On ne peut pas savoir sans connaître le signe de '+i_,'Cela dépend de la nature du dipôle'],sens(sU,sI),{large:1,fin:ok.toLowerCase()}));
 });
@@ -1514,6 +1526,14 @@ CONV.push(
  Qz(TX('Tension '+sub('u','AB')),'Vers quel point pointe la flèche qui représente '+sub('u','AB')+' = '+sub('V','A')+' − '+sub('V','B')+' ?','Sens de la flèche ?','Vers A',['Vers B','Vers le potentiel le plus élevé','Dans le sens du courant'],'La flèche de tension pointe vers la première lettre : '+sub('u','AB')+' est la flèche de B vers A',{fin:'vers A'}),
  Qz(TX('Sens conventionnel du courant'),'Dans un fil métallique, quel est le sens conventionnel du courant ?','Sens ?','Opposé au déplacement des électrons',['Celui du déplacement des électrons','Du potentiel le plus bas vers le plus haut, toujours','Celui de la flèche de tension'],'Le sens conventionnel est celui des charges positives ; les électrons, de charge négative, se déplacent en sens inverse',{large:1,fin:'opposé au déplacement des électrons'}),
  Qz(TX('Le calcul donne '+i_+' = −2 A'),'Que faut-il en conclure ?','Conclusion ?','Le courant réel circule en sens inverse de la flèche',['Le calcul est faux : une intensité est positive','Le dipôle est forcément un générateur','Il faut changer de convention et recommencer'],i_+' est une grandeur algébrique : la flèche n\u2019est qu\u2019un choix d\u2019orientation',{large:1,fin:'le courant réel circule en sens inverse de la flèche'})
+);
+CONV.push(                                                  // ajouts du 24/11, à la place de cinq « quelle convention ? » presque identiques
+ Qz(TX(''),'Un dipôle est orienté en convention récepteur. Le calcul donne une puissance '+I_('P')+' = '+u_+'\u2009'+i_+' positive.','Que fait le dipôle ?','Il reçoit de l\u2019énergie électrique',['Il fournit de l\u2019énergie électrique','Il n\u2019échange pas d\u2019énergie','On ne peut pas savoir'],'En convention récepteur, '+u_+'\u2009'+i_+' est la puissance reçue par le dipôle',{large:1}),
+ Qz(TX(''),'Un dipôle est orienté en convention générateur. Le calcul donne une puissance '+I_('P')+' = '+u_+'\u2009'+i_+' positive.','Que fait le dipôle ?','Il fournit de l\u2019énergie électrique',['Il reçoit de l\u2019énergie électrique','Il n\u2019échange pas d\u2019énergie','On ne peut pas savoir'],'En convention générateur, '+u_+'\u2009'+i_+' est la puissance fournie par le dipôle',{large:1}),
+ Qz(TX(''),'On doit orienter une résistance dans un circuit.','Quelle convention choisit-on en général ?','La convention récepteur',['La convention générateur','Aucune : une résistance ne s\u2019oriente pas','Cela dépend de la valeur de '+Rr],'La loi d\u2019Ohm s\u2019écrit alors '+u_+' = '+Rr+'\u2009'+i_+', sans signe',{large:1}),
+ Qz(TX(''),'On doit orienter une source de tension dans un circuit.','Quelle convention choisit-on en général ?','La convention générateur',['La convention récepteur','Aucune : une source ne s\u2019oriente pas','Celle de la résistance voisine'],'La puissance '+u_+'\u2009'+i_+' est alors la puissance fournie par la source, en général positive',{large:1}),
+ Qz(TX(''),'On note '+sub('u','AB')+' = '+sub('V','A')+' − '+sub('V','B')+' et '+sub('u','BA')+' = '+sub('V','B')+' − '+sub('V','A')+'.','Quelle relation lie ces deux tensions ?',sub('u','BA')+' = −'+sub('u','AB'),[sub('u','BA')+' = '+sub('u','AB'),sub('u','BA')+' = '+FR('1',sub('u','AB')),sub('u','BA')+' + '+sub('u','AB')+' = 1'],'Retourner la flèche d\u2019une tension change son signe',{large:1}),
+ Qz(TX(''),'Dans une branche, on retourne la flèche qui oriente l\u2019intensité '+i_+'.','Que devient l\u2019intensité ?','Elle change de signe',['Elle ne change pas','Elle s\u2019annule','Elle double'],'L\u2019intensité est une grandeur algébrique : son signe dépend de l\u2019orientation choisie',{large:1})
 );
 const COURS_EL1=[
  {nom:'Ordres de grandeur', c:ORDRES},
@@ -1668,8 +1688,13 @@ function scRessort(F,o={}){
 function scChute(F,o={}){
   let s='';
   if(o.fluide) s+='<path d="M96 30 L96 186 L204 186 L204 30" fill="#eef3fb" stroke="#1b2a41" stroke-width="1.6"/><path d="M96 46 L204 46" stroke="#1f6fd1" stroke-width="1.2"/>';
-  s+='<circle class="cmp" cx="150" cy="104" r="13"/>'+(o.v<0? fleche(232,124,0,-40,'aux','v',2) : fleche(232,84,0,40,'aux','v',2))+df(F,'P',150,104,0,60)+df(F,'f',150,104,0,-56);
+  s+='<circle class="cmp" cx="150" cy="104" r="13"/>'+(o.v<0? fleche(232,124,0,-40,'aux','v',2) : fleche(232,84,0,40,'aux','v',2))+df(F,'P',150,104,0,60)+(F&&F.A? df(F,'f',150,104,0,-54,[-16,10])+df(F,'A',150,104,0,-30,[18,12]) : df(F,'f',150,104,0,-56));
   if(o.axe) s+=fleche(48,60,0,o.axe*44,'',null,1.8)+etiq('z',60,o.axe>0?112:58,'middle')+etiq('O',38,o.axe>0?58:112,'middle');
+  return svgM(300,200,s);
+}
+function scBouchon(F){
+  let s='<path d="M60 40 L60 186 L240 186 L240 40" fill="none" stroke="#1b2a41" stroke-width="1.6"/><rect x="61" y="104" width="178" height="81" fill="#eef3fb"/><path d="M60 104 L240 104" stroke="#1f6fd1" stroke-width="1.4"/>';
+  s+='<rect class="cmp" x="130" y="82" width="40" height="44"/>'+df(F,'P',150,104,0,52,[18,-8])+df(F,'A',150,104,0,-52,[18,8]);
   return svgM(300,200,s);
 }
 function scSuspendu(F,o={}){
@@ -1807,7 +1832,8 @@ const BILAN=[
  bil(scRessort(null,{t:'HG',ell:0}),'Une masse M accrochée à un ressort glisse sans frottement sur un support horizontal.','Poids, réaction normale, force de rappel',['Poids, force de rappel','Réaction normale, force de rappel','Poids, réaction normale, réaction tangentielle, force de rappel'],['La Terre exerce le poids, le support la réaction normale, le ressort la force de rappel.'],scRessort(F({P:'P',RN:'R_N',Tr:'T'}),{t:'HG',ell:0})),
  bil(scRessort(null,{t:'VH',ell:0}),'Une masse M est suspendue à un ressort vertical.','Poids, force de rappel',['Poids seulement','Poids, force de rappel, réaction normale','Poids, force de rappel, tension du fil'],['La Terre exerce le poids, le ressort la force de rappel.','La masse ne touche aucun support.'],scRessort(F({P:'P',Tr:'T'}),{t:'VH',ell:0})),
  bil(scChute(null,{}),'Une bille est en chute libre.','Poids seulement',['Poids, frottement fluide','Poids, réaction normale','Aucune force'],['Chute libre : le système n’est soumis qu’à son poids.'],scChute(F({P:'P'}),{})),
- bil(scChute(null,{fluide:1}),'Une bille tombe dans un liquide. La poussée d’Archimède est négligée.','Poids, frottement fluide',['Poids seulement','Poids, frottement fluide, réaction normale','Frottement fluide seulement'],['La Terre exerce le poids, le liquide la force de frottement fluide.'],scChute(F({P:'P',f:'f'}),{fluide:1})),
+ bil(scChute(null,{fluide:1}),'Une bille tombe dans un liquide.','Poids, poussée d’Archimède, frottement fluide',['Poids, frottement fluide','Poids, poussée d’Archimède','Poids, poussée d’Archimède, frottement fluide, réaction normale'],['La Terre exerce le poids.','Le liquide exerce deux forces : la poussée d’Archimède, et la force de frottement fluide car la bille est en mouvement.'],scChute(F({P:'P',f:'f',A:'Π'}),{fluide:1})),
+ bil(scBouchon(null),'Un bouchon est immobile à la surface de l’eau.','Poids, poussée d’Archimède',['Poids seulement','Poids, poussée d’Archimède, frottement fluide','Poids, poussée d’Archimède, réaction normale'],['La Terre exerce le poids, l’eau la poussée d’Archimède.','Le bouchon est immobile : pas de frottement fluide.'],scBouchon(F({P:'P',A:'Π'}))),
  bil(scTir({ang:50}),'Un ballon vient d’être lancé. Les frottements de l’air sont négligés.','Poids seulement',['Poids, force de lancer','Poids, force dans le sens de '+vc(v0),'Aucune force'],['Une fois le ballon lâché, la main n’agit plus.','Seule la Terre agit : le ballon est en chute libre.'])
 ];
 const FORCES=[
@@ -2468,6 +2494,28 @@ return ACT;
 /* =====================================================================
    1 nonies. M4 — OSCILLATEURS LIBRES (notations du cours : dérivées pointées, ω0, Q, τ)
    ===================================================================== */
+/* ---------- petites courbes servant de réponses (« la bonne courbe ») ---------- utilisées par M4 et par EL2 */
+const MINI_F={
+ dec:u=>Math.exp(-4.5*u), mont:u=>1-Math.exp(-4.5*u), montU:u=>1-0.62*Math.exp(-4.5*u), decE:u=>0.42+0.58*Math.exp(-4.5*u), cst:u=>0.62, div:u=>0.1*Math.exp(2.3*u),
+ cos:u=>0.9*Math.cos(6*Math.PI*u), sin:u=>0.9*Math.sin(6*Math.PI*u), mcos:u=>-0.9*Math.cos(6*Math.PI*u), msin:u=>-0.9*Math.sin(6*Math.PI*u),
+ dcos:u=>0.95*Math.exp(-3.2*u)*Math.cos(8*Math.PI*u), dsin:u=>1.05*Math.exp(-3.2*u)*Math.sin(8*Math.PI*u),
+ aper:u=>0.95*(1.25*Math.exp(-4*u)-0.25*Math.exp(-20*u)), bosse:u=>0.95*Math.E*9*u*Math.exp(-9*u),
+ oscE:u=>0.48*(1-Math.cos(6*Math.PI*u)), echP:u=>0.58*(1-Math.exp(-3.6*u)*Math.cos(9*Math.PI*u)), echA:u=>0.62*(1-(1.25*Math.exp(-4*u)-0.25*Math.exp(-20*u)))
+};
+const MINI_POS={dec:1,mont:1,montU:1,decE:1,cst:1,div:1,aper:1,bosse:1,oscE:1,echP:1,echA:1}, MINI_ASY={mont:1,montU:1,decE:0.42,oscE:0.48,echP:0.58,echA:0.62};
+function mini(k,asy){                                              // asy : étiquette de l'asymptote en pointillés (ex. 'E'), facultative
+  const f=MINI_F[k], pos=MINI_POS[k], x0=14, x1=132, y0=pos?70:42, H=pos?56:34, X=u=>x0+u*(x1-x0-6), Y=v=>y0-v*H;
+  let d=''; for(let i=0;i<=90;i++){ const u=i/90; d+=(i?'L':'M')+X(u).toFixed(1)+' '+Y(f(u)).toFixed(1)+' '; }
+  let s='<path d="M'+x0+' 6 V'+(pos?70:78)+' M'+x0+' '+y0+' H'+x1+'" stroke="#8d98a8" stroke-width="1.3" fill="none"/>';
+  s+='<path d="M'+(x0-3.5)+' 11 L'+x0+' 4 L'+(x0+3.5)+' 11 Z M'+(x1-6)+' '+(y0-3.5)+' L'+(x1+1)+' '+y0+' L'+(x1-6)+' '+(y0+3.5)+' Z" fill="#8d98a8"/>';
+  if(asy&&MINI_ASY[k]!==undefined) s+='<path d="M'+x0+' '+Y(MINI_ASY[k])+' H'+(x1-8)+'" stroke="#8d98a8" stroke-width="1.2" stroke-dasharray="4 3" fill="none"/><text x="'+(x0-3)+'" y="'+(Y(MINI_ASY[k])+4)+'" text-anchor="end" style="font:italic 11px \'CMU Serif\',serif;fill:#1b2a41">'+asy+'</text>';
+  s+='<text x="'+(x1+1)+'" y="'+(y0+13)+'" text-anchor="end" style="font:italic 11px \'CMU Serif\',serif;fill:#6b7890">t</text>';
+  s+='<path d="'+d+'" stroke="#1b2a41" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>';
+  return '<svg class="mini" viewBox="0 0 140 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="courbe">'+s+'</svg>';
+}
+/* question « quelle courbe ? » : la bonne réponse et trois autres courbes */
+const QCOURBE=(sit,ok,faux,pr,asy,q)=>Qz(TX(''),sit,q||'Quelle courbe convient ?',mini(ok,asy),faux.map(k=>mini(k,asy)),pr,{large:0});
+
 const M4=(()=>{
 const it=I_, sb=(a,b)=>it(a)+'<sub>'+b+'</sub>', si=(a,b)=>it(a)+'<sub><i>'+b+'</i></sub>', vc=h=>'<span class="vec">'+h+'</span>';
 const pt=(s,n)=>'<span style="position:relative;display:inline-block;line-height:1">'+s+'<span style="position:absolute;left:0.12em;right:-0.04em;top:-0.16em;line-height:1;text-align:center;font-style:normal;font-weight:bold;pointer-events:none">'+(n===2?'¨':'˙')+'</span></span>';
@@ -2541,22 +2589,20 @@ const SOLU=[
  tq('On cherche les solutions de '+OH+'.','Quelle est leur forme générale ?',A+' '+cw+' + '+B+' '+sinw,[A+' '+ex('−'+w0+' '+t)+' + '+B,A+' '+t+' + '+B,A+' '+ex(w0+' '+t)+' + '+B+' '+ex('−'+w0+' '+t)],['Les solutions sont sinusoïdales, de pulsation '+w0+'.','On le vérifie en dérivant deux fois : '+xpp+' = −'+w02+' '+x]),
  eq(SOL+' La masse est lâchée sans vitesse en '+x+'(0) = '+d+'.',A,d,['0',FR(d,w0),'−'+d],[x+'(0) = '+A+' × 1 + '+B+' × 0 = '+A]),
  eq(SOL+' La masse est lâchée sans vitesse en '+x+'(0) = '+d+'.',B,'0',[d,FR(d,w0),d+' '+w0],[VIT+'.',xp+'(0) = '+B+' '+w0+' = 0']),
- eq('Un oscillateur harmonique de pulsation '+w0+' est lâché sans vitesse en '+x+'(0) = '+d+'.',x+'('+t+')',d+' '+cw,[d+' '+sinw,FR(d,w0)+' '+sinw,d+' '+ex('−'+w0+' '+t)],[x+'(0) = '+d+' donne '+A+' = '+d+'.',xp+'(0) = 0 donne '+B+' = 0']),
- eq(SOL+' La masse part de '+x+'(0) = 0 avec la vitesse '+xp+'(0) = '+v0+'.',B,FR(v0,w0),[v0,v0+' '+w0,'0'],[x+'(0) = '+A+' = 0.',xp+'(0) = '+B+' '+w0+' = '+v0]),
- eq('Un oscillateur harmonique de pulsation '+w0+' part de sa position d’équilibre '+x+'(0) = 0 avec la vitesse '+v0+'.',x+'('+t+')',FR(v0,w0)+' '+sinw,[v0+' '+sinw,FR(v0,w0)+' '+cw,v0+' '+cw],[x+'(0) = 0 donne '+A+' = 0.',xp+'(0) = '+v0+' donne '+B+' = '+FR(v0,w0)]),
- eq('Un oscillateur harmonique de pulsation '+w0+' part de '+x+'(0) = '+x0+' avec la vitesse '+xp+'(0) = '+v0+'.',x+'('+t+')',x0+' '+cw+' + '+FR(v0,w0)+' '+sinw,[x0+' '+cw+' + '+v0+' '+sinw,FR(v0,w0)+' '+cw+' + '+x0+' '+sinw,x0+' '+cw],[x+'(0) = '+A+' = '+x0+'.',xp+'(0) = '+B+' '+w0+' = '+v0],{large:1}),
- eq('La position d’un oscillateur est '+x+'('+t+') = '+d+' '+cw+'.',xp+'('+t+')','−'+d+' '+w0+' '+sinw,['+'+d+' '+w0+' '+sinw,'−'+d+' '+sinw,'−'+d+' '+w0+' '+cw],['La dérivée de cos('+w0+' '+t+') est −'+w0+' sin('+w0+' '+t+')']),
+ QCOURBE('Un oscillateur harmonique est lâché sans vitesse depuis '+x+'(0) = '+d+' &gt; 0.','cos',['sin','mcos','dcos'],['La courbe part de '+d+' avec une tangente horizontale.','Sans frottement, l’amplitude reste constante']),
+ eq(SOL+' La dérivée vaut '+xp+'(0) = '+B+' '+w0+'. La masse part de '+x+'(0) = 0 avec la vitesse '+v0+'.',B,FR(v0,w0),[v0,v0+' '+w0,'0'],[xp+'(0) = '+B+' '+w0+' = '+v0]),
+ QCOURBE('Un oscillateur harmonique part de sa position d’équilibre '+x+'(0) = 0 avec une vitesse positive.','sin',['cos','msin','dsin'],['La courbe part de 0 en montant.','Sans frottement, l’amplitude reste constante']),
+ tq('Un oscillateur harmonique part de '+x+'(0) = '+d+'.','Quelle fonction ne peut pas être sa position ?',d+' '+sinw,[d+' '+cw,d+' '+cw+' + '+FR(v0,w0)+' '+sinw,d+' cos('+w0+' '+t+') − '+d+' '+sinw],['On remplace '+t+' par 0 : sin 0 = 0, la fonction vaut 0 et non '+d]),
  eq('La position d’un oscillateur est '+x+'('+t+') = '+d+' '+cw+'.','Vitesse maximale',d+' '+w0,[d,FR(d,w0),d+' '+w02],[xp+'('+t+') = −'+d+' '+w0+' '+sinw+'.','Le sinus varie entre −1 et +1']),
  tq('Un oscillateur harmonique oscille entre −'+d+' et +'+d+'.','Où sa vitesse est-elle maximale ?','Au passage par la position d’équilibre',['Aux extrémités, en ±'+d,'À mi-chemin entre l’équilibre et une extrémité','Elle est la même partout'],['Position et vitesse sont en quadrature : la vitesse est maximale quand '+x+' = 0']),
  tq('Un oscillateur harmonique oscille entre −'+d+' et +'+d+'.','Où sa vitesse s’annule-t-elle ?','Aux extrémités, en ±'+d,['Au passage par la position d’équilibre','Nulle part','À mi-chemin entre l’équilibre et une extrémité'],['Aux extrémités, la masse fait demi-tour : sa vitesse change de signe']),
- eq('La position d’un oscillateur est '+x+'('+t+') = '+d+' '+cw+'.','Accélération maximale',d+' '+w02,[d+' '+w0,d,FR(d,w02)],[xpp+' = −'+w02+' '+x+'.','Elle est maximale quand |'+x+'| = '+d+', aux extrémités']),
  eq('Un oscillateur vérifie '+xpp+' + '+w02+' '+x+' = '+K+', avec '+K+' constante. On cherche une solution particulière constante.',sb('x','p'),FR(K,w02),[K,K+' '+w02,K+' '+t],['Pour une constante, '+xpp+' = 0 : il reste '+w02+' '+sb('x','p')+' = '+K]),
- eq('Un oscillateur de pulsation '+w0+' a pour position d’équilibre '+xe+'. Il est lâché sans vitesse en '+x+'(0) = '+xe+' + '+d+'.',x+'('+t+')',xe+' + '+d+' '+cw,[d+' '+cw,xe+' '+cw+' + '+d,'('+xe+' + '+d+') '+cw],[x+'('+t+') = '+A+' '+cw+' + '+B+' '+sinw+' + '+xe+'.',x+'(0) = '+A+' + '+xe+' donne '+A+' = '+d+' ; '+xp+'(0) = 0 donne '+B+' = 0'],{large:1}),
+ tq('Un oscillateur a pour position '+x+'('+t+') = '+xe+' + '+d+' '+cw+', avec '+d+' &gt; 0.','Entre quelles valeurs '+x+' oscille-t-il ?','Entre '+xe+' − '+d+' et '+xe+' + '+d,['Entre −'+d+' et +'+d,'Entre 0 et '+xe+' + '+d,'Entre '+xe+' et '+xe+' + '+d],['Le cosinus varie entre −1 et 1 : '+x+' oscille autour de la position d’équilibre '+xe+', avec l’amplitude '+d]),
  tq('Pour déterminer complètement la solution de '+OH+', il faut des conditions initiales.','Combien en faut-il ?','Deux : la position et la vitesse initiales',['Une : la position initiale','Une : la vitesse initiale','Trois'],['L’équation est du second ordre : la solution contient deux constantes, '+A+' et '+B]),
- eq('Un oscillateur harmonique est lâché sans vitesse en '+x+'(0) = −'+d+'.',x+'('+t+')','−'+d+' '+cw,['+'+d+' '+cw,'−'+d+' '+sinw,d+' '+sinw],[x+'(0) = '+A+' = −'+d+'.',xp+'(0) = 0 donne '+B+' = 0']),
+ QCOURBE('Un oscillateur harmonique est lâché sans vitesse depuis '+x+'(0) = −'+d+' &lt; 0.','mcos',['cos','msin','sin'],['La courbe part d’une valeur négative, avec une tangente horizontale']),
+ QCOURBE('Un oscillateur harmonique part de sa position d’équilibre '+x+'(0) = 0 avec une vitesse négative.','msin',['sin','mcos','dsin'],['La courbe part de 0 en descendant']),
  tq('On compare deux expériences avec le même système masse-ressort, lâché de deux positions différentes.','Qu’est-ce qui change ?','L’amplitude, mais pas la pulsation',['La pulsation, mais pas l’amplitude','L’amplitude et la pulsation','Ni l’une ni l’autre'],['L’amplitude dépend des conditions initiales.','La pulsation '+w0+' ne dépend que du système']),
- tq('La solution d’un oscillateur harmonique s’écrit aussi '+x+'('+t+') = '+xm+' cos('+w0+' '+t+' + '+phi+').','Que représentent '+xm+' et '+phi+' ?','L’amplitude et la phase à l’origine',['La position et la vitesse initiales','La période et la fréquence','La pulsation et la période'],[x+' oscille entre −'+xm+' et +'+xm+'.',phi+' fixe la valeur du cosinus à '+t+' = 0']),
- eq('Un oscillateur a pour position '+x+'('+t+') = '+A+' '+cw+' + '+B+' '+sinw+'.','Amplitude '+xm,rac(c2(A)+' + '+c2(B)),[A+' + '+B,rac(A+' + '+B),c2(A)+' + '+c2(B)],['Avec '+x+' = '+xm+' cos('+w0+' '+t+' + '+phi+') : '+A+' = '+xm+' cos '+phi+' et '+B+' = −'+xm+' sin '+phi+'.',c2(A)+' + '+c2(B)+' = '+c2(xm)])
+ tq('La solution d’un oscillateur harmonique s’écrit aussi '+x+'('+t+') = '+xm+' cos('+w0+' '+t+' + '+phi+').','Que représentent '+xm+' et '+phi+' ?','L’amplitude et la phase à l’origine',['La position et la vitesse initiales','La période et la fréquence','La pulsation et la période'],[x+' oscille entre −'+xm+' et +'+xm+'.',phi+' fixe la valeur du cosinus à '+t+' = 0'])
 ];
 const XD='La masse est lâchée sans vitesse : '+x+'('+t+') = '+d+' '+cw+'.';
 const COUR=[
@@ -2632,9 +2678,12 @@ const PSEUDO=[
  tq('Un oscillateur faiblement amorti a un facteur de qualité '+Q+' = 10.','Combien d’oscillations voit-on environ avant l’extinction ?','Une dizaine',['Une seule','Une centaine','Aucune'],['Pour un amortissement faible, '+Q+' correspond approximativement au nombre d’oscillations visibles']),
  tq('On observe des oscillations amorties.','Pourquoi parle-t-on de « pseudo »-période ?','Le mouvement ne se répète pas à l’identique : l’amplitude décroît',['La période change à chaque oscillation','Le mouvement n’oscille pas','La période est égale à '+T0],['Les passages par 0 sont régulièrement espacés, mais le mouvement n’est pas périodique']),
  eq(PSE+'. La masse part de '+x+'(0) = '+x0+'.',A,x0,['0',FR(x0,tau),x0+' '+w],[x+'(0) = 1 × ('+A+' × 1 + '+B+' × 0) = '+A]),
- eq(PSE+', avec '+A+' = '+x0+'. La dérivée donne '+xp+'(0) = '+B+' '+w+' − '+FR(A,tau)+'. La masse est lâchée sans vitesse.',B,FR(x0,tau+' '+w),[x0,FR(x0+' '+w,tau),'0'],[xp+'(0) = 0 : '+B+' '+w+' = '+FR(A,tau)+'.','On isole '+B+' et on remplace '+A+' par '+x0]),
+ eq('Régime critique, lâcher sans vitesse : '+x+'('+t+') = '+x0+' (1 + '+w0+' '+t+') '+ex('−'+w0+' '+t)+'.',x+'(0)',x0,['0',x0+' '+w0,'2 '+x0],['À '+t+' = 0 : '+x0+' × (1 + 0) × 1']),
+ tq('Régime critique, lâcher sans vitesse : '+x+'('+t+') = '+x0+' (1 + '+w0+' '+t+') '+ex('−'+w0+' '+t)+'.','Vers quoi tend '+x+' au bout d’un temps long ?','0',[x0,'L’infini','−'+x0],['L’exponentielle décroissante l’emporte sur le facteur 1 + '+w0+' '+t]),
  eq('Régime critique : '+CRI+'. La masse part de '+x+'(0) = '+x0+'.',B,x0,['0',w0+' '+x0,FR(x0,w0)],[x+'(0) = 1 × ('+A+' × 0 + '+B+') = '+B]),
- eq('Régime critique : '+CRI+', avec '+B+' = '+x0+'. La dérivée donne '+xp+'(0) = '+A+' − '+w0+' '+B+'. La masse est lâchée sans vitesse.',A,w0+' '+x0,[x0,FR(x0,w0),'0'],[xp+'(0) = 0 : '+A+' = '+w0+' '+B+'.','On remplace '+B+' par '+x0]),
+ QCOURBE('Oscillateur en régime pseudo-périodique, lâché sans vitesse depuis '+x+'(0) = '+x0+' &gt; 0.','dcos',['dsin','cos','aper'],['La courbe part de '+x0+' et oscille avec une amplitude qui décroît']),
+ QCOURBE('Oscillateur en régime pseudo-périodique, partant de '+x+'(0) = 0 avec une vitesse positive.','dsin',['dcos','sin','bosse'],['La courbe part de 0 en montant, puis oscille avec une amplitude qui décroît']),
+ QCOURBE('Un oscillateur amorti est en régime critique ou apériodique.','dcos',['aper','bosse','dec'],['Dans ces deux régimes, la masse revient à l’équilibre sans osciller'],null,'Quelle courbe est impossible ?'),
  tq('Régime apériodique : '+APE+'. La masse part de '+x+'(0) = '+x0+'.','Quelle relation obtient-on ?',A+' + '+B+' = '+x0,[A+' − '+B+' = '+x0,r1+' '+A+' + '+r2+' '+B+' = '+x0,A+' = '+x0],['À '+t+' = 0, les deux exponentielles valent 1'],{large:0}),
  tq('Régime apériodique : '+APE+'. La masse est lâchée sans vitesse.','Quelle relation obtient-on ?',r1+' '+A+' + '+r2+' '+B+' = 0',[A+' + '+B+' = 0',r1+' '+A+' − '+r2+' '+B+' = 0',FR(A,r1)+' + '+FR(B,r2)+' = 0'],[xp+'('+t+') = '+r1+' '+A+' '+ex(r1+' '+t)+' + '+r2+' '+B+' '+ex(r2+' '+t)+'.','À '+t+' = 0, les deux exponentielles valent 1'],{large:0}),
  tq('Un oscillateur amorti est écarté de sa position d’équilibre '+x+' = 0, puis lâché.','Vers quoi tend '+x+' au bout d’un temps long ?','Vers 0, quel que soit le régime',['Vers 0, seulement en régime apériodique','Vers sa valeur initiale','Il n’a pas de limite'],['Dans les trois régimes, la solution contient des exponentielles décroissantes'])
@@ -3073,6 +3122,128 @@ const ACT={
 return ACT;
 })();
 
+/* =====================================================================
+   1 duodecies. EL2 — ÉQUATIONS DIFFÉRENTIELLES, refonte du 24/11 (demande de Thomas : questions plus directes et plus ludiques)
+   Avant : équation + conditions initiales → choisir la solution complète (il fallait dériver de tête chaque réponse).
+   Maintenant : une seule idée par question — identification, forme, une constante à la fois, l'intrus, début et fin, la bonne courbe.
+   ===================================================================== */
+const EDIFF2=(()=>{
+const it=I_, sb=(a,b)=>it(a)+'<sub>'+b+'</sub>', ex=s=>'e<sup>'+s+'</sup>', c2=s=>s+'<sup>2</sup>';
+const u=it('u'), i=it('i'), x=u, t=it('t'), E=it('E'), R=it('R'), L=it('L'), C=it('C'), m=it('m'), g=it('g'), al=it('α'), k=it('k'), tau=it('τ'), A=it('A'), B=it('B'), Q=it('Q'), r=it('r'), w=it('ω');
+const U0=sb('U','0'), x0=U0, Um=sb('U','m'), w0=sb('ω','0'), w02=c2(w0), r1=sb('r','1'), r2=sb('r','2');
+const et=ex('−'+t+'/'+tau), e0=ex('−'+w0+' '+t), cw='cos('+w0+' '+t+')', sw='sin('+w0+' '+t+')', cW='cos('+w+' '+t+')', sW='sin('+w+' '+t+')';
+const du=DER(u), di=DER(i), d2u=DER(u,2), d2x=d2u, dx=du;
+const tq=(sit,q,ok,faux,pr,o)=>Qz(TX(''),sit,q,ok,faux,pr,Object.assign({large:1},o));
+const eq=(sit,cible,ok,faux,pr,o)=>Qz(TX(''),sit,QE(cible),ok,faux,pr,Object.assign({large:[ok].concat(faux).some(h=>h.replace(/<[^>]+>/g,'').length>13)},o));
+const EQ1=tau+' '+du+' + '+u+' = 0', EQ1E=tau+' '+du+' + '+u+' = '+E, OH=d2x+' + '+w02+' '+x+' = 0', CAN=d2x+' + '+FR(w0,Q)+' '+dx+' + '+w02+' '+x+' = 0';
+const SH=A+' '+et, SE=A+' '+et+' + '+E;
+
+/* ---------- niveau 1 : premier ordre, constante de temps et forme ---------- */
+const N1=[
+ eq('Circuit RC : '+R+' '+C+' '+du+' + '+u+' = 0.','Constante de temps '+tau,R+' '+C,[FR(R,C),FR('1',R+' '+C),FR(C,R)],['On compare à '+EQ1+' : le coefficient de la dérivée est '+tau]),
+ eq('Circuit RL : '+L+' '+di+' + '+R+' '+i+' = 0.','Constante de temps '+tau,FR(L,R),[L+' '+R,FR(R,L),FR('1',L+' '+R)],['On divise par '+R+' : '+FR(L,R)+' '+di+' + '+i+' = 0.','Le coefficient de la dérivée est '+tau]),
+ tq('On cherche les solutions de '+EQ1+'.','Quelle est leur forme ?',SH,[A+' '+ex('+'+t+'/'+tau),A+' '+t+' + '+B,A+' cos('+FR(t,tau)+')'],['Premier ordre sans second membre : une exponentielle décroissante, de temps caractéristique '+tau]),
+ tq('On cherche les solutions de '+EQ1E+'.','Quelle est leur forme ?',SE,[SH,A+' '+E+' '+et,A+' '+ex('+'+t+'/'+tau)+' + '+E],['Solution de l’équation sans second membre, plus une solution particulière constante']),
+ eq('On cherche une solution particulière constante de '+R+' '+C+' '+du+' + '+u+' = '+E+'.',sb('u','p'),E,[FR(E,R+' '+C),'0',E+' '+R+' '+C],['Pour une constante, la dérivée est nulle : il reste '+u+' = '+E]),
+ eq('On cherche une solution particulière constante de '+L+' '+di+' + '+R+' '+i+' = '+E+'.',sb('i','p'),FR(E,R),[E,FR(E,L),E+' '+R],['Pour une constante, la dérivée est nulle : il reste '+R+' '+i+' = '+E]),
+ tq('On veut écrire '+R+' '+C+' '+du+' + '+u+' = '+E+' sous forme canonique, avec '+tau+' = '+R+' '+C+'.','Laquelle est correcte ?',du+' + '+FR(u,tau)+' = '+FR(E,tau),[du+' + '+tau+' '+u+' = '+E,du+' + '+FR(u,tau)+' = '+E,du+' + '+u+' = '+FR(E,tau)],['On divise toute l’équation par '+tau+', second membre compris']),
+ tq('On considère la constante de temps '+tau+' d’un circuit du premier ordre.','Quelle est son unité ?','La seconde',['Le hertz','L’ohm','Elle est sans unité'],[FR(t,tau)+' est l’exposant d’une exponentielle : il doit être sans dimension']),
+ tq('On résout une équation différentielle linéaire avec second membre.','Comment obtient-on toutes les solutions ?','Solution de l’équation sans second membre + une solution particulière',['Solution particulière seule','Solution de l’équation sans second membre seule','Produit des deux solutions'],['La solution particulière donne le régime permanent ; l’autre terme décrit le régime transitoire']),
+ tq('On résout une équation différentielle du premier ordre.','Combien de conditions initiales faut-il ?','Une',['Aucune','Deux','Trois'],['La solution ne contient qu’une constante, '+A]),
+ tq('La solution de '+EQ1E+' s’écrit '+u+'('+t+') = '+SE+'.','Vers quoi tend '+u+' au bout d’un temps long ?',E,['0',A,A+' + '+E],['L’exponentielle tend vers 0 : il ne reste que la solution particulière']),
+ tq('On cherche le régime permanent de '+EQ1E+'.','Comment le trouver sans résoudre ?','En annulant la dérivée dans l’équation',['En posant '+t+' = 0','En posant '+u+' = 0','En dérivant l’équation'],['En régime permanent, '+u+' ne varie plus : '+du+' = 0, donc '+u+' = '+E]),
+ eq('Un condensateur vérifie '+EQ1+', avec '+u+'(0) = '+E+'.','Pente à l’origine '+du+'(0)','−'+FR(E,tau),['+'+FR(E,tau),'0','−'+E+' '+tau],['L’équation donne directement '+du+' = −'+FR(u,tau)+'.','À '+t+' = 0 : '+u+' = '+E]),
+ eq('Un condensateur vérifie '+EQ1E+', avec '+u+'(0) = 0.','Pente à l’origine '+du+'(0)',FR(E,tau),['0','−'+FR(E,tau),E+' '+tau],['L’équation donne directement '+du+' = '+FR(E+' − '+u,tau)+'.','À '+t+' = 0 : '+u+' = 0']),
+ tq('Dans un circuit RC, on double la résistance '+R+'.','Que devient la constante de temps ?','Elle double',['Elle est divisée par deux','Elle ne change pas','Elle quadruple'],[tau+' = '+R+' '+C+' est proportionnelle à '+R]),
+ tq('Dans un circuit RL, on double la résistance '+R+'.','Que devient la constante de temps ?','Elle est divisée par deux',['Elle double','Elle ne change pas','Elle quadruple'],[tau+' = '+FR(L,R)+' est inversement proportionnelle à '+R]),
+ tq('Un condensateur se décharge : '+u+'('+t+') = '+E+' '+et+'.','Que vaut '+u+' à la date '+t+' = '+tau+' ?','Environ 37 % de '+E,['Environ 63 % de '+E,'La moitié de '+E,'0'],[ex('−1')+' ≈ 0,37']),
+ tq('Un condensateur se charge : '+u+'('+t+') = '+E+' (1 − '+et+').','Que vaut '+u+' à la date '+t+' = '+tau+' ?','Environ 63 % de '+E,['Environ 37 % de '+E,'La moitié de '+E,E],['1 − '+ex('−1')+' ≈ 1 − 0,37 = 0,63']),
+ tq('On observe la charge ou la décharge d’un condensateur.','Au bout de quelle durée le régime permanent est-il pratiquement atteint ?','Environ 5 '+tau,['Environ '+tau,'Environ '+FR(tau,'2'),'Jamais, même approximativement'],[ex('−5')+' est inférieur à 1 % : le régime transitoire est terminé'])
+];
+
+/* ---------- niveau 2 : premier ordre, constante, début et fin, intrus, courbe ---------- */
+const N2=[
+ eq(u+'('+t+') = '+SH+', avec '+u+'(0) = '+E+'.',A,E,['−'+E,'0',FR(E,tau)],['À '+t+' = 0, l’exponentielle vaut 1 : '+u+'(0) = '+A]),
+ eq(u+'('+t+') = '+SE+', avec '+u+'(0) = 0.',A,'−'+E,[E,'0',FR(E,tau)],['À '+t+' = 0, l’exponentielle vaut 1 : '+u+'(0) = '+A+' + '+E+' = 0']),
+ eq(u+'('+t+') = '+SE+', avec '+u+'(0) = '+U0+'.',A,U0+' − '+E,[U0,E+' − '+U0,U0+' + '+E],['À '+t+' = 0 : '+A+' + '+E+' = '+U0]),
+ eq(i+'('+t+') = '+A+' '+et+' + '+FR(E,R)+', avec '+i+'(0) = 0.',A,'−'+FR(E,R),[FR(E,R),'0','−'+E],['À '+t+' = 0 : '+A+' + '+FR(E,R)+' = 0']),
+ eq('On donne '+u+'('+t+') = '+E+' (1 − '+et+').',u+'(0)','0',[E,'−'+E,FR(E,tau)],['À '+t+' = 0, l’exponentielle vaut 1 : '+E+' (1 − 1) = 0']),
+ tq('On donne '+u+'('+t+') = '+E+' (1 − '+et+').','Vers quoi tend '+u+' au bout d’un temps long ?',E,['0','−'+E,'2 '+E],['L’exponentielle tend vers 0 : il reste '+E]),
+ tq('On donne '+u+'('+t+') = '+E+' '+et+'.','Quelles sont la valeur initiale et la valeur finale ?',E+', puis 0',['0, puis '+E,E+', puis '+E,'0, puis 0'],['À '+t+' = 0 l’exponentielle vaut 1 ; au bout d’un temps long elle tend vers 0']),
+ eq('On donne '+u+'('+t+') = '+E+' + ('+U0+' − '+E+') '+et+'.',u+'(0)',U0,[E,U0+' − '+E,'0'],['À '+t+' = 0 : '+E+' + '+U0+' − '+E+' = '+U0]),
+ tq('On impose la condition initiale '+u+'(0) = 0.','Quelle fonction ne la vérifie pas ?',E+' '+et,[E+' (1 − '+et+')',E+' ('+et+' − 1)',E+' (1 − '+ex('−2'+t+'/'+tau)+')'],['On remplace '+t+' par 0 : '+E+' '+ex('0')+' = '+E+', et non 0']),
+ tq('On sait que '+u+' tend vers '+E+' au bout d’un temps long.','Quelle fonction ne convient pas ?','('+E+' − '+U0+') '+et,[E+' (1 − '+et+')',E+' + '+U0+' '+et,E+' − '+U0+' '+et],['Elle tend vers 0 : il lui manque le terme constant '+E]),
+ tq('Charge d’un condensateur : '+u+'(0) = 0 et '+u+' tend vers '+E+'.','Quelle est la solution ?',E+' (1 − '+et+')',[E+' '+et,E+' (1 + '+et+')',E+' ('+et+' − 1)'],['On teste '+t+' = 0, puis la limite : seule cette fonction vaut 0 au départ et tend vers '+E]),
+ tq('Décharge d’un condensateur : '+u+'(0) = '+U0+' et '+u+' tend vers 0.','Quelle est la solution ?',U0+' '+et,[U0+' (1 − '+et+')',U0+' + '+et,U0+' '+ex('+'+t+'/'+tau)],['On teste '+t+' = 0, puis la limite : seule cette fonction vaut '+U0+' au départ et tend vers 0']),
+ tq('Établissement du courant dans une bobine : '+i+'(0) = 0 et '+i+' tend vers '+FR(E,R)+'.','Quelle est la solution ?',FR(E,R)+' (1 − '+et+')',[FR(E,R)+' '+et,E+' (1 − '+et+')',FR(E,R)+' (1 + '+et+')'],['On teste '+t+' = 0, puis la limite']),
+ tq('Un condensateur initialement chargé sous '+U0+' est relié à un générateur : '+u+'(0) = '+U0+' et '+u+' tend vers '+E+'.','Quelle est la solution ?',E+' + ('+U0+' − '+E+') '+et,[U0+' + ('+E+' − '+U0+') '+et,E+' (1 − '+et+')',U0+' '+et],['À '+t+' = 0 : '+E+' + '+U0+' − '+E+' = '+U0+'.','Au bout d’un temps long : '+E]),
+ QCOURBE(EQ1+', avec '+u+'(0) = '+E+' &gt; 0.','dec',['mont','div','cst'],['Sans second membre : '+u+' part de '+E+' et décroît exponentiellement vers 0']),
+ QCOURBE(EQ1E+', avec '+u+'(0) = 0.','mont',['dec','div','decE'],[u+' part de 0 et tend vers '+E+', de plus en plus lentement'],'E'),
+ QCOURBE(EQ1E+', avec '+u+'(0) = '+U0+' et 0 &lt; '+U0+' &lt; '+E+'.','montU',['mont','decE','dec'],[u+' part d’une valeur non nulle, inférieure à '+E+', et monte vers '+E],'E'),
+ QCOURBE(EQ1E+', avec '+u+'(0) = '+U0+' &gt; '+E+'.','decE',['dec','montU','mont'],[u+' part d’une valeur supérieure à '+E+' et descend vers '+E+', pas vers 0'],'E'),
+ QCOURBE('Une fonction du temps est solution de '+EQ1+', avec '+tau+' &gt; 0.','dec',['div','sin','cst'],['La solution est '+SH+' : elle ne peut ni diverger, ni osciller, ni rester constante et non nulle'],null,'Quelle courbe est possible ?')
+];
+
+/* ---------- niveau 3 : second ordre, régime et forme ---------- */
+const PSE=ex('−'+t+'/'+tau)+' ('+A+' '+cW+' + '+B+' '+sW+')', CRI='('+A+' '+t+' + '+B+') '+e0, APE=A+' '+ex(r1+' '+t)+' + '+B+' '+ex(r2+' '+t), HAR=A+' '+cw+' + '+B+' '+sw;
+const REG=['Pseudo-périodique','Critique','Apériodique','Harmonique (sans amortissement)'], reg=k=>[REG[k],REG.filter((_,j)=>j!==k)];
+const EC=c2(r)+' + '+FR(w0,Q)+' '+r+' + '+w02+' = 0';
+const N3=[
+ tq('La tension aux bornes d’un condensateur vérifie '+OH+'.','De quel circuit s’agit-il ?','Un circuit LC, sans résistance',['Un circuit RLC série','Un circuit RC','Un circuit RL'],['Il n’y a pas de terme en '+dx+' : aucune résistance ne dissipe l’énergie']),
+ tq('On cherche les solutions de '+OH+'.','Quelle est leur forme ?',HAR,[SH,APE,CRI],['Les solutions sont sinusoïdales, de pulsation '+w0]),
+ eq('Circuit LC : '+L+' '+C+' '+d2u+' + '+u+' = 0.','Pulsation propre '+w0,FR('1','√('+L+' '+C+')'),['√('+L+' '+C+')',FR('1',L+' '+C),L+' '+C],['On divise par '+L+' '+C+' : '+d2u+' + '+FR(u,L+' '+C)+' = 0.','On identifie '+w02+' = '+FR('1',L+' '+C)]),
+ tq('On veut écrire l’équation d’un circuit RLC série avec sa pulsation propre '+w0+' et son facteur de qualité '+Q+'.','Quelle est la forme canonique ?',CAN,[d2x+' + '+Q+' '+w0+' '+dx+' + '+w02+' '+x+' = 0',d2x+' + '+FR(w0,Q)+' '+dx+' + '+w0+' '+x+' = 0',d2x+' + '+FR(Q,w0)+' '+dx+' + '+w02+' '+x+' = 0'],['Le coefficient de '+x+' est '+w02+', celui de '+dx+' est '+FR(w0,Q)]),
+ eq('Circuit RLC série : '+d2u+' + '+FR(R,L)+' '+du+' + '+FR('1',L+' '+C)+' '+u+' = 0. On identifie avec la forme canonique.',FR(w0,Q),FR(R,L),[FR('1',L+' '+C),FR(L,R),R+' '+C],['Le coefficient de la dérivée première est '+FR(w0,Q)]),
+ tq('On cherche les solutions de '+CAN+' sous la forme '+ex(r+' '+t)+'.','Quelle est l’équation caractéristique ?',EC,[c2(r)+' + '+w02+' = 0',r+' + '+FR(w0,Q)+' = 0',c2(r)+' − '+FR(w0,Q)+' '+r+' + '+w02+' = 0'],['Chaque dérivation multiplie par '+r+' : '+d2x+' donne '+c2(r)+', '+dx+' donne '+r]),
+ tq('Le discriminant de l’équation caractéristique est négatif.','Quel est le régime ?',...reg(0),['Racines complexes conjuguées : la solution oscille en s’amortissant']),
+ tq('Le discriminant de l’équation caractéristique est nul.','Quel est le régime ?',...reg(1),['Racine double : c’est la limite entre les deux autres régimes']),
+ tq('Le discriminant de l’équation caractéristique est positif.','Quel est le régime ?',...reg(2),['Deux racines réelles négatives : la solution revient à l’équilibre sans osciller']),
+ tq('Un circuit RLC série a un facteur de qualité '+Q+' = 5.','Quel est le régime ?',...reg(0),[Q+' &gt; '+FR('1','2')+' : l’amortissement est faible, le circuit oscille']),
+ tq('Un circuit RLC série a un facteur de qualité '+Q+' = 0,2.','Quel est le régime ?',...reg(2),[Q+' &lt; '+FR('1','2')+' : l’amortissement est fort, pas d’oscillation']),
+ tq('Un circuit RLC série a un facteur de qualité '+Q+' = '+FR('1','2')+'.','Quel est le régime ?',...reg(1),[Q+' = '+FR('1','2')+' : c’est la valeur limite']),
+ tq('Un circuit RLC série est en régime pseudo-périodique.','Quelle est la forme de la solution ?',PSE,[CRI,APE,HAR],['Une sinusoïde dont l’amplitude est enveloppée par une exponentielle décroissante']),
+ tq('Un circuit RLC série est en régime critique.','Quelle est la forme de la solution ?',CRI,[PSE,APE,HAR],['Racine double '+r+' = −'+w0+' : une fonction affine multipliée par '+e0]),
+ tq('Un circuit RLC série est en régime apériodique.','Quelle est la forme de la solution ?',APE,[PSE,CRI,HAR],['Deux racines réelles '+r1+' et '+r2+' : une somme de deux exponentielles décroissantes']),
+ tq('Dans un circuit RLC série, la tension s’écrit '+x+'('+t+') = '+CRI+'.','Quel est le régime ?',...reg(1),['Une fonction affine multipliée par une exponentielle : c’est la forme du régime critique']),
+ tq('Dans un circuit RLC série, la tension s’écrit '+x+'('+t+') = '+PSE+'.','Quel est le régime ?',...reg(0),['Un cosinus et un sinus enveloppés par une exponentielle décroissante']),
+ tq('Dans un circuit RLC série, la tension s’écrit '+x+'('+t+') = '+APE+', avec '+r1+' et '+r2+' réels négatifs.','Quel est le régime ?',...reg(2),['Une somme de deux exponentielles décroissantes, sans oscillation']),
+ eq('On cherche une solution particulière constante de '+d2u+' + '+FR(w0,Q)+' '+du+' + '+w02+' '+u+' = '+w02+' '+E+'.',sb('u','p'),E,[w02+' '+E,FR(E,w02),'0'],['Pour une constante, les deux dérivées sont nulles : '+w02+' '+u+' = '+w02+' '+E]),
+ tq('On résout une équation différentielle du second ordre.','Combien de conditions initiales faut-il ?','Deux : la valeur initiale et la dérivée initiale',['Une : la valeur initiale','Une : la dérivée initiale','Trois'],['La solution contient deux constantes, '+A+' et '+B])
+];
+
+/* ---------- niveau 4 : second ordre, constantes, intrus, début et fin, courbe ---------- */
+const LACH='avec '+u+'(0) = '+U0+' &gt; 0 et '+du+'(0) = 0';
+const N4=[
+ eq(x+'('+t+') = '+HAR+', avec '+x+'(0) = '+x0+'.',A,x0,['0',FR(x0,w0),x0+' '+w0],['À '+t+' = 0 : cos 0 = 1 et sin 0 = 0, donc '+x+'(0) = '+A]),
+ eq(x+'('+t+') = '+HAR+'. La dérivée vaut '+dx+'(0) = '+B+' '+w0+'. On impose '+dx+'(0) = 0.',B,'0',[x0,FR(x0,w0),w0],[dx+'(0) = '+B+' '+w0+' = 0']),
+ eq(x+'('+t+') = '+HAR+', avec '+x+'(0) = 0.',A,'0',[x0,B,'1'],['À '+t+' = 0 : '+x+'(0) = '+A]),
+ eq(x+'('+t+') = '+CRI+', avec '+x+'(0) = '+x0+'.',B,x0,['0',w0+' '+x0,FR(x0,w0)],['À '+t+' = 0 : ('+A+' × 0 + '+B+') × 1 = '+B]),
+ tq(x+'('+t+') = '+APE+', avec '+x+'(0) = '+x0+'.','Quelle relation obtient-on ?',A+' + '+B+' = '+x0,[A+' − '+B+' = '+x0,r1+' '+A+' + '+r2+' '+B+' = '+x0,A+' '+B+' = '+x0],['À '+t+' = 0, les deux exponentielles valent 1']),
+ eq(x+'('+t+') = '+PSE+', avec '+x+'(0) = '+x0+'.',A,x0,['0',FR(x0,tau),x0+' '+w],['À '+t+' = 0 : 1 × ('+A+' × 1 + '+B+' × 0) = '+A]),
+ eq(u+'('+t+') = '+A+' '+cw+' + '+B+' '+sw+' + '+E+', avec '+u+'(0) = 0.',A,'−'+E,[E,'0',FR(E,w0)],['À '+t+' = 0 : '+A+' + '+E+' = 0']),
+ tq('On impose la condition initiale '+x+'(0) = '+x0+'.','Quelle fonction ne la vérifie pas ?',x0+' '+sw,[x0+' '+cw,x0+' '+ex('−'+t+'/'+tau)+' '+cW,x0+' (1 + '+w0+' '+t+') '+e0],['On remplace '+t+' par 0 : sin 0 = 0, la fonction vaut 0 et non '+x0]),
+ tq('Dans un circuit RLC série sans générateur, la tension '+u+' finit par s’annuler.','Quelle fonction ne peut pas la décrire ?',x0+' '+cw,[x0+' '+ex('−'+t+'/'+tau)+' '+cW,x0+' (1 + '+w0+' '+t+') '+e0,x0+' '+ex('−'+t+'/'+tau)],['Elle oscille indéfiniment sans s’amortir : elle ne tend pas vers 0']),
+ eq('Régime critique, avec '+du+'(0) = 0 : '+x+'('+t+') = '+x0+' (1 + '+w0+' '+t+') '+e0+'.',x+'(0)',x0,['0',x0+' '+w0,'2 '+x0],['À '+t+' = 0 : '+x0+' × (1 + 0) × 1']),
+ tq('Régime critique, avec '+du+'(0) = 0 : '+x+'('+t+') = '+x0+' (1 + '+w0+' '+t+') '+e0+'.','Vers quoi tend '+x+' au bout d’un temps long ?','0',[x0,'L’infini','−'+x0],['L’exponentielle décroissante l’emporte sur le facteur 1 + '+w0+' '+t]),
+ tq('Circuit LC soumis à un échelon : '+u+'('+t+') = '+E+' (1 − '+cw+').','Entre quelles valeurs '+u+' oscille-t-elle ?','Entre 0 et 2 '+E,['Entre −'+E+' et '+E,'Entre 0 et '+E,'Entre '+E+' et 2 '+E],['Le cosinus varie entre −1 et 1 : 1 − cos varie entre 0 et 2']),
+ tq('Circuit RLC soumis à un échelon : '+u+'('+t+') = '+E+' [1 − '+ex('−'+t+'/'+tau)+' '+cW+'].','Vers quoi tend '+u+' au bout d’un temps long ?',E,['0','2 '+E,'Elle n’a pas de limite'],['L’exponentielle tend vers 0 : il reste '+E]),
+ tq('Circuit LC, '+LACH+'.','Quelle est la solution ?',x0+' '+cw,[x0+' '+sw,'−'+x0+' '+cw,FR(x0,w0)+' '+sw],['Il faut '+x+'(0) = '+x0+' : cela élimine les sinus et −'+x0+' cos.','Le cosinus démarre bien avec une pente nulle']),
+ tq('Circuit LC, avec '+u+'(0) = 0 et '+du+'(0) &gt; 0. On note '+Um+' &gt; 0 l’amplitude.','Quelle est la solution ?',Um+' '+sw,[Um+' '+cw,'−'+Um+' '+sw,'−'+Um+' '+cw],['Il faut '+u+'(0) = 0 : cela élimine les cosinus.','La tension commence par augmenter : le sinus doit avoir un coefficient positif']),
+ QCOURBE('Circuit LC : '+OH+', '+LACH+'.','cos',['sin','dcos','dec'],['Sans amortissement, l’amplitude reste constante.','La courbe part de '+x0+' avec une tangente horizontale']),
+ QCOURBE('Circuit LC : '+OH+', avec '+u+'(0) = 0 et '+du+'(0) &gt; 0.','sin',['cos','msin','dsin'],['La courbe part de 0 en montant, et son amplitude reste constante']),
+ QCOURBE('Circuit RLC série de facteur de qualité '+Q+' = 5, '+LACH+'.','dcos',['cos','aper','dsin'],[Q+' &gt; '+FR('1','2')+' : régime pseudo-périodique.','La courbe part de '+x0+' et oscille avec une amplitude qui décroît']),
+ QCOURBE('Circuit RLC série de facteur de qualité '+Q+' = 0,2, '+LACH+'.','aper',['dcos','cos','bosse'],[Q+' &lt; '+FR('1','2')+' : régime apériodique.','La courbe part de '+x0+' et revient vers 0 sans osciller']),
+ QCOURBE('Circuit RLC série en régime critique, avec '+u+'(0) = 0 et '+du+'(0) &gt; 0.','bosse',['aper','dsin','sin'],['La courbe part de 0 en montant, passe par un maximum et revient vers 0 sans osciller']),
+ QCOURBE('Circuit LC soumis à un échelon : '+d2u+' + '+w02+' '+u+' = '+w02+' '+E+', avec '+u+'(0) = 0 et '+du+'(0) = 0.','oscE',['echP','cos','mont'],['Sans amortissement, '+u+' oscille indéfiniment autour de '+E+', entre 0 et 2 '+E],'E'),
+ QCOURBE('Circuit RLC soumis à un échelon '+E+', avec '+Q+' = 5 ; '+u+'(0) = 0 et '+du+'(0) = 0.','echP',['echA','oscE','mont'],['Régime pseudo-périodique : '+u+' dépasse '+E+', puis oscille autour de '+E+' en s’amortissant'],'E'),
+ QCOURBE('Circuit RLC soumis à un échelon '+E+', avec '+Q+' = 0,2 ; '+u+'(0) = 0 et '+du+'(0) = 0.','echA',['echP','oscE','dec'],['Régime apériodique : '+u+' monte vers '+E+' sans jamais le dépasser'],'E')
+];
+
+const NIV=[{nom:'Premier ordre : constante de temps et forme', c:N1},{nom:'Premier ordre : constante, début, fin, courbe', c:N2},{nom:'Second ordre : régime et forme', c:N3},{nom:'Second ordre : constantes, intrus, courbes', c:N4}];
+NIV.forEach(nv=>nv.c.forEach(q=>{ q.o.pr=q.o.pr.map(e=>e.replace(/\.$/,'')); }));
+return NIV;
+})();
+
 const COMPETENCES=[
  {id:'C1', code:'C1', titre:'Structure de la matière',
   exos:[
@@ -3123,7 +3294,7 @@ const COMPETENCES=[
   exos:[
    {id:'ci', titre:'Conditions initiales', desc:'Valeur d’une grandeur juste après la manœuvre de K, à <i>t</i> = 0<sup>+</sup>.', niveaux:NIVEAUX},
    {id:'rp', titre:'Régime permanent', desc:'Valeur d’une grandeur en régime permanent, avant la manœuvre de K ou quand <i>t</i> → ∞.', niveaux:NIVEAUX},
-   {id:'ed', titre:'Équations différentielles', desc:'Solution d’une équation différentielle avec ses conditions initiales.', niveaux:EDIFF}
+   {id:'ed', titre:'Équations différentielles', desc:'Constante de temps, régime, forme de la solution, constantes, valeurs initiale et finale, allure des courbes.', niveaux:EDIFF2}
   ]}
 ];
 
@@ -3321,7 +3492,8 @@ const nbQ=(c,e,k)=>NBQ[c.id+'.'+e.id+k]||(NBQ[c.id+'.'+e.id+k]=questions(e,e.niv
 function points(P,E){
   let s=0;
   COMPETENCES.forEach(c=>c.exos.forEach(e=>{ const cle=c.id+'.'+e.id, mv=masqueV(P,cle,e.niveaux.length);
-    for(let k=0;k<e.niveaux.length;k++) if(mv>>k&1) s+=10+Math.max(0,Math.min(bits(P[cle+'_q'+k]||0),nbQ(c,e,k))-5)+((P[cle+'_c']||0)>>k&1? 20+3*(P[cle+'_r'+k]||0) : 0); }));
+    for(let k=0;k<e.niveaux.length;k++) if(mv>>k&1){ const roi=(P[cle+'_c']||0)>>k&1, b=bits(P[cle+'_q'+k]||0);          // niveau couronné : on garde le nombre de questions cochées à l'époque, même si le niveau a été raccourci depuis
+      s+=10+Math.max(0,(roi? b : Math.min(b,nbQ(c,e,k)))-5)+(roi? 20+3*(P[cle+'_r'+k]||0) : 0); } }));
   return Math.max(0,s-Object.values(E||{}).reduce((a,b)=>a+(+b||0),0));
 }
 function bilan(P,E){                                             // niveaux validés, couronnes, échecs (affichés dans le classement)
